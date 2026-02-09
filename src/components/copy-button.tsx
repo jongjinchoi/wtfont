@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Button } from "./ui/button";
 
 export function CopyButton({
   text,
@@ -19,13 +18,12 @@ export function CopyButton({
   }, [text]);
 
   return (
-    <Button
-      variant="secondary"
+    <button
       onClick={handleCopy}
-      className="min-w-[70px] text-xs"
+      className="text-xs font-mono text-[#555] hover:text-[#ccc] transition-colors duration-200 cursor-pointer"
       aria-label={copied ? "Copied!" : label}
     >
-      {copied ? <span className="text-emerald-400">Copied!</span> : label}
-    </Button>
+      {copied ? <span className="text-[#4ade80]">Copied!</span> : label}
+    </button>
   );
 }

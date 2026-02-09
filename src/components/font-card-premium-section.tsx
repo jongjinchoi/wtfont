@@ -9,7 +9,7 @@ export function FontCardPremiumSection({ font }: { font: MatchedFont }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Badge variant="paid" />
+          <Badge variant="custom" />
           <div>
             <p className="text-sm font-medium text-zinc-100">
               {font.originalName}

@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { FontCard } from "@/components/font-card";
 import { ShareButton } from "@/components/share-button";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { AnalysisResult } from "@/types/font";
 import type { AnalyzeResponse, AnalyzeErrorResponse } from "@/types/api";
+
+interface LogLine {
+  text: string;
+  type: "command" | "info" | "success" | "error";
+}
 
 export function ResultPageClient({
   initialData,
@@ -20,7 +24,63 @@ export function ResultPageClient({
   const [data, setData] = useState<AnalysisResult | null>(initialData ?? null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(!initialData);
+  const [logs, setLogs] = useState<LogLine[]>([]);
+  const [showResults, setShowResults] = useState(!!initialData);
+  const startTime = useRef(Date.now());
 
+  const domain = url
+    ? url.replace(/^https?:\/\//, "").split("/")[0]
+    : "";
+
+  // Build loading log sequence
+  useEffect(() => {
+    if (initialData || !url) return;
+
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    startTime.current = Date.now();
+
+    setLogs([{ text: `wtfont analyze ${domain}`, type: "command" }]);
+
+    timers.push(
+      setTimeout(() => {
+        setLogs((prev) => [
+          ...prev,
+          { text: `Connecting to ${domain}...`, type: "info" },
+        ]);
+      }, 400)
+    );
+
+    timers.push(
+      setTimeout(() => {
+        setLogs((prev) => [
+          ...prev,
+          { text: "Connected", type: "success" },
+        ]);
+      }, 1200)
+    );
+
+    timers.push(
+      setTimeout(() => {
+        setLogs((prev) => [
+          ...prev,
+          { text: "Parsing CSS & finding fonts...", type: "info" },
+        ]);
+      }, 1800)
+    );
+
+    timers.push(
+      setTimeout(() => {
+        setLogs((prev) => [
+          ...prev,
+          { text: "Matching free alternatives...", type: "info" },
+        ]);
+      }, 2500)
+    );
+
+    return () => timers.forEach(clearTimeout);
+  }, [initialData, url, domain]);
+
+  // Fetch data
   useEffect(() => {
     if (initialData || !url) return;
 
@@ -38,11 +98,29 @@ export function ResultPageClient({
 
         if (!json.success) {
           setError(json.error);
+          setLogs((prev) => [
+            ...prev,
+            { text: `Error: ${json.error}`, type: "error" },
+          ]);
         } else {
+          const elapsed = Date.now() - startTime.current;
           setData(json.data);
+          setLogs((prev) => [
+            ...prev,
+            {
+              text: `Found ${json.data.matchedFonts.length} font${json.data.matchedFonts.length !== 1 ? "s" : ""} (${elapsed}ms)`,
+              type: "success",
+            },
+            { text: "Analysis complete", type: "success" },
+          ]);
+          setTimeout(() => setShowResults(true), 500);
         }
       } catch {
         setError("Failed to analyze. Please try again.");
+        setLogs((prev) => [
+          ...prev,
+          { text: "Connection failed", type: "error" },
+        ]);
       } finally {
         setLoading(false);
       }
@@ -52,81 +130,117 @@ export function ResultPageClient({
   }, [initialData, url]);
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="min-h-screen pt-24 pb-12 px-4">
-        <div className="mx-auto max-w-3xl space-y-8">
-          {/* Header section */}
-          {data && (
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-semibold text-zinc-100">
-                  Fonts on{" "}
-                  <span className="text-brand">{data.domain}</span>
-                </h1>
-                <p className="text-sm text-zinc-500 mt-1">
-                  {data.matchedFonts.length} font
-                  {data.matchedFonts.length !== 1 && "s"} detected
-                </p>
-              </div>
-              <ShareButton
-                url={data.url}
-                domain={data.domain}
-                fontCount={data.matchedFonts.length}
-              />
-            </div>
-          )}
-
-          {/* Loading state */}
-          {loading && (
-            <div className="space-y-6">
-              <div>
-                <Skeleton className="h-8 w-64 mb-2" />
-                <Skeleton className="h-4 w-32" />
-              </div>
-              {[1, 2, 3].map((i) => (
+      <main className="flex-1 py-8">
+        <div className="mx-auto max-w-content px-page-px space-y-8">
+          {/* Terminal log */}
+          {!initialData && (
+            <div className="space-y-1 font-mono text-sm">
+              {logs.map((log, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 space-y-4"
+                  className="animate-fade-in-line"
+                  style={{ animationDelay: `${i * 0.1}s` }}
                 >
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-5 w-5 rounded-full" />
-                    <Skeleton className="h-5 w-40" />
-                  </div>
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-32 w-full" />
+                  {log.type === "command" && (
+                    <span className="text-[#ccc]">
+                      <span className="text-brand">$</span> {log.text}
+                    </span>
+                  )}
+                  {log.type === "info" && (
+                    <span className="text-[#666]">{log.text}</span>
+                  )}
+                  {log.type === "success" && (
+                    <span className="text-[#4ade80]">
+                      <span className="mr-1">+</span>
+                      {log.text}
+                    </span>
+                  )}
+                  {log.type === "error" && (
+                    <span className="text-red-400">
+                      <span className="mr-1">x</span>
+                      {log.text}
+                    </span>
+                  )}
                 </div>
               ))}
-              <p className="text-sm text-zinc-500 text-center animate-pulse">
-                Analyzing fonts and finding alternatives...
-              </p>
+              {loading && (
+                <span className="inline-block w-2 h-4 bg-[#ccc] animate-blink mt-1" />
+              )}
             </div>
           )}
 
           {/* Error state */}
-          {error && (
-            <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-8 text-center">
-              <p className="text-red-400 text-sm">{error}</p>
+          {error && !loading && (
+            <div className="border border-red-500/20 bg-red-500/5 p-4 text-sm animate-fade-in-line">
+              <p className="text-red-400">{error}</p>
               <Link
                 href="/"
-                className="inline-block mt-4 text-xs text-zinc-400 hover:text-zinc-200 underline transition-colors duration-200"
+                className="inline-block mt-3 text-xs text-[#666] hover:text-[#ccc] underline underline-offset-2 transition-colors duration-200"
               >
-                Try another URL
+                &lt;- Back to home
               </Link>
             </div>
           )}
 
           {/* Results */}
-          {data && (
-            <div className="space-y-6">
+          {showResults && data && (
+            <div className="space-y-6 animate-fade-in-line">
+              {/* Summary */}
+              <div className="border-t border-terminal-border pt-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1 text-sm font-mono">
+                    <div>
+                      <span className="text-[#666]">domain: </span>
+                      <span className="text-brand">{data.domain}</span>
+                    </div>
+                    <div>
+                      <span className="text-[#666]">fonts: </span>
+                      <span className="text-[#ccc]">
+                        {data.matchedFonts.length} detected
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[#666]">date: </span>
+                      <span className="text-[#ccc]">
+                        {new Date(data.analyzedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <ShareButton
+                    url={data.url}
+                    domain={data.domain}
+                    fontCount={data.matchedFonts.length}
+                  />
+                </div>
+              </div>
+
+              {/* Font cards */}
               {data.matchedFonts.map((font, i) => (
-                <FontCard key={`${font.originalName}-${i}`} font={font} />
+                <div
+                  key={`${font.originalName}-${i}`}
+                  className="animate-fade-in-line"
+                  style={{ animationDelay: `${(i + 1) * 0.15}s` }}
+                >
+                  <FontCard font={font} index={i} />
+                </div>
               ))}
+
+              {/* Back link */}
+              <div className="pt-4 border-t border-terminal-border">
+                <Link
+                  href="/"
+                  className="text-xs text-[#666] hover:text-[#ccc] transition-colors duration-200"
+                >
+                  <span className="text-brand">$</span> cd ~
+                </Link>
+              </div>
             </div>
           )}
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

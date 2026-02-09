@@ -42,11 +42,11 @@ export function FrameworkTabs({
               role="tab"
               aria-selected={active === fw.id}
               onClick={() => setActive(fw.id)}
-              className={`px-2.5 py-1 text-xs font-mono rounded-md transition-colors duration-200 cursor-pointer
+              className={`px-2 py-0.5 text-xs font-mono rounded transition-colors duration-200 cursor-pointer
                 ${
                   active === fw.id
                     ? "bg-brand/20 text-brand border border-brand/30"
-                    : "text-zinc-500 hover:text-zinc-300 border border-transparent"
+                    : "text-[#555] hover:text-[#ccc] border border-transparent"
                 }`}
             >
               {fw.label}

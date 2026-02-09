@@ -43,7 +43,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${GeistPixelSquare.variable} dark`}
       suppressHydrationWarning
     >
-      <body className="font-sans antialiased bg-zinc-950 text-zinc-100">
+      <body className="font-mono antialiased bg-terminal-bg text-[#ccc]">
         {children}
       </body>
     </html>

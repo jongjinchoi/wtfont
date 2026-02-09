@@ -1,31 +1,28 @@
 import { Header } from "@/components/header";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Footer } from "@/components/footer";
 
 export default function ResultLoading() {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="min-h-screen pt-24 pb-12 px-4">
-        <div className="mx-auto max-w-3xl space-y-6">
-          <div>
-            <Skeleton className="h-8 w-64 mb-2" />
-            <Skeleton className="h-4 w-32" />
-          </div>
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 space-y-4"
-            >
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-5 w-5 rounded-full" />
-                <Skeleton className="h-5 w-40" />
-              </div>
-              <Skeleton className="h-16 w-full" />
-              <Skeleton className="h-32 w-full" />
+      <main className="flex-1 px-6 py-8">
+        <div className="mx-auto max-w-3xl">
+          <div className="space-y-1 font-mono text-sm">
+            <div className="animate-fade-in-line">
+              <span className="text-brand">$</span>
+              <span className="text-[#ccc]"> wtfont analyze ...</span>
             </div>
-          ))}
+            <div
+              className="animate-fade-in-line"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <span className="text-[#666]">Connecting...</span>
+            </div>
+            <span className="inline-block w-2 h-4 bg-[#ccc] animate-blink mt-1" />
+          </div>
         </div>
       </main>
-    </>
+      <Footer />
+    </div>
   );
 }

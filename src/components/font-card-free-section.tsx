@@ -1,5 +1,4 @@
 import type { MatchedFont } from "@/types/font";
-import { Badge } from "./ui/badge";
 import { CodeBlock } from "./code-block";
 import { generateFreeImportCode } from "@/lib/code-templates";
 
@@ -9,21 +8,18 @@ export function FontCardFreeSection({ font }: { font: MatchedFont }) {
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-emerald-500/10 bg-emerald-500/5 p-4">
+    <div className="space-y-3 rounded-lg border border-[#4ade80]/15 bg-[#4ade80]/5 p-3">
       <div className="flex items-center gap-3">
-        <Badge variant="free" />
+        <span className="text-xs font-mono text-[#4ade80]">FREE</span>
         <div>
-          <p className="text-sm font-medium text-zinc-100">
+          <p className="text-sm font-medium text-[#ccc]">
             {font.alternativeName}
           </p>
-          <p className="text-xs text-zinc-500">{font.similarity}</p>
+          <p className="text-xs text-[#555]">{font.similarity}</p>
         </div>
       </div>
 
-      <CodeBlock
-        code={generateFreeImportCode(font)}
-        language="html"
-      />
+      <CodeBlock code={generateFreeImportCode(font)} language="html" />
     </div>
   );
 }

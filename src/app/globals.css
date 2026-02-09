@@ -3,11 +3,42 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Layout */
+    --max-width: 768px;
+    --page-px: 24px;
+
+    /* Spacing */
+    --space-line: 4px;
+    --space-section: 16px;
+    --space-bar-y: 8px;
+
+    /* Colors */
+    --color-brand: #f97316;
+    --color-success: #4ade80;
+    --color-error: #ef4444;
+
+    --color-terminal-bg: #1c1c1c;
+    --color-terminal-surface: #252525;
+    --color-terminal-border: #333333;
+    --color-terminal-text: #cccccc;
+    --color-terminal-muted: #888888;
+    --color-terminal-subtle: #555555;
+    --color-terminal-dim: #444444;
+  }
+
   html {
     color-scheme: dark;
   }
+}
 
-  html.light {
-    color-scheme: light;
+@layer utilities {
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .animate-blink {
+    animation: blink 1s step-end infinite;
   }
 }

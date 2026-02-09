@@ -38,11 +38,11 @@ export function FontPreview({
           <button
             key={s}
             onClick={() => setSize(s)}
-            className={`px-2 py-1 text-xs rounded font-mono cursor-pointer transition-colors duration-200
+            className={`px-2 py-0.5 text-xs rounded font-mono cursor-pointer transition-colors duration-200
               ${
                 size === s
-                  ? "bg-brand text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+                  ? "bg-brand/20 text-brand border border-brand/30"
+                  : "text-[#555] hover:text-[#ccc] border border-terminal-border"
               }`}
             aria-label={`Set preview size to ${s}px`}
           >
@@ -53,7 +53,7 @@ export function FontPreview({
       <div
         contentEditable
         suppressContentEditableWarning
-        className="p-4 rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/50 min-h-[60px] transition-opacity duration-200"
+        className="p-3 rounded-lg border border-terminal-border bg-[#1a1a1a] text-[#ccc] focus:outline-none focus:ring-1 focus:ring-brand/50 min-h-[60px] transition-opacity duration-200"
         style={{
           fontFamily: `'${fontName}', sans-serif`,
           fontSize: `${size}px`,
@@ -65,7 +65,7 @@ export function FontPreview({
       >
         {defaultText}
       </div>
-      <p className="text-xs text-zinc-500">Click to edit the preview text</p>
+      <p className="text-xs text-[#555]">Click to edit the preview text</p>
     </div>
   );
 }
