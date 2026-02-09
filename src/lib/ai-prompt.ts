@@ -1,0 +1,51 @@
+import { z } from "zod";
+import type { ExtractedFont } from "@/types/font";
+
+export const matchedFontSchema = z.object({
+  role: z.enum(["heading", "body", "display", "monospace"]),
+  originalName: z.string(),
+  isFree: z.boolean(),
+  alternativeName: z.string(),
+  googleFontsUrl: z.string().nullable(),
+  fallback: z.string(),
+  similarity: z.string(),
+  notes: z.string(),
+  weights: z.array(z.string()),
+  premiumUrl: z.string().nullable(),
+  premiumPrice: z.string().nullable(),
+});
+
+export const aiResponseSchema = z.array(matchedFontSchema);
+
+export function buildPrompt(fonts: ExtractedFont[], domain: string): string {
+  const fontList = fonts
+    .map(
+      (f) =>
+        `- ${f.name} (role: ${f.role}, source: ${f.source}, weights: ${f.weights.join(",")})`
+    )
+    .join("\n");
+
+  return `You are a font expert. A user analyzed the website "${domain}" and found these fonts:
+
+${fontList}
+
+For EACH font, provide:
+1. Whether the original font is free (available on Google Fonts or similar)
+2. The best FREE alternative from Google Fonts that visually matches the original
+3. The Google Fonts CSS import URL for the alternative (use css2 API format)
+4. A generic CSS fallback category (sans-serif, serif, or monospace)
+5. A brief explanation (1-2 sentences) of why this alternative is similar
+6. A practical usage tip
+7. The recommended font weights for the alternative
+8. If the original is a PAID/commercial font: provide the purchase URL from Fontspring or MyFonts, and the approximate starting price
+
+IMPORTANT RULES:
+- If the original IS already a free Google Font, set isFree: true and use the original as the alternative
+- For Google Fonts URLs, use this exact format: https://fonts.googleapis.com/css2?family=Font+Name:wght@400;500;700&display=swap
+- For premiumUrl, use Fontspring (fontspring.com/fonts/...) or MyFonts (myfonts.com/fonts/...) links
+- All descriptions should be in English
+- Return ONLY valid JSON array, no markdown
+
+Respond with a JSON array where each element has these fields:
+role, originalName, isFree, alternativeName, googleFontsUrl, fallback, similarity, notes, weights, premiumUrl, premiumPrice`;
+}
