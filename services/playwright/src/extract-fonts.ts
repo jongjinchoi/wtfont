@@ -137,7 +137,10 @@ export async function extractFonts(
     }
   ) {
     const name = cleanFontName(rawName);
-    if (!name || isSystemFont(name)) return;
+    if (!name) return;
+    // document.fonts with status=loaded are genuine web fonts — skip system check
+    // computedStyle is already cross-validated against loaded set
+    if (method !== "document.fonts" && isSystemFont(name)) return;
 
     const key = name.toLowerCase();
     let entry = fontMap.get(key);
