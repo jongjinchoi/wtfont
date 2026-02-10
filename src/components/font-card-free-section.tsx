@@ -12,25 +12,25 @@ export function FontCardFreeSection({ font }: { font: MatchedFont }) {
   }
 
   return (
-    <div className="rounded-lg border border-success/15 bg-success/5 p-3">
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-mono text-success">FREE</span>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium text-terminal-text">
-              {font.alternativeName}
-            </p>
-            {font.similarityScore > 0 && (
-              <span
-                className={`text-xs font-mono ${scoreColor(font.similarityScore)}`}
-              >
-                {font.similarityScore}% match
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-terminal-subtle">{font.similarity}</p>
+    <div className="rounded-lg border border-terminal-border border-l-4 border-l-success bg-terminal-code p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-mono font-bold text-success">FREE</span>
+          <p className="text-base font-bold text-terminal-text">
+            {font.alternativeName}
+          </p>
         </div>
+        {font.similarityScore > 0 && (
+          <span
+            className={`text-sm font-mono font-medium ${scoreColor(font.similarityScore)}`}
+          >
+            {font.similarityScore}%
+          </span>
+        )}
       </div>
+      <p className="text-sm text-terminal-muted leading-relaxed">
+        {font.similarity}
+      </p>
     </div>
   );
 }

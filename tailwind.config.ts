@@ -18,6 +18,7 @@ export default {
         success: "var(--color-success)",
         error: "var(--color-error)",
         warning: "var(--color-warning)",
+        info: "var(--color-info)",
         terminal: {
           bg: "var(--color-terminal-bg)",
           surface: "var(--color-terminal-surface)",

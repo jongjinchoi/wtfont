@@ -40,7 +40,7 @@ export async function extractFontsFromHtml(
     weight?: string,
     selector?: string
   ) => {
-    const cleanName = name.replace(/['"]/g, "").trim();
+    const cleanName = decodeCssUnicodeEscapes(name.replace(/['"]/g, "").trim());
     if (!cleanName || isSystemFont(cleanName) || !isValidFontName(cleanName))
       return;
 
@@ -222,7 +222,7 @@ export async function extractFontsFromHtml(
 
   // 6. Convert to ExtractedFont[] — use selector-based role, fall back to name-based
   const results = Array.from(fontMap.values()).map((entry) => {
-    const selectors = Array.from(entry.selectors);
+    const selectors = Array.from(entry.selectors).slice(0, 20);
     let role = inferRole(selectors);
     // If role is default "body" and no selectors, try inferring from font name
     if (role === "body" && selectors.length === 0) {
@@ -237,14 +237,17 @@ export async function extractFontsFromHtml(
     };
   });
 
-  // 7. Sort: fonts with selectors first (higher confidence), then by role importance
+  // 7. Deduplicate locale variants (SF Pro JP + SF Pro KR → SF Pro)
+  const deduped = deduplicateLocaleVariants(results);
+
+  // 8. Sort: fonts with selectors first (higher confidence), then by role importance
   const roleOrder: Record<FontRole, number> = {
     heading: 0,
     display: 1,
     body: 2,
     monospace: 3,
   };
-  results.sort((a, b) => {
+  deduped.sort((a, b) => {
     // Fonts with selectors = actually used in page → higher priority
     const aUsed = a.selectors.length > 0 ? 0 : 1;
     const bUsed = b.selectors.length > 0 ? 0 : 1;
@@ -252,7 +255,16 @@ export async function extractFontsFromHtml(
     return roleOrder[a.role] - roleOrder[b.role];
   });
 
-  return results;
+  return deduped;
+}
+
+/** Decode CSS Unicode escapes like \30d2 → ヒ */
+function decodeCssUnicodeEscapes(value: string): string {
+  return value
+    .replace(/\\([0-9a-fA-F]{1,6})\s?/g, (_, hex) =>
+      String.fromCodePoint(parseInt(hex, 16))
+    )
+    .trim();
 }
 
 /** Filter out CSS variables, functions, keywords, and other non-font values */
@@ -263,11 +275,25 @@ function isValidFontName(name: string): boolean {
     return false;
   if (/^\d+$/.test(name) || name.length < 3) return false;
   if (/[{}();]/.test(name)) return false;
+  // Dot-prefixed internal fonts (.AppleSystemUIFont, .SFNSText, etc.)
+  if (/^\./.test(name)) return false;
   // Special-purpose fonts that aren't relevant to users
   if (/^katex[_ ]/i.test(name)) return false;
   if (/^fontawesome/i.test(name)) return false;
   if (/^material[- ]?(icons|symbols)/i.test(name)) return false;
   if (/^icon/i.test(name) && name.length < 10) return false;
+  // Icon/symbol fonts (general patterns)
+  if (/\bicons?\b/i.test(name)) return false;
+  if (/\bsymbols?\b/i.test(name)) return false;
+  if (/\bglyphs?\b/i.test(name)) return false;
+  if (/^(wingdings|webdings|zapf dingbats)$/i.test(name)) return false;
+  if (/^glyphicons/i.test(name)) return false;
+  if (/^ionicons/i.test(name)) return false;
+  if (/^bootstrap[- ]?icons/i.test(name)) return false;
+  if (/^remix[- ]?icon/i.test(name)) return false;
+  // Apple internal
+  if (/^apple\s*(legacy|color)/i.test(name)) return false;
+  if (/chevron/i.test(name) && /legacy/i.test(name)) return false;
   return true;
 }
 
@@ -346,6 +372,40 @@ export function extractGoogleFontsFromLink(
     /* skip */
   }
   return results;
+}
+
+/** Merge locale variants (e.g. SF Pro JP + SF Pro KR → SF Pro) */
+const LOCALE_SUFFIX = /\s+(SC|TC|HK|JP|KR|AR|TH|HE|GB)$/i;
+const STYLE_SUFFIX = /\s+(Text|Display|Rounded)$/i;
+
+function deduplicateLocaleVariants(fonts: ExtractedFont[]): ExtractedFont[] {
+  const groups = new Map<string, ExtractedFont[]>();
+
+  for (const font of fonts) {
+    const base = font.name
+      .replace(LOCALE_SUFFIX, "")
+      .replace(STYLE_SUFFIX, "")
+      .trim()
+      .toLowerCase();
+    const group = groups.get(base) || [];
+    group.push(font);
+    groups.set(base, group);
+  }
+
+  return Array.from(groups.values()).map((group) => {
+    if (group.length === 1) return group[0];
+    // Multiple locale/style variants → merge into one with base name
+    const merged = { ...group[0] };
+    for (const variant of group.slice(1)) {
+      merged.weights = [...new Set([...merged.weights, ...variant.weights])];
+      merged.selectors = [...new Set([...merged.selectors, ...variant.selectors])];
+    }
+    merged.name = merged.name
+      .replace(LOCALE_SUFFIX, "")
+      .replace(STYLE_SUFFIX, "")
+      .trim();
+    return merged;
+  });
 }
 
 export function inferRole(selectors: string[]): FontRole {

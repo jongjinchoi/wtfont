@@ -116,9 +116,11 @@ export async function POST(request: NextRequest) {
     }
 
     let matchedFonts: MatchedFont[];
+    let aiFailed = false;
     try {
       matchedFonts = await matchFonts(extractedFonts, domain);
     } catch {
+      aiFailed = true;
       // Fallback: return extracted fonts without AI matching
       // Use Google Fonts DB to identify free fonts even without AI
       matchedFonts = extractedFonts.map((f) => {
@@ -166,7 +168,10 @@ export async function POST(request: NextRequest) {
       analyzedAt: new Date().toISOString(),
     };
 
-    after(() => setCachedResult(normalizedUrl, result).catch(console.warn));
+    // Only cache successful AI matches — don't cache fallback results
+    if (!aiFailed) {
+      after(() => setCachedResult(normalizedUrl, result).catch(console.warn));
+    }
 
     return NextResponse.json<AnalyzeResponse>({
       success: true,

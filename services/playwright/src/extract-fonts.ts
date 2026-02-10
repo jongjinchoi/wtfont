@@ -11,33 +11,71 @@ export interface ExtractedFont {
   detectionMethod: "document.fonts" | "computedStyle" | "resource";
 }
 
+// Sync with: src/lib/system-fonts.ts (SYSTEM_FONTS)
 const SYSTEM_FONTS = new Set([
+  // CSS generic families
   "serif", "sans-serif", "monospace", "cursive", "fantasy",
   "system-ui", "ui-serif", "ui-sans-serif", "ui-monospace", "ui-rounded",
   "emoji", "math", "fangsong",
+  // Windows core
   "arial", "helvetica", "helvetica neue", "times", "times new roman",
   "courier", "courier new", "georgia", "verdana", "tahoma",
   "trebuchet ms", "lucida sans", "lucida console", "lucida grande",
   "lucida sans unicode", "impact", "comic sans ms",
-  "segoe ui", "segoe ui emoji", "segoe ui symbol", "microsoft sans serif",
-  "ms gothic", "ms pgothic", "meiryo", "yu gothic",
+  "segoe ui", "segoe ui emoji", "segoe ui symbol", "segoe ui variable",
+  "microsoft sans serif", "ms gothic", "ms pgothic", "meiryo",
+  "yu gothic", "yu gothic ui",
+  // Windows additional
+  "calibri", "cambria", "candara", "constantia", "corbel", "bahnschrift",
+  "microsoft yahei", "microsoft yahei ui", "simsun", "simhei",
+  // macOS / iOS
   "-apple-system", "blinkmacsystemfont", "apple color emoji", "noto color emoji",
   "sf pro", "sf pro display", "sf pro text", "sf pro rounded", "sf mono",
   "sfmono-regular", "new york", "menlo", "monaco",
-  "apple sd gothic neo", "pingfang sc", "pingfang tc",
+  "apple sd gothic neo", "pingfang sc", "pingfang tc", "pingfang hk",
   "hiragino sans", "hiragino kaku gothic pro",
+  // Apple locale variants
+  "sf pro icons", "sf pro ar", "sf pro ar text", "sf pro ar display",
+  "sf pro gulf", "sf pro jp", "sf pro kr", "sf pro th",
+  "sf pro sc", "sf pro hk", "sf pro tc",
+  // Apple legacy/internal
+  "apple legacy chevron", "myriad set pro", "apple gothic", "apple symbols",
+  ".applesystemuifont", ".sfnstext", ".sfnsdisplay", ".sfui",
+  // macOS additional
+  "avenir", "avenir next", "optima", "futura", "baskerville", "gill sans", "osaka",
+  // Linux
   "liberation sans", "liberation serif", "liberation mono",
   "dejavu sans", "dejavu sans mono", "dejavu serif",
-  "noto sans", "noto serif", "ubuntu", "cantarell",
+  "noto sans", "noto serif", "noto mono", "ubuntu", "cantarell",
   "droid sans", "droid serif", "roboto",
+  "fira sans", "oxygen-sans", "adwaita", "adwaita sans", "adwaita mono",
+  // Monospace system fonts
   "consolas", "andale mono", "source code pro",
+  // CJK
   "noto sans cjk", "noto serif cjk", "malgun gothic",
-  "microsoft yahei", "simsun", "simhei",
+  // CJK native names (Korean)
+  "apple gothic", "hy gulim", "hy dotum", "lexi gulim",
+  "맑은 고딕", "돋움", "굴림",
+  // CJK native names (Japanese)
+  "ヒラギノ角ゴ pro w3", "ヒラギノ角ゴ pron", "メイリオ",
+  "ＭＳ Ｐゴシック", "ＭＳ ゴシック", "游ゴシック", "游ゴシック体",
+  // CJK native names (Chinese)
+  "apple ligothic", "apple lisung", "stfangsong", "stkaiti", "stsong", "stxihei",
+  // CSS keywords
   "inherit", "initial", "unset", "revert",
 ]);
 
+/** Normalize font name for matching: lowercase, strip quotes/spaces/hyphens */
+function normalizeForMatch(name: string): string {
+  return name.toLowerCase().trim().replace(/['"]/g, "").replace(/[-\s]/g, "");
+}
+
+const SYSTEM_FONTS_NORMALIZED = new Set(
+  Array.from(SYSTEM_FONTS).map(normalizeForMatch)
+);
+
 function isSystemFont(name: string): boolean {
-  return SYSTEM_FONTS.has(name.toLowerCase().trim().replace(/['"]/g, ""));
+  return SYSTEM_FONTS_NORMALIZED.has(normalizeForMatch(name));
 }
 
 function inferSource(
@@ -122,7 +160,7 @@ export async function extractFonts(
     if (opts?.resourceUrl) entry.resourceUrls.add(opts.resourceUrl);
   }
 
-  // Method 1: document.fonts API
+  // Method 1: document.fonts API — only collect actually loaded fonts
   const documentFonts = await page.evaluate(() => {
     const fonts: Array<{
       family: string;
@@ -130,11 +168,13 @@ export async function extractFonts(
       style: string;
     }> = [];
     document.fonts.forEach((face) => {
-      fonts.push({
-        family: face.family,
-        weight: face.weight,
-        style: face.style,
-      });
+      if (face.status === "loaded") {
+        fonts.push({
+          family: face.family,
+          weight: face.weight,
+          style: face.style,
+        });
+      }
     });
     return fonts;
   });
@@ -176,10 +216,19 @@ export async function extractFonts(
     return results;
   }, SELECTORS);
 
+  // Cross-validate: only keep computedStyle fonts that are in the loaded set
+  const loadedFontNames = new Set(
+    documentFonts.map((f) => cleanFontName(f.family).toLowerCase())
+  );
+
   for (const { selector, fontFamily } of computedFonts) {
     const families = fontFamily.split(",").map((f) => f.trim());
     for (const family of families) {
-      addFont(family, "computedStyle", { selector });
+      const clean = cleanFontName(family).toLowerCase();
+      // Only add if the font was actually loaded (skip fallback chain noise)
+      if (loadedFontNames.has(clean)) {
+        addFont(family, "computedStyle", { selector });
+      }
     }
   }
 
@@ -234,7 +283,7 @@ export async function extractFonts(
     const resourceUrl = entry.resourceUrls.values().next().value as
       | string
       | undefined;
-    const selectors = Array.from(entry.selectors);
+    const selectors = Array.from(entry.selectors).slice(0, 20);
     const source = inferSource(entry.name, resourceUrl);
     const role = selectors.length > 0 ? inferRole(selectors) : "unknown";
 
@@ -255,5 +304,38 @@ export async function extractFonts(
     });
   }
 
-  return results;
+  // Deduplicate locale variants (SF Pro JP + SF Pro KR → SF Pro)
+  return deduplicateLocaleVariants(results);
+}
+
+const LOCALE_SUFFIX = /\s+(SC|TC|HK|JP|KR|AR|TH|HE|GB)$/i;
+const STYLE_SUFFIX = /\s+(Text|Display|Rounded)$/i;
+
+function deduplicateLocaleVariants(fonts: ExtractedFont[]): ExtractedFont[] {
+  const groups = new Map<string, ExtractedFont[]>();
+
+  for (const font of fonts) {
+    const base = font.name
+      .replace(LOCALE_SUFFIX, "")
+      .replace(STYLE_SUFFIX, "")
+      .trim()
+      .toLowerCase();
+    const group = groups.get(base) || [];
+    group.push(font);
+    groups.set(base, group);
+  }
+
+  return Array.from(groups.values()).map((group) => {
+    if (group.length === 1) return group[0];
+    const merged = { ...group[0] };
+    for (const variant of group.slice(1)) {
+      const variantSelectors = variant.selectors || [];
+      merged.selectors = [...new Set([...merged.selectors, ...variantSelectors])].slice(0, 20);
+    }
+    merged.name = merged.name
+      .replace(LOCALE_SUFFIX, "")
+      .replace(STYLE_SUFFIX, "")
+      .trim();
+    return merged;
+  });
 }

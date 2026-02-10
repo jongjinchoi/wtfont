@@ -1,3 +1,10 @@
+// Sync with: services/playwright/src/extract-fonts.ts (SYSTEM_FONTS)
+
+/** Normalize font name for matching: lowercase, strip quotes/spaces/hyphens */
+function normalizeForMatch(name: string): string {
+  return name.toLowerCase().trim().replace(/['"]/g, "").replace(/[-\s]/g, "");
+}
+
 const SYSTEM_FONTS = new Set([
   // CSS generic families
   "serif",
@@ -13,7 +20,7 @@ const SYSTEM_FONTS = new Set([
   "emoji",
   "math",
   "fangsong",
-  // Windows
+  // Windows core
   "arial",
   "helvetica",
   "helvetica neue",
@@ -34,11 +41,24 @@ const SYSTEM_FONTS = new Set([
   "segoe ui",
   "segoe ui emoji",
   "segoe ui symbol",
+  "segoe ui variable",
   "microsoft sans serif",
   "ms gothic",
   "ms pgothic",
   "meiryo",
   "yu gothic",
+  "yu gothic ui",
+  // Windows additional
+  "calibri",
+  "cambria",
+  "candara",
+  "constantia",
+  "corbel",
+  "bahnschrift",
+  "microsoft yahei",
+  "microsoft yahei ui",
+  "simsun",
+  "simhei",
   // macOS / iOS
   "-apple-system",
   "blinkmacsystemfont",
@@ -56,8 +76,38 @@ const SYSTEM_FONTS = new Set([
   "apple sd gothic neo",
   "pingfang sc",
   "pingfang tc",
+  "pingfang hk",
   "hiragino sans",
   "hiragino kaku gothic pro",
+  // Apple locale variants
+  "sf pro icons",
+  "sf pro ar",
+  "sf pro ar text",
+  "sf pro ar display",
+  "sf pro gulf",
+  "sf pro jp",
+  "sf pro kr",
+  "sf pro th",
+  "sf pro sc",
+  "sf pro hk",
+  "sf pro tc",
+  // Apple legacy/internal
+  "apple legacy chevron",
+  "myriad set pro",
+  "apple gothic",
+  "apple symbols",
+  ".applesystemuifont",
+  ".sfnstext",
+  ".sfnsdisplay",
+  ".sfui",
+  // macOS additional
+  "avenir",
+  "avenir next",
+  "optima",
+  "futura",
+  "baskerville",
+  "gill sans",
+  "osaka",
   // Linux
   "liberation sans",
   "liberation serif",
@@ -67,11 +117,17 @@ const SYSTEM_FONTS = new Set([
   "dejavu serif",
   "noto sans",
   "noto serif",
+  "noto mono",
   "ubuntu",
   "cantarell",
   "droid sans",
   "droid serif",
   "roboto",
+  "fira sans",
+  "oxygen-sans",
+  "adwaita",
+  "adwaita sans",
+  "adwaita mono",
   // Monospace system fonts
   "consolas",
   "andale mono",
@@ -80,9 +136,29 @@ const SYSTEM_FONTS = new Set([
   "noto sans cjk",
   "noto serif cjk",
   "malgun gothic",
-  "microsoft yahei",
-  "simsun",
-  "simhei",
+  // CJK native names (Korean)
+  "apple gothic",
+  "hy gulim",
+  "hy dotum",
+  "lexi gulim",
+  "맑은 고딕",
+  "돋움",
+  "굴림",
+  // CJK native names (Japanese)
+  "ヒラギノ角ゴ pro w3",
+  "ヒラギノ角ゴ pron",
+  "メイリオ",
+  "ＭＳ Ｐゴシック",
+  "ＭＳ ゴシック",
+  "游ゴシック",
+  "游ゴシック体",
+  // CJK native names (Chinese)
+  "apple ligothic",
+  "apple lisung",
+  "stfangsong",
+  "stkaiti",
+  "stsong",
+  "stxihei",
   // CSS keywords
   "inherit",
   "initial",
@@ -90,6 +166,11 @@ const SYSTEM_FONTS = new Set([
   "revert",
 ]);
 
+/** Pre-compute normalized set for fast lookups */
+const SYSTEM_FONTS_NORMALIZED = new Set(
+  Array.from(SYSTEM_FONTS).map(normalizeForMatch)
+);
+
 export function isSystemFont(name: string): boolean {
-  return SYSTEM_FONTS.has(name.toLowerCase().trim().replace(/['"]/g, ""));
+  return SYSTEM_FONTS_NORMALIZED.has(normalizeForMatch(name));
 }

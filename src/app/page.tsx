@@ -45,6 +45,7 @@ type LineType =
   | { kind: "cat"; text: string }
   | { kind: "box"; text: string }
   | { kind: "ascii"; content: string }
+  | { kind: "disclaimer" }
   | { kind: "input" };
 
 export default function HomePage() {
@@ -105,10 +106,14 @@ export default function HomePage() {
       timers.push(add({ kind: "ascii", content: line }, 9000 + i * 100));
     });
 
-    // Input
+    // Disclaimer
     const afterAscii = 9800 + ASCII_LINES.length * 100 + 600;
-    timers.push(add({ kind: "input" }, afterAscii));
-    timers.push(setTimeout(() => setBooted(true), afterAscii + 800));
+    timers.push(add({ kind: "disclaimer" }, afterAscii));
+
+    // Input
+    const afterDisclaimer = afterAscii + 400;
+    timers.push(add({ kind: "input" }, afterDisclaimer));
+    timers.push(setTimeout(() => setBooted(true), afterDisclaimer + 800));
 
     return () => timers.forEach(clearTimeout);
   }, []);
@@ -266,6 +271,30 @@ export default function HomePage() {
                       ))}
                     </div>
                   );
+                  break;
+                }
+
+                case "disclaimer": {
+                  const notices: Array<{ tag: "info" | "warn"; text: string }> = [
+                    { tag: "info", text: "WTFont.wtf is a developer tool that identifies fonts used on publicly accessible web pages for research and learning purposes." },
+                    { tag: "info", text: "No Circumvention — This tool only analyzes publicly available CSS and rendered styles. It does not bypass DRM, extract or redistribute font files, or access protected resources." },
+                    { tag: "info", text: "Support Type Foundries — We provide affiliate links to official marketplaces like Fontspring and MyFonts so you can purchase licenses directly. Great typography deserves fair compensation." },
+                    { tag: "warn", text: "Respect Licenses — Detecting a font does not grant you a license to use it. Many web fonts are commercial software. Always purchase a proper license before using them in your projects." },
+                    { tag: "warn", text: "No Liability — This tool is provided as-is. The authors assume no responsibility for how detected font information is used." },
+                  ];
+                  elements.push(
+                    <div key={i} className="mt-section space-y-1">
+                      {notices.map((msg, wi) => (
+                        <div key={wi} className="py-line text-xs">
+                          <span className={msg.tag === "warn" ? "text-warning" : "text-info"}>
+                            [{msg.tag}]
+                          </span>
+                          <span className="text-terminal-subtle ml-2">{msg.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                  i++;
                   break;
                 }
 
