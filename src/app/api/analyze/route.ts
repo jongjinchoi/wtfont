@@ -150,14 +150,20 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Inject affiliate IDs into premium URLs
-    matchedFonts = matchedFonts.map((f) => ({
-      ...f,
-      premiumUrl: buildAffiliateUrl(
-        f.premiumUrl,
-        f.premiumUrl?.includes("myfonts.com") ? "myfonts" : undefined
-      ),
-    }));
+    // Validate premium URLs — remove broken links before caching
+    matchedFonts = await Promise.all(
+      matchedFonts.map(async (f) => {
+        const checkedUrl = await checkPremiumUrl(f.premiumUrl);
+        return {
+          ...f,
+          premiumUrl: buildAffiliateUrl(
+            checkedUrl,
+            checkedUrl?.includes("myfonts.com") ? "myfonts" : undefined
+          ),
+          premiumPrice: checkedUrl ? f.premiumPrice : null,
+        };
+      })
+    );
 
     const result: AnalysisResult = {
       url: normalizedUrl,
@@ -193,6 +199,21 @@ export async function POST(request: NextRequest) {
       { success: false, error: "An unexpected error occurred", code: "UNKNOWN" },
       { status: 500 }
     );
+  }
+}
+
+/** Verify premium URL exists (returns 2xx). Returns the URL or null. */
+async function checkPremiumUrl(url: string | null): Promise<string | null> {
+  if (!url) return null;
+  try {
+    const res = await fetch(url, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(5000),
+      redirect: "follow",
+    });
+    return res.ok ? url : null;
+  } catch {
+    return null;
   }
 }
 
