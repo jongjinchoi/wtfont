@@ -162,47 +162,55 @@ export function FontCard({
             </a>
           )}
 
-          {/* Search links */}
-          <div className="flex flex-wrap gap-3 pt-3 border-t border-terminal-border text-xs font-mono">
-            <a
-              href={`https://fonts.google.com/?query=${searchName}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
-            >
-              Google Fonts ↗
-            </a>
-            <a
-              href={`https://www.myfonts.com/search?query=${searchName}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() =>
-                trackEvent({
-                  event: "affiliate_click",
-                  fontName: font.originalName,
-                  marketplace: "myfonts",
-                })
-              }
-              className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
-            >
-              MyFonts ↗
-            </a>
-            <a
-              href={`https://www.fontspring.com/search?q=${searchName}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() =>
-                trackEvent({
-                  event: "affiliate_click",
-                  fontName: font.originalName,
-                  marketplace: "fontspring",
-                })
-              }
-              className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
-            >
-              Fontspring ↗
-            </a>
-          </div>
+          {/* Search links — only show platforms where the font is available */}
+          {(font.isFree || font.premiumUrl) && (
+            <div className="flex flex-wrap gap-3 pt-3 border-t border-terminal-border text-xs font-mono">
+              {font.isFree && (
+                <a
+                  href={`https://fonts.google.com/?query=${searchName}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
+                >
+                  Google Fonts ↗
+                </a>
+              )}
+              {font.premiumUrl && (
+                <>
+                  <a
+                    href={`https://www.myfonts.com/search?query=${searchName}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() =>
+                      trackEvent({
+                        event: "affiliate_click",
+                        fontName: font.originalName,
+                        marketplace: "myfonts",
+                      })
+                    }
+                    className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
+                  >
+                    MyFonts ↗
+                  </a>
+                  <a
+                    href={`https://www.fontspring.com/search?q=${searchName}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() =>
+                      trackEvent({
+                        event: "affiliate_click",
+                        fontName: font.originalName,
+                        marketplace: "fontspring",
+                      })
+                    }
+                    className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
+                  >
+                    Fontspring ↗
+                  </a>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Notes */}
           {font.notes && (
