@@ -96,7 +96,7 @@ export function FontCard({
           {font.googleFontsUrl && (
             <>
               <div className="text-xs text-[#555] font-mono">
-                -- google fonts --
+                -- google fonts CDN · add to {"<head>"} --
               </div>
               <CodeBlock
                 code={generateFreeImportCode(font)}
@@ -106,12 +106,15 @@ export function FontCard({
           )}
 
           {/* CSS Usage */}
-          <div className="text-xs text-[#555] font-mono">-- css --</div>
+          <div className="text-xs text-[#555] font-mono">
+            -- css · add to stylesheet --
+          </div>
           <CodeBlock code={generateCssUsageCode(font)} language="css" />
 
           {/* Self-host code */}
           <div className="text-xs text-[#555] font-mono">
-            -- import{!font.isFree && " (license required)" } --
+            -- self-host · download {"&"} serve locally
+            {!font.isFree && " (license required)"} --
           </div>
           <FrameworkTabs font={font} mode="premium" />
 
