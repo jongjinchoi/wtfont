@@ -25,7 +25,10 @@ export async function matchFonts(
 }
 
 async function matchWithGemini(prompt: string): Promise<MatchedFont[]> {
-  const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const key = process.env.GEMINI_API_KEY;
+  console.log(`[ai-matcher] GEMINI_API_KEY present: ${!!key}, ends with: ${key?.slice(-4)}`);
+  if (!key) throw new Error("GEMINI_API_KEY is not set");
+  const gemini = new GoogleGenerativeAI(key);
   const model = gemini.getGenerativeModel({
     model: "gemini-2.0-flash",
     generationConfig: {
