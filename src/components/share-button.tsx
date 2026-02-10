@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export function ShareButton({
   url,
@@ -12,9 +12,13 @@ export function ShareButton({
   fontCount: number;
 }) {
   const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState(url);
+
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, []);
 
   const shareText = `Found ${fontCount} font${fontCount !== 1 ? "s" : ""} on ${domain} with free alternatives`;
-  const shareUrl = typeof window !== "undefined" ? window.location.href : url;
 
   const handleCopyLink = useCallback(async () => {
     await navigator.clipboard.writeText(shareUrl);
