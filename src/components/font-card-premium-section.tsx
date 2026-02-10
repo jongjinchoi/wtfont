@@ -7,6 +7,7 @@ import { trackEvent } from "@/lib/track";
 
 export function FontCardPremiumSection({ font }: { font: MatchedFont }) {
   if (!font.premiumUrl) return null;
+  if (font.premiumPrice && /free/i.test(font.premiumPrice)) return null;
 
   return (
     <div className="space-y-4">

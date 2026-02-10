@@ -45,7 +45,8 @@ IMPORTANT RULES:
 - For originalName, normalize CSS identifiers to proper font names (e.g. "sohne-var" → "Söhne", "SourceCodePro" → "Source Code Pro", "Inter Variable" → "Inter")
 - If the original IS already a free Google Font, set isFree: true, use the original as the alternative, and set similarityScore to 100
 - For Google Fonts URLs, use this exact format: https://fonts.googleapis.com/css2?family=Font+Name:wght@400;500;700&display=swap
-- For premiumUrl, use Fontspring (fontspring.com/fonts/...) or MyFonts (myfonts.com/fonts/...) links
+- For premiumUrl, ONLY provide URLs you are confident exist on Fontspring (fontspring.com/fonts/...) or MyFonts (myfonts.com/fonts/...). If unsure or the font is platform-exclusive (e.g. SF Pro, Segoe UI), set premiumUrl to null
+- If the font is free or platform-bundled, set premiumUrl to null and premiumPrice to null
 - All descriptions should be in English
 - Return ONLY valid JSON array, no markdown
 
