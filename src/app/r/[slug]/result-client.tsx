@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { FontCard } from "@/components/font-card";
 import { ShareButton } from "@/components/share-button";
+import { UrlInput } from "@/components/url-input";
+import { normalizeUrl, urlToSlug } from "@/lib/url-utils";
 import type { AnalysisResult } from "@/types/font";
 import type { AnalyzeResponse, AnalyzeErrorResponse } from "@/types/api";
 
@@ -21,12 +24,22 @@ export function ResultPageClient({
   initialData?: AnalysisResult;
   url?: string;
 }) {
+  const router = useRouter();
   const [data, setData] = useState<AnalysisResult | null>(initialData ?? null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(!initialData);
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [showResults, setShowResults] = useState(!!initialData);
   const startTime = useRef(Date.now());
+
+  const handleNewAnalysis = useCallback(
+    (newUrl: string) => {
+      const normalized = normalizeUrl(newUrl);
+      const slug = urlToSlug(normalized);
+      router.push(`/r/${slug}?url=${encodeURIComponent(normalized)}`);
+    },
+    [router]
+  );
 
   const domain = url
     ? url.replace(/^https?:\/\//, "").split("/")[0]
@@ -131,7 +144,7 @@ export function ResultPageClient({
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header domain={domain} />
       <main className="flex-1 py-8">
         <div className="mx-auto max-w-content px-page-px space-y-8">
           {/* Terminal log */}
@@ -227,14 +240,9 @@ export function ResultPageClient({
                 </div>
               ))}
 
-              {/* Back link */}
+              {/* Analyze another site */}
               <div className="pt-4 border-t border-terminal-border">
-                <Link
-                  href="/"
-                  className="text-xs text-[#666] hover:text-[#ccc] transition-colors duration-200"
-                >
-                  <span className="text-brand">$</span> cd ~
-                </Link>
+                <UrlInput onSubmit={handleNewAnalysis} showExamples={false} />
               </div>
             </div>
           )}

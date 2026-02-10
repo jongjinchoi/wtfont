@@ -12,9 +12,11 @@ const EXAMPLE_SITES = [
 export function UrlInput({
   onSubmit,
   loading = false,
+  showExamples = true,
 }: {
   onSubmit: (url: string) => void;
   loading?: boolean;
+  showExamples?: boolean;
 }) {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
@@ -84,25 +86,27 @@ export function UrlInput({
         </p>
       )}
 
-      <div className="flex items-center gap-2 flex-wrap text-xs">
-        <span className="text-terminal-subtle">try:</span>
-        {EXAMPLE_SITES.map((site, i) => (
-          <span key={site.url} className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleExampleClick(site.url)}
-              disabled={loading}
-              className="text-terminal-subtle hover:text-brand transition-colors duration-200
-                cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed underline underline-offset-2 decoration-terminal-dim"
-            >
-              {site.label}
-            </button>
-            {i < EXAMPLE_SITES.length - 1 && (
-              <span className="text-terminal-dim">·</span>
-            )}
-          </span>
-        ))}
-      </div>
+      {showExamples && (
+        <div className="flex items-center gap-2 flex-wrap text-xs">
+          <span className="text-terminal-subtle">try:</span>
+          {EXAMPLE_SITES.map((site, i) => (
+            <span key={site.url} className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleExampleClick(site.url)}
+                disabled={loading}
+                className="text-terminal-subtle hover:text-brand transition-colors duration-200
+                  cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed underline underline-offset-2 decoration-terminal-dim"
+              >
+                {site.label}
+              </button>
+              {i < EXAMPLE_SITES.length - 1 && (
+                <span className="text-terminal-dim">·</span>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

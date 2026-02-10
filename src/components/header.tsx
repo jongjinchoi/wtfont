@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export function Header() {
+export function Header({ domain }: { domain?: string }) {
   return (
     <header className="border-b border-terminal-border bg-terminal-bg">
       <div className="mx-auto max-w-content flex items-center px-page-px py-bar-y">
@@ -14,7 +14,7 @@ export function Header() {
             href="/"
             className="text-sm text-terminal-muted hover:text-terminal-text transition-colors duration-200"
           >
-            wtfont.wtf
+            {domain ? `${domain} - wtfont.wtf` : "wtfont.wtf"}
           </Link>
         </div>
       </div>
