@@ -6,7 +6,10 @@ import { FontPreview } from "./font-preview";
 import { FontCardFreeSection } from "./font-card-free-section";
 import { CodeBlock } from "./code-block";
 import { FrameworkTabs } from "./framework-tabs";
-import { generateCssUsageCode } from "@/lib/code-templates";
+import {
+  generateCssUsageCode,
+  generateFreeImportCode,
+} from "@/lib/code-templates";
 
 const ROLE_LABELS: Record<string, string> = {
   heading: "Heading",
@@ -63,26 +66,40 @@ export function FontCard({
             </span>
           </div>
 
-          {/* Font preview */}
-          {font.googleFontsUrl && (
-            <>
-              <div className="text-xs text-[#555] font-mono">
-                -- preview --
-              </div>
-              <FontPreview
-                fontName={font.alternativeName || font.originalName}
-                googleFontsUrl={font.googleFontsUrl}
-              />
-            </>
-          )}
-
-          {/* Free alternative */}
+          {/* Free alternative with preview */}
           {hasAiAlternative && (
             <>
               <div className="text-xs text-[#555] font-mono">
                 -- free alternative --
               </div>
               <FontCardFreeSection font={font} />
+              <div className="text-xs text-[#555] font-mono">
+                -- preview ({font.alternativeName}) --
+              </div>
+              <FontPreview
+                fontName={font.alternativeName}
+                googleFontsUrl={font.googleFontsUrl}
+              />
+            </>
+          )}
+
+          {/* Free fonts (original = alternative): preview + Google Fonts import */}
+          {font.isFree && font.googleFontsUrl && !hasAiAlternative && (
+            <>
+              <div className="text-xs text-[#555] font-mono">
+                -- preview --
+              </div>
+              <FontPreview
+                fontName={font.originalName}
+                googleFontsUrl={font.googleFontsUrl}
+              />
+              <div className="text-xs text-[#555] font-mono">
+                -- google fonts --
+              </div>
+              <CodeBlock
+                code={generateFreeImportCode(font)}
+                language="html"
+              />
             </>
           )}
 
