@@ -163,11 +163,11 @@ export function FontCard({
           )}
 
           {/* Search links — only show platforms where the font is available */}
-          {(font.isFree || font.premiumUrl) && (
+          {(font.googleFontsUrl || font.premiumUrl) && (
             <div className="flex flex-wrap gap-3 pt-3 border-t border-terminal-border text-xs font-mono">
-              {font.isFree && (
+              {font.googleFontsUrl && (
                 <a
-                  href={`https://fonts.google.com/?query=${searchName}`}
+                  href={`https://fonts.google.com/?query=${encodeURIComponent(font.alternativeName)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
