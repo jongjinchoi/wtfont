@@ -3,10 +3,10 @@
 import { useState, useCallback, useRef, type FormEvent } from "react";
 
 const EXAMPLE_SITES = [
-  { label: "stripe.com", url: "stripe.com" },
-  { label: "linear.app", url: "linear.app" },
-  { label: "vercel.com", url: "vercel.com" },
-  { label: "notion.so", url: "notion.so" },
+  { label: "apple.com", url: "apple.com" },
+  { label: "airbnb.com", url: "airbnb.com" },
+  { label: "openai.com", url: "openai.com" },
+  { label: "spotify.com", url: "spotify.com" },
 ];
 
 export function UrlInput({
