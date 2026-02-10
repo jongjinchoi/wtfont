@@ -29,7 +29,6 @@ async function launchBrowser(): Promise<Browser> {
         "--disable-gpu",
         "--no-first-run",
         "--no-zygote",
-        "--single-process",
         "--disable-extensions",
       ],
     });
