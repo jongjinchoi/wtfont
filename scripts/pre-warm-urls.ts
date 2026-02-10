@@ -24,6 +24,13 @@ export const PRE_WARM_URLS: string[] = [
   "https://zed.dev",
   "https://pitch.com",
 
+  "https://notion.com",
+  "https://canva.com",
+  "https://1password.com",
+  "https://todoist.com",
+  "https://postman.com",
+  "https://hashnode.dev",
+
   // ── SaaS & Startups ──
   "https://slack.com",
   "https://discord.com",
@@ -44,6 +51,10 @@ export const PRE_WARM_URLS: string[] = [
   "https://huggingface.co",
   "https://stability.ai",
   "https://cursor.com",
+  "https://datadog.com",
+  "https://zendesk.com",
+  "https://mailchimp.com",
+  "https://linkedin.com",
 
   // ── News & Media ──
   "https://substack.com",
@@ -67,10 +78,17 @@ export const PRE_WARM_URLS: string[] = [
   "https://mashable.com",
   "https://restofworld.org",
   "https://www.404media.co",
+  "https://x.com",
+  "https://youtube.com",
+  "https://netflix.com",
+  "https://hulu.com",
+  "https://twitch.tv",
 
   // ── E-commerce & Brands ──
   "https://apple.com",
   "https://nike.com",
+  "https://uber.com",
+  "https://coinbase.com",
   "https://shopify.com",
   "https://amazon.com",
   "https://squarespace.com",
@@ -78,7 +96,6 @@ export const PRE_WARM_URLS: string[] = [
   "https://patagonia.com",
   "https://glossier.com",
   "https://allbirds.com",
-  "https://warbyparker.com",
 
   // ── Developer Tools ──
   "https://supabase.com",
@@ -92,7 +109,6 @@ export const PRE_WARM_URLS: string[] = [
   "https://fly.io",
   "https://render.com",
   "https://deno.com",
-  "https://bun.sh",
   "https://sentry.io",
   "https://svelte.dev",
   "https://nuxt.com",
@@ -109,6 +125,8 @@ export const PRE_WARM_URLS: string[] = [
   "https://www.banksalad.com",
   "https://flex.team",
   "https://channel.io",
+  "https://wanted.co.kr",
+  "https://kurly.com",
 
   // ── Portfolio & Agency ──
   "https://stripe.com/press",
@@ -119,4 +137,6 @@ export const PRE_WARM_URLS: string[] = [
   "https://www.fontshare.com",
   "https://www.atipofoundry.com",
   "https://klim.co.nz",
+  "https://fontsinuse.com",
+  "https://typographica.org",
 ];
