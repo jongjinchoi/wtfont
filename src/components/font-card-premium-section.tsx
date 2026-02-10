@@ -1,6 +1,9 @@
+"use client";
+
 import type { MatchedFont } from "@/types/font";
 import { Badge } from "./ui/badge";
 import { FrameworkTabs } from "./framework-tabs";
+import { trackEvent } from "@/lib/track";
 
 export function FontCardPremiumSection({ font }: { font: MatchedFont }) {
   if (!font.premiumUrl) return null;
@@ -25,6 +28,15 @@ export function FontCardPremiumSection({ font }: { font: MatchedFont }) {
           href={font.premiumUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() =>
+            trackEvent({
+              event: "affiliate_click",
+              fontName: font.originalName,
+              marketplace: font.premiumUrl?.includes("myfonts.com")
+                ? "myfonts"
+                : "fontspring",
+            })
+          }
           className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 text-xs font-medium text-amber-400 hover:bg-amber-500/20 transition-colors duration-200 cursor-pointer"
         >
           Buy License

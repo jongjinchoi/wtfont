@@ -1,6 +1,15 @@
 import type { MetadataRoute } from "next";
+import { getAllCachedSlugs } from "@/lib/cache";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const slugs = await getAllCachedSlugs();
+
+  const resultPages: MetadataRoute.Sitemap = slugs.map((slug) => ({
+    url: `https://wtfont.wtf/r/${slug}`,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
   return [
     {
       url: "https://wtfont.wtf",
@@ -8,5 +17,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    ...resultPages,
   ];
 }

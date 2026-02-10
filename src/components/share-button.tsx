@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { trackEvent } from "@/lib/track";
 
 export function ShareButton({
   url,
@@ -23,8 +24,9 @@ export function ShareButton({
   const handleCopyLink = useCallback(async () => {
     await navigator.clipboard.writeText(shareUrl);
     setCopied(true);
+    trackEvent({ event: "share", fontName: domain, marketplace: "copy_link" });
     setTimeout(() => setCopied(false), 2000);
-  }, [shareUrl]);
+  }, [shareUrl, domain]);
 
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
 
@@ -34,6 +36,9 @@ export function ShareButton({
         href={twitterUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() =>
+          trackEvent({ event: "share", fontName: domain, marketplace: "twitter" })
+        }
         className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
       >
         Share ↗

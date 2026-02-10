@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { z } from "zod";
 import { extractFontsFromUrl } from "@/lib/font-parser";
 import { matchFonts } from "@/lib/ai-matcher";
@@ -19,6 +19,7 @@ import {
   getGoogleFontsUrl,
   getGoogleFontCategory,
 } from "@/lib/google-fonts-db";
+import { buildAffiliateUrl } from "@/lib/affiliate";
 
 const requestSchema = z.object({
   url: z.string().min(1, "URL is required"),
@@ -74,14 +75,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Run static extraction and Playwright extraction in parallel
-    let staticFonts;
-    try {
-      staticFonts = await extractFontsFromUrl(normalizedUrl);
-    } catch {
-      staticFonts = null;
-    }
-
-    const dynamicFonts = await extractFontsWithPlaywright(normalizedUrl);
+    const [staticResult, dynamicResult] = await Promise.allSettled([
+      extractFontsFromUrl(normalizedUrl),
+      extractFontsWithPlaywright(normalizedUrl),
+    ]);
+    const staticFonts =
+      staticResult.status === "fulfilled" ? staticResult.value : null;
+    const dynamicFonts =
+      dynamicResult.status === "fulfilled" ? dynamicResult.value : null;
 
     // Merge results (either or both may be available)
     let extractedFonts;
@@ -147,6 +148,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Inject affiliate IDs into premium URLs
+    matchedFonts = matchedFonts.map((f) => ({
+      ...f,
+      premiumUrl: buildAffiliateUrl(
+        f.premiumUrl,
+        f.premiumUrl?.includes("myfonts.com") ? "myfonts" : undefined
+      ),
+    }));
+
     const result: AnalysisResult = {
       url: normalizedUrl,
       domain,
@@ -156,7 +166,7 @@ export async function POST(request: NextRequest) {
       analyzedAt: new Date().toISOString(),
     };
 
-    setCachedResult(normalizedUrl, result).catch(() => {});
+    after(() => setCachedResult(normalizedUrl, result).catch(console.warn));
 
     return NextResponse.json<AnalyzeResponse>({
       success: true,

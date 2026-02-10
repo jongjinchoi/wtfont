@@ -10,6 +10,7 @@ import {
   generateCssUsageCode,
   generateFreeImportCode,
 } from "@/lib/code-templates";
+import { trackEvent } from "@/lib/track";
 
 const ROLE_LABELS: Record<string, string> = {
   heading: "Heading",
@@ -101,6 +102,13 @@ export function FontCard({
               <CodeBlock
                 code={generateFreeImportCode(font)}
                 language="html"
+                onCopied={() =>
+                  trackEvent({
+                    event: "code_copy",
+                    fontName: font.originalName,
+                    framework: "cdn",
+                  })
+                }
               />
             </>
           )}
@@ -109,7 +117,17 @@ export function FontCard({
           <div className="text-xs text-terminal-subtle font-mono">
             -- css · add to stylesheet --
           </div>
-          <CodeBlock code={generateCssUsageCode(font)} language="css" />
+          <CodeBlock
+            code={generateCssUsageCode(font)}
+            language="css"
+            onCopied={() =>
+              trackEvent({
+                event: "code_copy",
+                fontName: font.originalName,
+                framework: "css",
+              })
+            }
+          />
 
           {/* Self-host code */}
           <div className="text-xs text-terminal-subtle font-mono">
@@ -124,6 +142,15 @@ export function FontCard({
               href={font.premiumUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent({
+                  event: "affiliate_click",
+                  fontName: font.originalName,
+                  marketplace: font.premiumUrl?.includes("myfonts.com")
+                    ? "myfonts"
+                    : "fontspring",
+                })
+              }
               className="inline-flex items-center gap-1.5 text-xs font-mono text-warning hover:opacity-80 transition-colors duration-200 cursor-pointer"
             >
               Buy License ↗
@@ -149,6 +176,13 @@ export function FontCard({
               href={`https://www.myfonts.com/search?query=${searchName}`}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent({
+                  event: "affiliate_click",
+                  fontName: font.originalName,
+                  marketplace: "myfonts",
+                })
+              }
               className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
             >
               MyFonts ↗
@@ -157,6 +191,13 @@ export function FontCard({
               href={`https://www.fontspring.com/search?q=${searchName}`}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent({
+                  event: "affiliate_click",
+                  fontName: font.originalName,
+                  marketplace: "fontspring",
+                })
+              }
               className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
             >
               Fontspring ↗

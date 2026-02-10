@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { Redis } from "@upstash/redis";
 import type { AnalysisResult } from "@/types/font";
 import { extractDomainAndPath } from "./url-utils";
@@ -50,15 +51,36 @@ export async function setCachedResult(
   }
 }
 
-export async function getCachedResultBySlug(
-  slug: string
-): Promise<AnalysisResult | null> {
-  if (!redis) return null;
+export const getCachedResultBySlug = cache(
+  async (slug: string): Promise<AnalysisResult | null> => {
+    if (!redis) return null;
+    try {
+      const cacheKey = await redis.get<string>(`${SLUG_PREFIX}${slug}`);
+      if (!cacheKey) return null;
+      return await redis.get<AnalysisResult>(cacheKey);
+    } catch {
+      return null;
+    }
+  }
+);
+
+export async function getAllCachedSlugs(): Promise<string[]> {
+  if (!redis) return [];
   try {
-    const cacheKey = await redis.get<string>(`${SLUG_PREFIX}${slug}`);
-    if (!cacheKey) return null;
-    return await redis.get<AnalysisResult>(cacheKey);
+    const slugs: string[] = [];
+    let cursor = 0;
+    do {
+      const result = await redis.scan(cursor, {
+        match: `${SLUG_PREFIX}*`,
+        count: 100,
+      });
+      cursor = Number(result[0]);
+      for (const key of result[1]) {
+        slugs.push(key.replace(SLUG_PREFIX, ""));
+      }
+    } while (cursor !== 0);
+    return slugs;
   } catch {
-    return null;
+    return [];
   }
 }

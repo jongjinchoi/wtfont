@@ -5,17 +5,20 @@ import { useState, useCallback } from "react";
 export function CopyButton({
   text,
   label = "Copy",
+  onCopied,
 }: {
   text: string;
   label?: string;
+  onCopied?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
+    onCopied?.();
     setTimeout(() => setCopied(false), 2000);
-  }, [text]);
+  }, [text, onCopied]);
 
   return (
     <button
