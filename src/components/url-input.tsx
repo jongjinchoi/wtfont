@@ -5,7 +5,7 @@ import { useState, useCallback, useRef, type FormEvent } from "react";
 const EXAMPLE_SITES = [
   { label: "apple.com", url: "apple.com" },
   { label: "airbnb.com", url: "airbnb.com" },
-  { label: "openai.com", url: "openai.com" },
+  { label: "claude.ai", url: "claude.ai" },
   { label: "spotify.com", url: "spotify.com" },
 ];
 
