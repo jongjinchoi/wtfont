@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "WTFont.wtf — What The Font? Find fonts & free alternatives",
+    default: "WTFont.wtf — What font is that website using?",
     template: "%s — WTFont.wtf",
   },
   description:
-    "Enter any website URL. We detect the fonts, find free Google Fonts alternatives, and give you copy-paste code for HTML, Next.js, Nuxt, and React.",
+    "Detect fonts on any website. Find free Google Fonts alternatives and get copy-paste code for your project.",
   metadataBase: new URL("https://wtfont.wtf"),
   keywords: [
     "font identifier",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   authors: [{ name: "WTFont.wtf" }],
   creator: "WTFont.wtf",
   openGraph: {
-    title: "WTFont.wtf — What The Font?",
+    title: "WTFont.wtf — What font is that website using?",
     description:
       "Detect any website's fonts. Get free alternatives and copy-paste code.",
     url: "https://wtfont.wtf",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "WTFont.wtf — What The Font?",
+    title: "WTFont.wtf — What font is that website using?",
     description:
       "Detect any website's fonts. Get free alternatives and copy-paste code.",
   },

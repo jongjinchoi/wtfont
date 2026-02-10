@@ -8,6 +8,18 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: "/api/",
       },
+      {
+        userAgent: [
+          "GPTBot",
+          "ChatGPT-User",
+          "CCBot",
+          "anthropic-ai",
+          "ClaudeBot",
+          "Bytespider",
+          "Google-Extended",
+        ],
+        disallow: "/",
+      },
     ],
     sitemap: "https://wtfont.wtf/sitemap.xml",
   };
