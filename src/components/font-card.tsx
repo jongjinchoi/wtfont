@@ -66,33 +66,35 @@ export function FontCard({
             </span>
           </div>
 
-          {/* Free alternative with preview */}
+          {/* Free alternative info (paid fonts only) */}
           {hasAiAlternative && (
             <>
               <div className="text-xs text-[#555] font-mono">
                 -- free alternative --
               </div>
               <FontCardFreeSection font={font} />
+            </>
+          )}
+
+          {/* Preview */}
+          {font.googleFontsUrl && (
+            <>
               <div className="text-xs text-[#555] font-mono">
-                -- preview ({font.alternativeName}) --
+                -- preview
+                {hasAiAlternative ? ` (${font.alternativeName})` : ""} --
               </div>
               <FontPreview
-                fontName={font.alternativeName}
+                fontName={
+                  hasAiAlternative ? font.alternativeName : font.originalName
+                }
                 googleFontsUrl={font.googleFontsUrl}
               />
             </>
           )}
 
-          {/* Free fonts (original = alternative): preview + Google Fonts import */}
-          {font.isFree && font.googleFontsUrl && !hasAiAlternative && (
+          {/* Google Fonts import */}
+          {font.googleFontsUrl && (
             <>
-              <div className="text-xs text-[#555] font-mono">
-                -- preview --
-              </div>
-              <FontPreview
-                fontName={font.originalName}
-                googleFontsUrl={font.googleFontsUrl}
-              />
               <div className="text-xs text-[#555] font-mono">
                 -- google fonts --
               </div>

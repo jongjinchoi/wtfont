@@ -1,6 +1,4 @@
 import type { MatchedFont } from "@/types/font";
-import { CodeBlock } from "./code-block";
-import { generateFreeImportCode } from "@/lib/code-templates";
 
 function scoreColor(score: number): string {
   if (score >= 80) return "text-[#4ade80]";
@@ -14,7 +12,7 @@ export function FontCardFreeSection({ font }: { font: MatchedFont }) {
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-[#4ade80]/15 bg-[#4ade80]/5 p-3">
+    <div className="rounded-lg border border-[#4ade80]/15 bg-[#4ade80]/5 p-3">
       <div className="flex items-center gap-3">
         <span className="text-xs font-mono text-[#4ade80]">FREE</span>
         <div className="flex-1">
@@ -33,8 +31,6 @@ export function FontCardFreeSection({ font }: { font: MatchedFont }) {
           <p className="text-xs text-[#555]">{font.similarity}</p>
         </div>
       </div>
-
-      <CodeBlock code={generateFreeImportCode(font)} language="html" />
     </div>
   );
 }
