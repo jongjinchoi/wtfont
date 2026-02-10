@@ -40,6 +40,7 @@ For EACH font, provide:
 8. If the original is a PAID/commercial font: provide the purchase URL from Fontspring or MyFonts, and the approximate starting price
 
 IMPORTANT RULES:
+- For originalName, normalize CSS identifiers to proper font names (e.g. "sohne-var" → "Söhne", "SourceCodePro" → "Source Code Pro", "Inter Variable" → "Inter")
 - If the original IS already a free Google Font, set isFree: true and use the original as the alternative
 - For Google Fonts URLs, use this exact format: https://fonts.googleapis.com/css2?family=Font+Name:wght@400;500;700&display=swap
 - For premiumUrl, use Fontspring (fontspring.com/fonts/...) or MyFonts (myfonts.com/fonts/...) links

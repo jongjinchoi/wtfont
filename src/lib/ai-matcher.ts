@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI, Type } from "@google/genai";
 import OpenAI from "openai";
 import type { ExtractedFont, MatchedFont } from "@/types/font";
 import { buildPrompt, aiResponseSchema } from "./ai-prompt";
@@ -26,20 +26,47 @@ export async function matchFonts(
 
 async function matchWithGemini(prompt: string): Promise<MatchedFont[]> {
   const key = process.env.GEMINI_API_KEY;
-  console.log(`[ai-matcher] GEMINI_API_KEY present: ${!!key}, ends with: ${key?.slice(-4)}`);
   if (!key) throw new Error("GEMINI_API_KEY is not set");
-  const gemini = new GoogleGenerativeAI(key);
-  const model = gemini.getGenerativeModel({
+
+  const ai = new GoogleGenAI({ apiKey: key });
+
+  const fontSchema = {
+    type: Type.ARRAY,
+    items: {
+      type: Type.OBJECT,
+      properties: {
+        role: { type: Type.STRING },
+        originalName: { type: Type.STRING },
+        isFree: { type: Type.BOOLEAN },
+        alternativeName: { type: Type.STRING },
+        googleFontsUrl: { type: Type.STRING, nullable: true },
+        fallback: { type: Type.STRING },
+        similarity: { type: Type.STRING },
+        notes: { type: Type.STRING },
+        weights: { type: Type.ARRAY, items: { type: Type.STRING } },
+        premiumUrl: { type: Type.STRING, nullable: true },
+        premiumPrice: { type: Type.STRING, nullable: true },
+      },
+      required: [
+        "role", "originalName", "isFree", "alternativeName",
+        "googleFontsUrl", "fallback", "similarity", "notes",
+        "weights", "premiumUrl", "premiumPrice",
+      ],
+    },
+  };
+
+  const response = await ai.models.generateContent({
     model: "gemini-2.0-flash",
-    generationConfig: {
+    contents: prompt,
+    config: {
       temperature: 0.3,
       maxOutputTokens: 4096,
       responseMimeType: "application/json",
+      responseSchema: fontSchema,
     },
   });
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  const text = response.text ?? "[]";
   const parsed = JSON.parse(text);
   return aiResponseSchema.parse(parsed);
 }
