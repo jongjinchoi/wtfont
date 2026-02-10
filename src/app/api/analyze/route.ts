@@ -150,17 +150,21 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Validate premium URLs — remove broken links before caching
+    // Validate all AI-generated URLs before caching
     matchedFonts = await Promise.all(
       matchedFonts.map(async (f) => {
-        const checkedUrl = await checkPremiumUrl(f.premiumUrl);
+        const [checkedGoogle, checkedPremium] = await Promise.all([
+          checkUrlExists(f.googleFontsUrl),
+          checkUrlExists(f.premiumUrl),
+        ]);
         return {
           ...f,
+          googleFontsUrl: checkedGoogle,
           premiumUrl: buildAffiliateUrl(
-            checkedUrl,
-            checkedUrl?.includes("myfonts.com") ? "myfonts" : undefined
+            checkedPremium,
+            checkedPremium?.includes("myfonts.com") ? "myfonts" : undefined
           ),
-          premiumPrice: checkedUrl ? f.premiumPrice : null,
+          premiumPrice: checkedPremium ? f.premiumPrice : null,
         };
       })
     );
@@ -202,8 +206,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/** Verify premium URL exists (returns 2xx). Returns the URL or null. */
-async function checkPremiumUrl(url: string | null): Promise<string | null> {
+/** Verify URL exists (returns 2xx). Returns the URL or null. */
+async function checkUrlExists(url: string | null): Promise<string | null> {
   if (!url) return null;
   try {
     const res = await fetch(url, {
