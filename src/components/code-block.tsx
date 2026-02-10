@@ -10,15 +10,15 @@ export function CodeBlock({
   language?: string;
 }) {
   return (
-    <div className="relative group rounded-lg border border-terminal-border bg-[#1a1a1a] overflow-hidden">
+    <div className="relative group rounded-lg border border-terminal-border bg-terminal-code overflow-hidden">
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-terminal-border">
-        <span className="text-xs text-[#555] font-mono uppercase">
+        <span className="text-xs text-terminal-subtle font-mono uppercase">
           {language}
         </span>
         <CopyButton text={code} />
       </div>
       <pre className="overflow-x-auto p-3 text-sm leading-relaxed">
-        <code className="font-mono text-[#ccc]">{code}</code>
+        <code className="font-mono text-terminal-text">{code}</code>
       </pre>
     </div>
   );

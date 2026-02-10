@@ -157,15 +157,15 @@ export function ResultPageClient({
                   style={{ animationDelay: `${i * 0.1}s` }}
                 >
                   {log.type === "command" && (
-                    <span className="text-[#ccc]">
+                    <span className="text-terminal-text">
                       <span className="text-brand">$</span> {log.text}
                     </span>
                   )}
                   {log.type === "info" && (
-                    <span className="text-[#666]">{log.text}</span>
+                    <span className="text-terminal-link">{log.text}</span>
                   )}
                   {log.type === "success" && (
-                    <span className="text-[#4ade80]">
+                    <span className="text-success">
                       <span className="mr-1">+</span>
                       {log.text}
                     </span>
@@ -179,7 +179,7 @@ export function ResultPageClient({
                 </div>
               ))}
               {loading && (
-                <span className="inline-block w-2 h-4 bg-[#ccc] animate-blink mt-1" />
+                <span className="inline-block w-2 h-4 bg-terminal-text animate-blink mt-1" />
               )}
             </div>
           )}
@@ -190,7 +190,7 @@ export function ResultPageClient({
               <p className="text-red-400">{error}</p>
               <Link
                 href="/"
-                className="inline-block mt-3 text-xs text-[#666] hover:text-[#ccc] underline underline-offset-2 transition-colors duration-200"
+                className="inline-block mt-3 text-xs text-terminal-link hover:text-terminal-text underline underline-offset-2 transition-colors duration-200"
               >
                 &lt;- Back to home
               </Link>
@@ -205,18 +205,18 @@ export function ResultPageClient({
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1 text-sm font-mono">
                     <div>
-                      <span className="text-[#666]">domain: </span>
+                      <span className="text-terminal-link">domain: </span>
                       <span className="text-brand">{data.domain}</span>
                     </div>
                     <div>
-                      <span className="text-[#666]">fonts: </span>
-                      <span className="text-[#ccc]">
+                      <span className="text-terminal-link">fonts: </span>
+                      <span className="text-terminal-text">
                         {data.matchedFonts.length} detected
                       </span>
                     </div>
                     <div>
-                      <span className="text-[#666]">date: </span>
-                      <span className="text-[#ccc]">
+                      <span className="text-terminal-link">date: </span>
+                      <span className="text-terminal-text">
                         {new Date(data.analyzedAt).toLocaleDateString()}
                       </span>
                     </div>

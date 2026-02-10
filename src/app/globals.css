@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+  /* Dark mode (default) */
   :root {
     /* Layout */
     --max-width: 768px;
@@ -17,7 +18,9 @@
     --color-brand: #f97316;
     --color-success: #4ade80;
     --color-error: #ef4444;
+    --color-warning: #fbbf24;
 
+    /* Terminal palette */
     --color-terminal-bg: #1c1c1c;
     --color-terminal-surface: #252525;
     --color-terminal-border: #333333;
@@ -25,10 +28,30 @@
     --color-terminal-muted: #888888;
     --color-terminal-subtle: #555555;
     --color-terminal-dim: #444444;
+    --color-terminal-link: #666666;
+    --color-terminal-code: #1a1a1a;
+
+    color-scheme: dark;
   }
 
-  html {
-    color-scheme: dark;
+  /* Light mode */
+  :root.light {
+    --color-brand: #ea580c;
+    --color-success: #16a34a;
+    --color-error: #dc2626;
+    --color-warning: #d97706;
+
+    --color-terminal-bg: #f5f5f0;
+    --color-terminal-surface: #ebebeb;
+    --color-terminal-border: #d4d4d4;
+    --color-terminal-text: #1c1c1c;
+    --color-terminal-muted: #666666;
+    --color-terminal-subtle: #888888;
+    --color-terminal-dim: #aaaaaa;
+    --color-terminal-link: #555555;
+    --color-terminal-code: #e8e8e3;
+
+    color-scheme: light;
   }
 }
 

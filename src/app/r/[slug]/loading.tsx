@@ -10,15 +10,15 @@ export default function ResultLoading() {
           <div className="space-y-1 font-mono text-sm">
             <div className="animate-fade-in-line">
               <span className="text-brand">$</span>
-              <span className="text-[#ccc]"> wtfont analyze ...</span>
+              <span className="text-terminal-text"> wtfont analyze ...</span>
             </div>
             <div
               className="animate-fade-in-line"
               style={{ animationDelay: "0.3s" }}
             >
-              <span className="text-[#666]">Connecting...</span>
+              <span className="text-terminal-link">Connecting...</span>
             </div>
-            <span className="inline-block w-2 h-4 bg-[#ccc] animate-blink mt-1" />
+            <span className="inline-block w-2 h-4 bg-terminal-text animate-blink mt-1" />
           </div>
         </div>
       </main>

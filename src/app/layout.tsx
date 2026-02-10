@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GeistPixelSquare } from "geist/font/pixel";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -40,11 +41,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${GeistPixelSquare.variable} dark`}
+      className={`${geistSans.variable} ${geistMono.variable} ${GeistPixelSquare.variable}`}
       suppressHydrationWarning
     >
-      <body className="font-mono antialiased bg-terminal-bg text-[#ccc]">
-        {children}
+      <body className="font-mono antialiased bg-terminal-bg text-terminal-text">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

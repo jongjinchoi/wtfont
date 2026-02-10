@@ -17,6 +17,7 @@ export default {
         brand: "var(--color-brand)",
         success: "var(--color-success)",
         error: "var(--color-error)",
+        warning: "var(--color-warning)",
         terminal: {
           bg: "var(--color-terminal-bg)",
           surface: "var(--color-terminal-surface)",
@@ -25,6 +26,8 @@ export default {
           muted: "var(--color-terminal-muted)",
           subtle: "var(--color-terminal-subtle)",
           dim: "var(--color-terminal-dim)",
+          link: "var(--color-terminal-link)",
+          code: "var(--color-terminal-code)",
         },
       },
       spacing: {

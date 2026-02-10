@@ -42,7 +42,7 @@ export function FontPreview({
               ${
                 size === s
                   ? "bg-brand/20 text-brand border border-brand/30"
-                  : "text-[#555] hover:text-[#ccc] border border-terminal-border"
+                  : "text-terminal-subtle hover:text-terminal-text border border-terminal-border"
               }`}
             aria-label={`Set preview size to ${s}px`}
           >
@@ -53,7 +53,7 @@ export function FontPreview({
       <div
         contentEditable
         suppressContentEditableWarning
-        className="p-3 rounded-lg border border-terminal-border bg-[#1a1a1a] text-[#ccc] focus:outline-none focus:ring-1 focus:ring-brand/50 min-h-[60px] transition-opacity duration-200"
+        className="p-3 rounded-lg border border-terminal-border bg-terminal-code text-terminal-text focus:outline-none focus:ring-1 focus:ring-brand/50 min-h-[60px] transition-opacity duration-200"
         style={{
           fontFamily: `'${fontName}', sans-serif`,
           fontSize: `${size}px`,
@@ -65,7 +65,7 @@ export function FontPreview({
       >
         {defaultText}
       </div>
-      <p className="text-xs text-[#555]">Click to edit the preview text</p>
+      <p className="text-xs text-terminal-subtle">Click to edit the preview text</p>
     </div>
   );
 }

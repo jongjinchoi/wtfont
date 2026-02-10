@@ -10,9 +10,9 @@ const variantClasses: Record<Variant, string> = {
   primary:
     "bg-brand text-white hover:bg-orange-600 focus-visible:ring-brand",
   secondary:
-    "bg-terminal-surface text-[#ccc] border border-terminal-border hover:border-[#555] focus-visible:ring-[#555]",
+    "bg-terminal-surface text-terminal-text border border-terminal-border hover:border-terminal-subtle focus-visible:ring-terminal-subtle",
   ghost:
-    "text-[#666] hover:text-[#ccc] hover:bg-terminal-surface",
+    "text-terminal-link hover:text-terminal-text hover:bg-terminal-surface",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Header({ domain }: { domain?: string }) {
   return (
     <header className="border-b border-terminal-border bg-terminal-bg">
-      <div className="mx-auto max-w-content flex items-center px-page-px py-bar-y">
+      <div className="mx-auto max-w-content flex items-center justify-between px-page-px py-bar-y">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
@@ -17,6 +18,7 @@ export function Header({ domain }: { domain?: string }) {
             {domain ? `${domain} - wtfont.wtf` : "wtfont.wtf"}
           </Link>
         </div>
+        <ThemeToggle />
       </div>
     </header>
   );

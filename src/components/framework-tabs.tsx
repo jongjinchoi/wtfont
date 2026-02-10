@@ -46,7 +46,7 @@ export function FrameworkTabs({
                 ${
                   active === fw.id
                     ? "bg-brand/20 text-brand border border-brand/30"
-                    : "text-[#555] hover:text-[#ccc] border border-transparent"
+                    : "text-terminal-subtle hover:text-terminal-text border border-transparent"
                 }`}
             >
               {fw.label}

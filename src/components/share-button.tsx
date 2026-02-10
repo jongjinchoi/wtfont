@@ -34,17 +34,17 @@ export function ShareButton({
         href={twitterUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-[#666] hover:text-[#ccc] transition-colors duration-200 cursor-pointer"
+        className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
       >
         Share ↗
       </a>
-      <span className="text-[#444]">|</span>
+      <span className="text-terminal-dim">|</span>
       <button
         onClick={handleCopyLink}
-        className="text-[#666] hover:text-[#ccc] transition-colors duration-200 cursor-pointer"
+        className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
       >
         {copied ? (
-          <span className="text-[#4ade80]">Copied!</span>
+          <span className="text-success">Copied!</span>
         ) : (
           "Copy link"
         )}

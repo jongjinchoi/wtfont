@@ -32,7 +32,7 @@ export function FontCard({
   return (
     <div className="space-y-2">
       {/* Terminal command header */}
-      <div className="text-xs text-[#666] font-mono">
+      <div className="text-xs text-terminal-link font-mono">
         <span className="text-brand">$</span> cat font[{index}]
       </div>
 
@@ -41,10 +41,10 @@ export function FontCard({
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-sm font-medium text-[#ccc]">
+              <h3 className="text-sm font-medium text-terminal-text">
                 {font.originalName}
               </h3>
-              <div className="text-xs text-[#555] mt-0.5 font-mono">
+              <div className="text-xs text-terminal-subtle mt-0.5 font-mono">
                 <span>
                   role: {ROLE_LABELS[font.role] || font.role}
                 </span>
@@ -58,8 +58,8 @@ export function FontCard({
             <span
               className={`text-xs font-mono px-2 py-0.5 ${
                 font.isFree
-                  ? "text-[#4ade80]"
-                  : "text-[#fbbf24]"
+                  ? "text-success"
+                  : "text-warning"
               }`}
             >
               {font.isFree ? "FREE" : "CUSTOM"}
@@ -69,7 +69,7 @@ export function FontCard({
           {/* Free alternative info (paid fonts only) */}
           {hasAiAlternative && (
             <>
-              <div className="text-xs text-[#555] font-mono">
+              <div className="text-xs text-terminal-subtle font-mono">
                 -- free alternative --
               </div>
               <FontCardFreeSection font={font} />
@@ -79,7 +79,7 @@ export function FontCard({
           {/* Preview */}
           {font.googleFontsUrl && (
             <>
-              <div className="text-xs text-[#555] font-mono">
+              <div className="text-xs text-terminal-subtle font-mono">
                 -- preview
                 {hasAiAlternative ? ` (${font.alternativeName})` : ""} --
               </div>
@@ -95,7 +95,7 @@ export function FontCard({
           {/* Google Fonts import */}
           {font.googleFontsUrl && (
             <>
-              <div className="text-xs text-[#555] font-mono">
+              <div className="text-xs text-terminal-subtle font-mono">
                 -- google fonts CDN · add to {"<head>"} --
               </div>
               <CodeBlock
@@ -106,13 +106,13 @@ export function FontCard({
           )}
 
           {/* CSS Usage */}
-          <div className="text-xs text-[#555] font-mono">
+          <div className="text-xs text-terminal-subtle font-mono">
             -- css · add to stylesheet --
           </div>
           <CodeBlock code={generateCssUsageCode(font)} language="css" />
 
           {/* Self-host code */}
-          <div className="text-xs text-[#555] font-mono">
+          <div className="text-xs text-terminal-subtle font-mono">
             -- self-host · download {"&"} serve locally
             {!font.isFree && " (license required)"} --
           </div>
@@ -124,11 +124,11 @@ export function FontCard({
               href={font.premiumUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-[#fbbf24] hover:text-amber-300 transition-colors duration-200 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-mono text-warning hover:opacity-80 transition-colors duration-200 cursor-pointer"
             >
               Buy License ↗
               {font.premiumPrice && (
-                <span className="text-[#555] ml-1">
+                <span className="text-terminal-subtle ml-1">
                   from {font.premiumPrice}
                 </span>
               )}
@@ -141,7 +141,7 @@ export function FontCard({
               href={`https://fonts.google.com/?query=${searchName}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#666] hover:text-[#ccc] transition-colors duration-200 cursor-pointer"
+              className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
             >
               Google Fonts ↗
             </a>
@@ -149,7 +149,7 @@ export function FontCard({
               href={`https://www.myfonts.com/search?query=${searchName}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#666] hover:text-[#ccc] transition-colors duration-200 cursor-pointer"
+              className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
             >
               MyFonts ↗
             </a>
@@ -157,7 +157,7 @@ export function FontCard({
               href={`https://www.fontspring.com/search?q=${searchName}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#666] hover:text-[#ccc] transition-colors duration-200 cursor-pointer"
+              className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
             >
               Fontspring ↗
             </a>
@@ -165,7 +165,7 @@ export function FontCard({
 
           {/* Notes */}
           {font.notes && (
-            <p className="text-xs text-[#555] leading-relaxed">
+            <p className="text-xs text-terminal-subtle leading-relaxed">
               {font.notes}
             </p>
           )}

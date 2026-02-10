@@ -20,10 +20,10 @@ export function CopyButton({
   return (
     <button
       onClick={handleCopy}
-      className="text-xs font-mono text-[#555] hover:text-[#ccc] transition-colors duration-200 cursor-pointer"
+      className="text-xs font-mono text-terminal-subtle hover:text-terminal-text transition-colors duration-200 cursor-pointer"
       aria-label={copied ? "Copied!" : label}
     >
-      {copied ? <span className="text-[#4ade80]">Copied!</span> : label}
+      {copied ? <span className="text-success">Copied!</span> : label}
     </button>
   );
 }
