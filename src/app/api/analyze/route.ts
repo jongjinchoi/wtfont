@@ -36,7 +36,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { allowed, remaining, reset } = await checkRateLimit();
+    // Skip rate limit for pre-warm requests with valid secret
+    const preWarmSecret = request.headers.get("x-prewarm-secret");
+    const isPreWarm =
+      preWarmSecret && preWarmSecret === process.env.PREWARM_SECRET;
+
+    const { allowed, remaining, reset } = isPreWarm
+      ? { allowed: true, remaining: 999, reset: Date.now() }
+      : await checkRateLimit();
     if (!allowed) {
       return NextResponse.json<AnalyzeErrorResponse>(
         {

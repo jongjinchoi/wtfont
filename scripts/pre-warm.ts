@@ -10,6 +10,7 @@
 import { PRE_WARM_URLS } from "./pre-warm-urls.js";
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3100";
+const PREWARM_SECRET = process.env.PREWARM_SECRET || "";
 const CONCURRENCY = 3;
 const REQUEST_TIMEOUT = 30_000;
 
@@ -24,9 +25,16 @@ interface Result {
 async function analyzeUrl(url: string): Promise<Result> {
   const start = Date.now();
   try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (PREWARM_SECRET) {
+      headers["x-prewarm-secret"] = PREWARM_SECRET;
+    }
+
     const res = await fetch(`${BASE_URL}/api/analyze`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ url }),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT),
     });
