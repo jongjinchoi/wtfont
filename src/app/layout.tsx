@@ -15,21 +15,50 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WTFont.wtf — Find fonts, get free alternatives, copy the code",
+  title: {
+    default: "WTFont.wtf — What The Font? Find fonts & free alternatives",
+    template: "%s — WTFont.wtf",
+  },
   description:
-    "Enter any website URL. We extract the fonts, find free alternatives, and give you copy-paste code for HTML, Next.js, Nuxt, and React.",
+    "Enter any website URL. We detect the fonts, find free Google Fonts alternatives, and give you copy-paste code for HTML, Next.js, Nuxt, and React.",
   metadataBase: new URL("https://wtfont.wtf"),
+  keywords: [
+    "font identifier",
+    "what font is this",
+    "web font detector",
+    "free font alternatives",
+    "google fonts",
+    "font analyzer",
+    "css fonts",
+    "web typography",
+  ],
+  authors: [{ name: "WTFont.wtf" }],
+  creator: "WTFont.wtf",
   openGraph: {
-    title: "WTFont.wtf",
-    description: "What font is that? Free alternatives + ready-to-use code.",
+    title: "WTFont.wtf — What The Font?",
+    description:
+      "Detect any website's fonts. Get free alternatives and copy-paste code.",
     url: "https://wtfont.wtf",
     siteName: "WTFont.wtf",
+    locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "WTFont.wtf",
-    description: "What font is that? Free alternatives + ready-to-use code.",
+    title: "WTFont.wtf — What The Font?",
+    description:
+      "Detect any website's fonts. Get free alternatives and copy-paste code.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: "https://wtfont.wtf",
   },
 };
 
