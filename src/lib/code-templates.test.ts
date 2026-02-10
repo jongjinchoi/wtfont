@@ -16,6 +16,7 @@ const mockFont: MatchedFont = {
     "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700&display=swap",
   fallback: "sans-serif",
   similarity: "Rounded geometric sans-serif",
+  similarityScore: 82,
   notes: "Use Display weight for headings",
   weights: ["500", "700"],
   premiumUrl: "https://fontspring.com/fonts/gt-walsheim",

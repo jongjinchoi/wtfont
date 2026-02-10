@@ -129,6 +129,7 @@ export async function POST(request: NextRequest) {
           similarity: knownGoogle
             ? "This is a free Google Font — use it directly!"
             : "Detected font — enable AI matching for free alternatives",
+          similarityScore: knownGoogle ? 100 : 0,
           notes: knownGoogle
             ? "Available on Google Fonts. Import it with the code below."
             : "Set GEMINI_API_KEY or OPENAI_API_KEY for AI-powered free alternative suggestions.",

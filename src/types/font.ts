@@ -19,6 +19,7 @@ export interface MatchedFont {
   googleFontsUrl: string | null;
   fallback: string;
   similarity: string;
+  similarityScore: number;
   notes: string;
   weights: string[];
   premiumUrl: string | null;

@@ -53,6 +53,7 @@ describe("aiResponseSchema", () => {
           "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap",
         fallback: "sans-serif",
         similarity: "Same font - already free",
+        similarityScore: 100,
         notes: "Use variable font for best performance",
         weights: ["400", "700"],
         premiumUrl: null,

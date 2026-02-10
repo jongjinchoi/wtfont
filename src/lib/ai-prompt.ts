@@ -9,6 +9,7 @@ export const matchedFontSchema = z.object({
   googleFontsUrl: z.string().nullable(),
   fallback: z.string(),
   similarity: z.string(),
+  similarityScore: z.number(),
   notes: z.string(),
   weights: z.array(z.string()),
   premiumUrl: z.string().nullable(),
@@ -35,18 +36,19 @@ For EACH font, provide:
 3. The Google Fonts CSS import URL for the alternative (use css2 API format)
 4. A generic CSS fallback category (sans-serif, serif, or monospace)
 5. A brief explanation (1-2 sentences) of why this alternative is similar
-6. A practical usage tip
-7. The recommended font weights for the alternative
-8. If the original is a PAID/commercial font: provide the purchase URL from Fontspring or MyFonts, and the approximate starting price
+6. A visual similarity score (0-100) comparing the alternative to the original font, based on classification, proportions, stroke weight, and overall visual impression
+7. A practical usage tip
+8. The recommended font weights for the alternative
+9. If the original is a PAID/commercial font: provide the purchase URL from Fontspring or MyFonts, and the approximate starting price
 
 IMPORTANT RULES:
 - For originalName, normalize CSS identifiers to proper font names (e.g. "sohne-var" → "Söhne", "SourceCodePro" → "Source Code Pro", "Inter Variable" → "Inter")
-- If the original IS already a free Google Font, set isFree: true and use the original as the alternative
+- If the original IS already a free Google Font, set isFree: true, use the original as the alternative, and set similarityScore to 100
 - For Google Fonts URLs, use this exact format: https://fonts.googleapis.com/css2?family=Font+Name:wght@400;500;700&display=swap
 - For premiumUrl, use Fontspring (fontspring.com/fonts/...) or MyFonts (myfonts.com/fonts/...) links
 - All descriptions should be in English
 - Return ONLY valid JSON array, no markdown
 
 Respond with a JSON array where each element has these fields:
-role, originalName, isFree, alternativeName, googleFontsUrl, fallback, similarity, notes, weights, premiumUrl, premiumPrice`;
+role, originalName, isFree, alternativeName, googleFontsUrl, fallback, similarity, similarityScore, notes, weights, premiumUrl, premiumPrice`;
 }
