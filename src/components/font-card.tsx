@@ -67,6 +67,67 @@ export function FontCard({
             </span>
           </div>
 
+          {/* Purchase links for original font */}
+          {font.premiumUrl && !(font.premiumPrice && /free/i.test(font.premiumPrice)) && (
+            <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
+              <a
+                href={font.premiumUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  trackEvent({
+                    event: "affiliate_click",
+                    fontName: font.originalName,
+                    marketplace: font.premiumUrl?.includes("myfonts.com")
+                      ? "myfonts"
+                      : "fontspring",
+                  })
+                }
+                className="text-warning hover:opacity-80 transition-colors duration-200 cursor-pointer"
+              >
+                Buy on {font.premiumUrl.includes("myfonts.com") ? "MyFonts" : "Fontspring"} ↗
+                {font.premiumPrice && (
+                  <span className="text-terminal-subtle ml-1">
+                    from {font.premiumPrice}
+                  </span>
+                )}
+              </a>
+              <a
+                href={
+                  font.premiumUrl.includes("myfonts.com")
+                    ? `https://www.fontspring.com/search?q=${searchName}`
+                    : `https://www.myfonts.com/search?query=${searchName}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  trackEvent({
+                    event: "affiliate_click",
+                    fontName: font.originalName,
+                    marketplace: font.premiumUrl?.includes("myfonts.com")
+                      ? "fontspring"
+                      : "myfonts",
+                  })
+                }
+                className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
+              >
+                {font.premiumUrl.includes("myfonts.com") ? "Fontspring" : "MyFonts"} ↗
+              </a>
+            </div>
+          )}
+
+          {/* Google Fonts link for free fonts (not alternatives) */}
+          {!hasAiAlternative && font.googleFontsUrl && (
+            <a
+              href={`https://fonts.google.com/?query=${encodeURIComponent(font.originalName)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-xs font-mono text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
+            >
+              Google Fonts ↗
+            </a>
+          )}
+
           {/* Free alternative info (paid fonts only) */}
           {hasAiAlternative && (
             <>
@@ -74,6 +135,14 @@ export function FontCard({
                 -- free alternative --
               </div>
               <FontCardFreeSection font={font} />
+              <a
+                href={`https://fonts.google.com/?query=${encodeURIComponent(font.alternativeName)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-xs font-mono text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
+              >
+                Google Fonts ↗
+              </a>
             </>
           )}
 
@@ -135,82 +204,6 @@ export function FontCard({
             {!font.isFree && " (license required)"} --
           </div>
           <FrameworkTabs font={font} mode="premium" />
-
-          {/* Purchase link */}
-          {font.premiumUrl && (
-            <a
-              href={font.premiumUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() =>
-                trackEvent({
-                  event: "affiliate_click",
-                  fontName: font.originalName,
-                  marketplace: font.premiumUrl?.includes("myfonts.com")
-                    ? "myfonts"
-                    : "fontspring",
-                })
-              }
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-warning hover:opacity-80 transition-colors duration-200 cursor-pointer"
-            >
-              Buy License ↗
-              {font.premiumPrice && (
-                <span className="text-terminal-subtle ml-1">
-                  from {font.premiumPrice}
-                </span>
-              )}
-            </a>
-          )}
-
-          {/* Search links — only show platforms where the font is available */}
-          {(font.googleFontsUrl || font.premiumUrl) && (
-            <div className="flex flex-wrap gap-3 pt-3 border-t border-terminal-border text-xs font-mono">
-              {font.googleFontsUrl && (
-                <a
-                  href={`https://fonts.google.com/?query=${encodeURIComponent(font.alternativeName)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
-                >
-                  Google Fonts ↗
-                </a>
-              )}
-              {font.premiumUrl && (
-                <>
-                  <a
-                    href={`https://www.myfonts.com/search?query=${searchName}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() =>
-                      trackEvent({
-                        event: "affiliate_click",
-                        fontName: font.originalName,
-                        marketplace: "myfonts",
-                      })
-                    }
-                    className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
-                  >
-                    MyFonts ↗
-                  </a>
-                  <a
-                    href={`https://www.fontspring.com/search?q=${searchName}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() =>
-                      trackEvent({
-                        event: "affiliate_click",
-                        fontName: font.originalName,
-                        marketplace: "fontspring",
-                      })
-                    }
-                    className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
-                  >
-                    Fontspring ↗
-                  </a>
-                </>
-              )}
-            </div>
-          )}
 
           {/* Notes */}
           {font.notes && (
