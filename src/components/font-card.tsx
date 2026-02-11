@@ -132,7 +132,7 @@ export function FontCard({
           {hasAiAlternative && (
             <div className="pt-4 pb-6 space-y-3">
               <div className="text-xs text-terminal-subtle font-mono">
-                -- free alternative --
+                free alternative
               </div>
               <FontCardFreeSection font={font} />
               <a
@@ -150,8 +150,8 @@ export function FontCard({
           {font.googleFontsUrl && (
             <div className="pt-4 pb-6 space-y-3">
               <div className="text-xs text-terminal-subtle font-mono">
-                -- preview
-                {hasAiAlternative ? ` (${font.alternativeName})` : ""} --
+                preview
+                {hasAiAlternative ? ` (${font.alternativeName})` : ""}
               </div>
               <FontPreview
                 fontName={
@@ -167,7 +167,7 @@ export function FontCard({
             {font.googleFontsUrl && (
               <div className="space-y-2">
                 <div className="text-xs text-terminal-subtle font-mono">
-                  -- google fonts CDN · add to {"<head>"} --
+                  google fonts CDN · add to {"<head>"}
                 </div>
                 <CodeBlock
                   code={generateFreeImportCode(font)}
@@ -185,7 +185,7 @@ export function FontCard({
 
             <div className="space-y-2">
               <div className="text-xs text-terminal-subtle font-mono">
-                -- css · add to stylesheet --
+                css · add to stylesheet
               </div>
               <CodeBlock
                 code={generateCssUsageCode(font)}
@@ -202,8 +202,8 @@ export function FontCard({
 
             <div className="space-y-2">
               <div className="text-xs text-terminal-subtle font-mono">
-                -- self-host · download {"&"} serve locally
-                {!font.isFree && " (license required)"} --
+                self-host · download {"&"} serve locally
+                {!font.isFree && " (license required)"}
               </div>
               <FrameworkTabs font={font} mode="premium" />
             </div>
