@@ -5,8 +5,8 @@ export default function ResultLoading() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 px-6 py-8">
-        <div className="mx-auto max-w-3xl">
+      <main className="flex-1 py-8">
+        <div className="mx-auto max-w-content px-page-px">
           <div className="space-y-1 font-mono text-sm">
             <div className="animate-fade-in-line">
               <span className="text-brand">$</span>
