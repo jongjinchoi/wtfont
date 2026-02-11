@@ -40,7 +40,7 @@ export function FontCard({
       <Card>
         <div className="divide-y divide-terminal-border">
           {/* ── Group 1: Font Identity ── */}
-          <div className="pb-4 space-y-2">
+          <div className="pb-6 space-y-2">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-sm font-medium text-terminal-text">
@@ -130,7 +130,7 @@ export function FontCard({
 
           {/* ── Group 2: Free Alternative ── */}
           {hasAiAlternative && (
-            <div className="py-4 space-y-3">
+            <div className="pt-4 pb-6 space-y-3">
               <div className="text-xs text-terminal-subtle font-mono">
                 -- free alternative --
               </div>
@@ -148,7 +148,7 @@ export function FontCard({
 
           {/* ── Group 3: Preview ── */}
           {font.googleFontsUrl && (
-            <div className="py-4 space-y-3">
+            <div className="pt-4 pb-6 space-y-3">
               <div className="text-xs text-terminal-subtle font-mono">
                 -- preview
                 {hasAiAlternative ? ` (${font.alternativeName})` : ""} --
@@ -163,7 +163,7 @@ export function FontCard({
           )}
 
           {/* ── Group 4: Code Snippets ── */}
-          <div className="py-4 space-y-4">
+          <div className="pt-4 pb-6 space-y-4">
             {font.googleFontsUrl && (
               <div className="space-y-2">
                 <div className="text-xs text-terminal-subtle font-mono">
