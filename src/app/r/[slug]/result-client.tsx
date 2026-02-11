@@ -201,7 +201,7 @@ export function ResultPageClient({
           {showResults && data && (
             <div className="space-y-6 animate-fade-in-line">
               {/* Summary */}
-              <div className="border-t border-terminal-border pt-4">
+              <div>
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1 text-sm font-mono">
                     <div>
