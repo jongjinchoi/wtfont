@@ -107,7 +107,11 @@ function inferRole(
 }
 
 function cleanFontName(name: string): string {
-  return name.replace(/['"]/g, "").trim();
+  return name
+    .replace(/['"]/g, "")
+    .replace(/\.[0-9a-f]{8,}$/i, "")   // strip content hash (e.g. ".8816d9e5c3b6a860636193e36b6ac4e4")
+    .replace(/\s+(W\s+)?Wght$/i, "")    // strip VF axis info (e.g. " W Wght", " Wght")
+    .trim();
 }
 
 export async function extractFonts(
@@ -142,7 +146,8 @@ export async function extractFonts(
     // computedStyle is already cross-validated against loaded set
     if (method !== "document.fonts" && isSystemFont(name)) return;
 
-    const key = name.toLowerCase();
+    // Normalize key: remove spaces to merge "AirbnbCerealVF" with "Airbnb Cereal VF"
+    const key = name.toLowerCase().replace(/\s/g, "");
     let entry = fontMap.get(key);
     if (!entry) {
       entry = {

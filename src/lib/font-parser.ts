@@ -40,11 +40,18 @@ export async function extractFontsFromHtml(
     weight?: string,
     selector?: string
   ) => {
-    const cleanName = decodeCssUnicodeEscapes(name.replace(/['"]/g, "").trim());
+    const cleanName = decodeCssUnicodeEscapes(
+      name
+        .replace(/['"]/g, "")
+        .replace(/\.[0-9a-f]{8,}$/i, "")   // strip content hash
+        .replace(/\s+(W\s+)?Wght$/i, "")    // strip VF axis info
+        .trim()
+    );
     if (!cleanName || isSystemFont(cleanName) || !isValidFontName(cleanName))
       return;
 
-    const key = cleanName.toLowerCase();
+    // Normalize key: remove spaces to merge "AirbnbCerealVF" with "Airbnb Cereal VF"
+    const key = cleanName.toLowerCase().replace(/\s/g, "");
     const existing = fontMap.get(key);
     if (existing) {
       if (weight) existing.weights.add(weight);

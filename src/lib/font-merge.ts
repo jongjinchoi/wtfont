@@ -27,7 +27,7 @@ export function mergeFontResults(
 
   // Add static fonts first
   for (const font of staticFonts) {
-    const key = font.name.toLowerCase();
+    const key = font.name.toLowerCase().replace(/\s/g, "");
     merged.set(key, {
       ...font,
       weights: [...font.weights],
@@ -37,7 +37,7 @@ export function mergeFontResults(
 
   // Merge dynamic fonts
   for (const font of dynamicFonts) {
-    const key = font.name.toLowerCase();
+    const key = font.name.toLowerCase().replace(/\s/g, "");
     const existing = merged.get(key);
 
     if (existing) {
