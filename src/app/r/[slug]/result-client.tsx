@@ -31,6 +31,7 @@ export function ResultPageClient({
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [showResults, setShowResults] = useState(false);
   const startTime = useRef(Date.now());
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleNewAnalysis = useCallback(
     (newUrl: string) => {
@@ -104,7 +105,12 @@ export function ResultPageClient({
             { text: "Analysis complete", type: "success" },
           ]);
           setLoading(false);
-          setTimeout(() => setShowResults(true), 500);
+          setTimeout(() => {
+            setShowResults(true);
+            requestAnimationFrame(() =>
+              resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+            );
+          }, 500);
         }, 3000)
       );
     }
@@ -145,7 +151,12 @@ export function ResultPageClient({
             },
             { text: "Analysis complete", type: "success" },
           ]);
-          setTimeout(() => setShowResults(true), 500);
+          setTimeout(() => {
+            setShowResults(true);
+            requestAnimationFrame(() =>
+              resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+            );
+          }, 500);
         }
       } catch {
         setError("Failed to analyze. Please try again.");
@@ -216,7 +227,7 @@ export function ResultPageClient({
 
           {/* Results */}
           {showResults && data && (
-            <div className="space-y-6 animate-fade-in-line">
+            <div ref={resultsRef} className="space-y-6 animate-fade-in-line">
               {/* Summary */}
               <div>
                 <div className="flex items-start justify-between gap-4">
