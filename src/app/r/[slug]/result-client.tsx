@@ -27,9 +27,9 @@ export function ResultPageClient({
   const router = useRouter();
   const [data, setData] = useState<AnalysisResult | null>(initialData ?? null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(!initialData);
+  const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<LogLine[]>([]);
-  const [showResults, setShowResults] = useState(!!initialData);
+  const [showResults, setShowResults] = useState(false);
   const startTime = useRef(Date.now());
 
   const handleNewAnalysis = useCallback(
@@ -41,13 +41,13 @@ export function ResultPageClient({
     [router]
   );
 
-  const domain = url
-    ? url.replace(/^https?:\/\//, "").split("/")[0]
-    : "";
+  const domain =
+    initialData?.domain ??
+    (url ? url.replace(/^https?:\/\//, "").split("/")[0] : "");
 
-  // Build loading log sequence
+  // Build loading log sequence (runs for both cached and fresh)
   useEffect(() => {
-    if (initialData || !url) return;
+    if (!url && !initialData) return;
 
     const timers: ReturnType<typeof setTimeout>[] = [];
     startTime.current = Date.now();
@@ -89,6 +89,25 @@ export function ResultPageClient({
         ]);
       }, 2500)
     );
+
+    // For cached results, complete the log sequence and reveal results
+    if (initialData) {
+      timers.push(
+        setTimeout(() => {
+          const elapsed = Date.now() - startTime.current;
+          setLogs((prev) => [
+            ...prev,
+            {
+              text: `Found ${initialData.matchedFonts.length} font${initialData.matchedFonts.length !== 1 ? "s" : ""} (${elapsed}ms)`,
+              type: "success",
+            },
+            { text: "Analysis complete", type: "success" },
+          ]);
+          setLoading(false);
+          setTimeout(() => setShowResults(true), 500);
+        }, 3000)
+      );
+    }
 
     return () => timers.forEach(clearTimeout);
   }, [initialData, url, domain]);
@@ -148,41 +167,39 @@ export function ResultPageClient({
       <main className="flex-1 py-8">
         <div className="mx-auto max-w-content px-page-px space-y-8">
           {/* Terminal log */}
-          {!initialData && (
-            <div className="space-y-1 font-mono text-sm">
-              {logs.map((log, i) => (
-                <div
-                  key={i}
-                  className="animate-fade-in-line"
-                  style={{ animationDelay: `${i * 0.1}s` }}
-                >
-                  {log.type === "command" && (
-                    <span className="text-terminal-text">
-                      <span className="text-brand">$</span> {log.text}
-                    </span>
-                  )}
-                  {log.type === "info" && (
-                    <span className="text-terminal-link">{log.text}</span>
-                  )}
-                  {log.type === "success" && (
-                    <span className="text-success">
-                      <span className="mr-1">+</span>
-                      {log.text}
-                    </span>
-                  )}
-                  {log.type === "error" && (
-                    <span className="text-red-400">
-                      <span className="mr-1">x</span>
-                      {log.text}
-                    </span>
-                  )}
-                </div>
-              ))}
-              {loading && (
-                <span className="inline-block w-2 h-4 bg-terminal-text animate-blink mt-1" />
-              )}
-            </div>
-          )}
+          <div className="space-y-1 font-mono text-sm">
+            {logs.map((log, i) => (
+              <div
+                key={i}
+                className="animate-fade-in-line"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                {log.type === "command" && (
+                  <span className="text-terminal-text">
+                    <span className="text-brand">$</span> {log.text}
+                  </span>
+                )}
+                {log.type === "info" && (
+                  <span className="text-terminal-link">{log.text}</span>
+                )}
+                {log.type === "success" && (
+                  <span className="text-success">
+                    <span className="mr-1">+</span>
+                    {log.text}
+                  </span>
+                )}
+                {log.type === "error" && (
+                  <span className="text-red-400">
+                    <span className="mr-1">x</span>
+                    {log.text}
+                  </span>
+                )}
+              </div>
+            ))}
+            {loading && (
+              <span className="inline-block w-2 h-4 bg-terminal-text animate-blink mt-1" />
+            )}
+          </div>
 
           {/* Error state */}
           {error && !loading && (
