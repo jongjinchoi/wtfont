@@ -28,7 +28,6 @@ export function FontCard({
 }) {
   const hasAiAlternative =
     font.googleFontsUrl && font.alternativeName !== font.originalName;
-  const searchName = encodeURIComponent(font.originalName);
 
   return (
     <div className="space-y-2">
@@ -68,50 +67,37 @@ export function FontCard({
               </span>
             </div>
 
-            {font.premiumUrl && !(font.premiumPrice && /free/i.test(font.premiumPrice)) && (
+            {font.myfontsUrl && font.fontspringUrl && (
               <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
                 <a
-                  href={font.premiumUrl}
+                  href={font.myfontsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() =>
                     trackEvent({
                       event: "affiliate_click",
                       fontName: font.originalName,
-                      marketplace: font.premiumUrl?.includes("myfonts.com")
-                        ? "myfonts"
-                        : "fontspring",
+                      marketplace: "myfonts",
                     })
                   }
                   className="text-warning hover:opacity-80 transition-colors duration-200 cursor-pointer"
                 >
-                  Buy on {font.premiumUrl.includes("myfonts.com") ? "MyFonts" : "Fontspring"} ↗
-                  {font.premiumPrice && (
-                    <span className="text-terminal-subtle ml-1">
-                      from {font.premiumPrice}
-                    </span>
-                  )}
+                  MyFonts ↗
                 </a>
                 <a
-                  href={
-                    font.premiumUrl.includes("myfonts.com")
-                      ? `https://www.fontspring.com/search?q=${searchName}`
-                      : `https://www.myfonts.com/search?query=${searchName}`
-                  }
+                  href={font.fontspringUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() =>
                     trackEvent({
                       event: "affiliate_click",
                       fontName: font.originalName,
-                      marketplace: font.premiumUrl?.includes("myfonts.com")
-                        ? "fontspring"
-                        : "myfonts",
+                      marketplace: "fontspring",
                     })
                   }
                   className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
                 >
-                  {font.premiumUrl.includes("myfonts.com") ? "Fontspring" : "MyFonts"} ↗
+                  Fontspring ↗
                 </a>
               </div>
             )}

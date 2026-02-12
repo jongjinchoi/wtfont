@@ -22,8 +22,8 @@ export interface MatchedFont {
   similarityScore: number;
   notes: string;
   weights: string[];
-  premiumUrl: string | null;
-  premiumPrice: string | null;
+  myfontsUrl: string | null;
+  fontspringUrl: string | null;
 }
 
 /** Complete analysis result stored in cache */

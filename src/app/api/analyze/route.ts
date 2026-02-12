@@ -144,27 +144,28 @@ export async function POST(request: NextRequest) {
             ? "Available on Google Fonts. Import it with the code below."
             : "Set GEMINI_API_KEY or OPENAI_API_KEY for AI-powered free alternative suggestions.",
           weights: f.weights,
-          premiumUrl: null,
-          premiumPrice: null,
+          myfontsUrl: null,
+          fontspringUrl: null,
         };
       });
     }
 
-    // Validate all AI-generated URLs before caching
+    // Validate AI-generated Google Fonts URLs and generate marketplace search URLs
     matchedFonts = await Promise.all(
       matchedFonts.map(async (f) => {
-        const [checkedGoogle, checkedPremium] = await Promise.all([
-          checkUrlExists(f.googleFontsUrl),
-          checkUrlExists(f.premiumUrl),
-        ]);
+        const checkedGoogle = await checkUrlExists(f.googleFontsUrl);
+        const searchName = encodeURIComponent(f.originalName);
         return {
           ...f,
           googleFontsUrl: checkedGoogle,
-          premiumUrl: buildAffiliateUrl(
-            checkedPremium,
-            checkedPremium?.includes("myfonts.com") ? "myfonts" : undefined
+          myfontsUrl: f.isFree ? null : buildAffiliateUrl(
+            `https://www.myfonts.com/search?query=${searchName}`,
+            "myfonts"
           ),
-          premiumPrice: checkedPremium ? f.premiumPrice : null,
+          fontspringUrl: f.isFree ? null : buildAffiliateUrl(
+            `https://www.fontspring.com/search?q=${searchName}`,
+            "fontspring"
+          ),
         };
       })
     );

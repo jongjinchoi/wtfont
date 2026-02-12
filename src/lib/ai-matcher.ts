@@ -45,13 +45,11 @@ async function matchWithGemini(prompt: string): Promise<MatchedFont[]> {
         similarityScore: { type: Type.NUMBER },
         notes: { type: Type.STRING },
         weights: { type: Type.ARRAY, items: { type: Type.STRING } },
-        premiumUrl: { type: Type.STRING, nullable: true },
-        premiumPrice: { type: Type.STRING, nullable: true },
       },
       required: [
         "role", "originalName", "isFree", "alternativeName",
         "googleFontsUrl", "fallback", "similarity", "similarityScore", "notes",
-        "weights", "premiumUrl", "premiumPrice",
+        "weights",
       ],
     },
   };

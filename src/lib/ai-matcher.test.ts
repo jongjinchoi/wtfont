@@ -56,8 +56,6 @@ describe("aiResponseSchema", () => {
         similarityScore: 100,
         notes: "Use variable font for best performance",
         weights: ["400", "700"],
-        premiumUrl: null,
-        premiumPrice: null,
       },
     ];
     const parsed = aiResponseSchema.parse(mockResponse);

@@ -19,8 +19,8 @@ const mockFont: MatchedFont = {
   similarityScore: 82,
   notes: "Use Display weight for headings",
   weights: ["500", "700"],
-  premiumUrl: "https://fontspring.com/fonts/gt-walsheim",
-  premiumPrice: "$39+",
+  myfontsUrl: null,
+  fontspringUrl: null,
 };
 
 describe("toFileName", () => {

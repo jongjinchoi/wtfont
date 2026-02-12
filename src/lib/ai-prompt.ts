@@ -12,8 +12,6 @@ export const matchedFontSchema = z.object({
   similarityScore: z.number(),
   notes: z.string(),
   weights: z.array(z.string()),
-  premiumUrl: z.string().nullable(),
-  premiumPrice: z.string().nullable(),
 });
 
 export const aiResponseSchema = z.array(matchedFontSchema);
@@ -39,17 +37,14 @@ For EACH font, provide:
 6. A visual similarity score (0-100) comparing the alternative to the original font, based on classification, proportions, stroke weight, and overall visual impression
 7. A practical usage tip
 8. The recommended font weights for the alternative
-9. If the original is a PAID/commercial font: provide the purchase URL from Fontspring or MyFonts, and the approximate starting price
 
 IMPORTANT RULES:
 - For originalName, normalize CSS identifiers to proper font names (e.g. "sohne-var" → "Söhne", "SourceCodePro" → "Source Code Pro", "Inter Variable" → "Inter")
 - If the original IS already a free Google Font, set isFree: true, use the original as the alternative, and set similarityScore to 100
 - For Google Fonts URLs, use this exact format: https://fonts.googleapis.com/css2?family=Font+Name:wght@400;500;700&display=swap
-- For premiumUrl, ONLY provide URLs you are confident exist on Fontspring (fontspring.com/fonts/...) or MyFonts (myfonts.com/fonts/...). If unsure or the font is platform-exclusive (e.g. SF Pro, Segoe UI), set premiumUrl to null
-- If the font is free or platform-bundled, set premiumUrl to null and premiumPrice to null
 - All descriptions should be in English
 - Return ONLY valid JSON array, no markdown
 
 Respond with a JSON array where each element has these fields:
-role, originalName, isFree, alternativeName, googleFontsUrl, fallback, similarity, similarityScore, notes, weights, premiumUrl, premiumPrice`;
+role, originalName, isFree, alternativeName, googleFontsUrl, fallback, similarity, similarityScore, notes, weights`;
 }
