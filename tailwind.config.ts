@@ -29,6 +29,7 @@ export default {
           dim: "var(--color-terminal-dim)",
           link: "var(--color-terminal-link)",
           code: "var(--color-terminal-code)",
+          comment: "var(--color-terminal-comment)",
         },
       },
       spacing: {

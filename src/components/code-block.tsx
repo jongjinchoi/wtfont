@@ -20,7 +20,26 @@ export function CodeBlock({
         <CopyButton text={code} onCopied={onCopied} />
       </div>
       <pre className="overflow-x-auto p-3 text-sm leading-relaxed">
-        <code className="font-mono text-terminal-text">{code}</code>
+        <code className="font-mono text-terminal-text">
+          {code.split("\n").map((line, i) => {
+            const trimmed = line.trimStart();
+            const isComment =
+              trimmed.startsWith("//") ||
+              trimmed.startsWith("/*") ||
+              trimmed.startsWith("*") ||
+              trimmed.startsWith("<!--");
+            return (
+              <span key={i}>
+                {i > 0 && "\n"}
+                {isComment ? (
+                  <span className="text-terminal-comment">{line}</span>
+                ) : (
+                  line
+                )}
+              </span>
+            );
+          })}
+        </code>
       </pre>
     </div>
   );

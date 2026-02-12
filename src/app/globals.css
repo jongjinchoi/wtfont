@@ -31,6 +31,7 @@
     --color-terminal-dim: #444444;
     --color-terminal-link: #666666;
     --color-terminal-code: #1a1a1a;
+    --color-terminal-comment: #6a9955;
 
     color-scheme: dark;
   }
@@ -52,6 +53,7 @@
     --color-terminal-dim: #aaaaaa;
     --color-terminal-link: #555555;
     --color-terminal-code: #e8e8e3;
+    --color-terminal-comment: #4d7a36;
 
     color-scheme: light;
   }
