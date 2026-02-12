@@ -31,7 +31,6 @@ export function ResultPageClient({
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [showResults, setShowResults] = useState(false);
   const startTime = useRef(Date.now());
-  const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleNewAnalysis = useCallback(
     (newUrl: string) => {
@@ -107,9 +106,9 @@ export function ResultPageClient({
           setLoading(false);
           setTimeout(() => {
             setShowResults(true);
-            requestAnimationFrame(() =>
-              resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-            );
+            requestAnimationFrame(() => {
+              window.scrollTo({ top: 0 });
+            });
           }, 500);
         }, 3000)
       );
@@ -153,9 +152,9 @@ export function ResultPageClient({
           ]);
           setTimeout(() => {
             setShowResults(true);
-            requestAnimationFrame(() =>
-              resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-            );
+            requestAnimationFrame(() => {
+              window.scrollTo({ top: 0 });
+            });
           }, 500);
         }
       } catch {
@@ -227,7 +226,7 @@ export function ResultPageClient({
 
           {/* Results */}
           {showResults && data && (
-            <div ref={resultsRef} className="space-y-6 animate-fade-in-line">
+            <div className="space-y-6 animate-fade-in-line">
               {/* Summary */}
               <div>
                 <div className="flex items-start justify-between gap-4">
