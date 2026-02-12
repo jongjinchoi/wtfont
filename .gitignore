@@ -57,4 +57,5 @@ services/*/dist
 # video
 video/node_modules
 video/dist
+video/out/
 video/output.mp4
