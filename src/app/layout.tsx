@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s — WTFont.wtf",
   },
   description:
-    "Detect fonts on any website. Find free Google Fonts alternatives and get copy-paste code for your project.",
+    "Identify fonts on any website. Find free Google Fonts alternatives and get copy-paste code for your project.",
   metadataBase: new URL("https://wtfont.wtf"),
   keywords: [
     "font identifier",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "WTFont.wtf — What font is that website using?",
     description:
-      "Detect any website's fonts. Get free alternatives and copy-paste code.",
+      "Identify any website's fonts. Get free alternatives and copy-paste code.",
     url: "https://wtfont.wtf",
     siteName: "WTFont.wtf",
     locale: "en_US",
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "WTFont.wtf — What font is that website using?",
     description:
-      "Detect any website's fonts. Get free alternatives and copy-paste code.",
+      "Identify any website's fonts. Get free alternatives and copy-paste code.",
   },
   robots: {
     index: true,
