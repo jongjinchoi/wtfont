@@ -12,6 +12,8 @@ export const matchedFontSchema = z.object({
   similarityScore: z.number(),
   notes: z.string(),
   weights: z.array(z.string()),
+  myfontsUrl: z.string().nullable().default(null),
+  fontspringUrl: z.string().nullable().default(null),
 });
 
 export const aiResponseSchema = z.array(matchedFontSchema);
