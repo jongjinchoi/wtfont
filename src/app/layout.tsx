@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GeistPixelSquare } from "geist/font/pixel";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -75,6 +76,12 @@ export default function RootLayout({
     >
       <body className="font-mono antialiased bg-terminal-bg text-terminal-text">
         <ThemeProvider>{children}</ThemeProvider>
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="0af4b6ee-20c3-4a68-93ab-9c91fc47d77f"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

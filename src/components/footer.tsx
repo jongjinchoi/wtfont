@@ -7,7 +7,7 @@ export function Footer() {
             <span className="text-brand">*</span> AI matching
           </span>
           <span>
-            <span className="text-brand">&lt;/&gt;</span> HTML / Next.js / React
+            <span className="text-brand">&lt;/&gt;</span> HTML / Next.js / Nuxt / React
           </span>
           <span>
             <span className="text-success">+</span> 100% free

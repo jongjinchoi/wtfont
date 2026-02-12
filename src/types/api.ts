@@ -21,10 +21,3 @@ export interface AnalyzeErrorResponse {
     | "UNKNOWN";
 }
 
-export interface TrackRequest {
-  event: "affiliate_click" | "code_copy" | "share";
-  fontName: string;
-  marketplace?: string;
-  framework?: string;
-  url: string;
-}

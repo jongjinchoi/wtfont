@@ -4,9 +4,11 @@ export function trackEvent(data: {
   marketplace?: string;
   framework?: string;
 }) {
-  fetch("/api/track", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...data, url: window.location.href }),
-  }).catch(() => {});
+  if (typeof window !== "undefined" && window.umami) {
+    window.umami.track(data.event, {
+      fontName: data.fontName,
+      marketplace: data.marketplace,
+      framework: data.framework,
+    });
+  }
 }
