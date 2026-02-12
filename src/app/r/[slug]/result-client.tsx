@@ -106,6 +106,7 @@ export function ResultPageClient({
           setLoading(false);
           setTimeout(() => {
             setShowResults(true);
+            window.history.replaceState(null, "", window.location.pathname);
             requestAnimationFrame(() => {
               window.scrollTo({ top: 0 });
             });
@@ -152,6 +153,7 @@ export function ResultPageClient({
           ]);
           setTimeout(() => {
             setShowResults(true);
+            window.history.replaceState(null, "", window.location.pathname);
             requestAnimationFrame(() => {
               window.scrollTo({ top: 0 });
             });

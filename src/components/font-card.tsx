@@ -42,7 +42,7 @@ export function FontCard({
           <div className="pb-6 space-y-2">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-sm font-medium text-terminal-text">
+                <h3 className="text-lg font-semibold text-terminal-text">
                   {font.originalName}
                 </h3>
                 <div className="text-xs text-terminal-subtle mt-0.5 font-mono">
@@ -80,9 +80,9 @@ export function FontCard({
                       marketplace: "myfonts",
                     })
                   }
-                  className="text-warning hover:opacity-80 transition-colors duration-200 cursor-pointer"
+                  className="text-terminal-link hover:text-brand transition-colors duration-200 cursor-pointer"
                 >
-                  MyFonts ↗
+                  Search on MyFonts ↗
                 </a>
                 <a
                   href={font.fontspringUrl}
@@ -95,9 +95,9 @@ export function FontCard({
                       marketplace: "fontspring",
                     })
                   }
-                  className="text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
+                  className="text-terminal-link hover:text-brand transition-colors duration-200 cursor-pointer"
                 >
-                  Fontspring ↗
+                  Search on Fontspring ↗
                 </a>
               </div>
             )}
@@ -107,7 +107,7 @@ export function FontCard({
                 href={`https://fonts.google.com/?query=${encodeURIComponent(font.originalName)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block text-xs font-mono text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
+                className="inline-block text-xs font-mono text-terminal-link hover:text-brand transition-colors duration-200 cursor-pointer"
               >
                 Google Fonts ↗
               </a>
@@ -125,7 +125,7 @@ export function FontCard({
                 href={`https://fonts.google.com/?query=${encodeURIComponent(font.alternativeName)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block text-xs font-mono text-terminal-link hover:text-terminal-text transition-colors duration-200 cursor-pointer"
+                className="inline-block text-xs font-mono text-terminal-link hover:text-brand transition-colors duration-200 cursor-pointer"
               >
                 Google Fonts ↗
               </a>

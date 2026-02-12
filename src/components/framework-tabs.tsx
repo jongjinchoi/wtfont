@@ -35,7 +35,7 @@ export function FrameworkTabs({
   return (
     <div>
       {mode === "premium" && (
-        <div className="flex gap-1 mb-3" role="tablist">
+        <div className="flex gap-2 mb-3" role="tablist">
           {FRAMEWORKS.map((fw) => (
             <button
               key={fw.id}
@@ -45,8 +45,8 @@ export function FrameworkTabs({
               className={`px-2 py-0.5 text-xs font-mono rounded transition-colors duration-200 cursor-pointer
                 ${
                   active === fw.id
-                    ? "bg-brand/20 text-brand border border-brand/30"
-                    : "text-terminal-subtle hover:text-terminal-text border border-transparent"
+                    ? "bg-brand/20 text-brand border border-brand"
+                    : "text-terminal-subtle hover:text-terminal-text border border-terminal-border"
                 }`}
             >
               {fw.label}

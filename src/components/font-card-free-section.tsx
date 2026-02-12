@@ -12,17 +12,17 @@ export function FontCardFreeSection({ font }: { font: MatchedFont }) {
   }
 
   return (
-    <div className="rounded-lg border border-terminal-border border-l-4 border-l-success bg-terminal-code p-4 space-y-3">
+    <div className="rounded-lg border border-terminal-border bg-terminal-code p-4 space-y-3 shadow-sm shadow-black/10">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-mono font-bold text-success">FREE</span>
+          <span className="text-xs font-mono font-bold text-success">FREE</span>
           <p className="text-base font-bold text-terminal-text">
             {font.alternativeName}
           </p>
         </div>
         {font.similarityScore > 0 && (
           <span
-            className={`text-sm font-mono font-medium ${scoreColor(font.similarityScore)}`}
+            className={`text-xs font-mono font-medium ${scoreColor(font.similarityScore)}`}
           >
             {font.similarityScore}%
           </span>
