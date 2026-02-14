@@ -2,6 +2,7 @@ import React from "react";
 import { Series } from "remotion";
 import { HomePage } from "./scenes/HomePage";
 import { ResultPage } from "./scenes/ResultPage";
+import { AudioLayer } from "./audio/AudioLayer";
 
 const FONT_CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&display=swap');
@@ -13,6 +14,7 @@ const FONT_CSS = `
 export const WTFontDemo: React.FC = () => (
   <>
     <style dangerouslySetInnerHTML={{ __html: FONT_CSS }} />
+    <AudioLayer />
     <Series>
       <Series.Sequence durationInFrames={240}>
         <HomePage />
