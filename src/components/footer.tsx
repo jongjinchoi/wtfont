@@ -1,3 +1,6 @@
+// TODO: 에스토니아 법인 등록 → Stripe 계정 생성 후:
+//   1. Stripe Payment Link ($3 후원) 푸터에 추가
+//   2. 후원자 수 표시 (e.g. "Supported by 23 developers")
 export function Footer() {
   return (
     <footer className="border-t border-terminal-border bg-terminal-bg">
