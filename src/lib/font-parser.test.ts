@@ -32,9 +32,9 @@ describe("parseFontFromShorthand", () => {
 
   it("extracts font-family with style and weight", () => {
     const result = parseFontFromShorthand(
-      'italic bold 1.2em "Fira Sans", sans-serif'
+      'italic bold 1.2em "GT Walsheim", sans-serif'
     );
-    expect(result).toEqual(["Fira Sans"]);
+    expect(result).toEqual(["GT Walsheim"]);
   });
 
   it("handles font-size/line-height syntax", () => {
