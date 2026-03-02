@@ -1,22 +1,14 @@
 import { z } from "zod";
 import type { ExtractedFont } from "@/types/font";
 
-export const matchedFontSchema = z.object({
-  role: z.enum(["heading", "body", "display", "monospace"]),
+export const aiMatchedFontSchema = z.object({
   originalName: z.string(),
-  isFree: z.boolean(),
   alternativeName: z.string(),
-  googleFontsUrl: z.string().nullable(),
-  fallback: z.string(),
   similarity: z.string(),
   similarityScore: z.number(),
-  notes: z.string(),
-  weights: z.array(z.string()),
-  myfontsUrl: z.string().nullable().default(null),
-  fontspringUrl: z.string().nullable().default(null),
 });
 
-export const aiResponseSchema = z.array(matchedFontSchema);
+export const aiResponseSchema = z.array(aiMatchedFontSchema);
 
 export function buildPrompt(fonts: ExtractedFont[], domain: string): string {
   const fontList = fonts
@@ -31,22 +23,16 @@ export function buildPrompt(fonts: ExtractedFont[], domain: string): string {
 ${fontList}
 
 For EACH font, provide:
-1. Whether the original font is free (available on Google Fonts or similar)
+1. The proper display name (normalize CSS identifiers, e.g. "sohne-var" → "Söhne", "SourceCodePro" → "Source Code Pro", "Inter Variable" → "Inter")
 2. The best FREE alternative from Google Fonts that visually matches the original
-3. The Google Fonts CSS import URL for the alternative (use css2 API format)
-4. A generic CSS fallback category (sans-serif, serif, or monospace)
-5. A brief explanation (1-2 sentences) of why this alternative is similar
-6. A visual similarity score (0-100) comparing the alternative to the original font, based on classification, proportions, stroke weight, and overall visual impression
-7. A practical usage tip
-8. The recommended font weights for the alternative
+3. A brief explanation (1 sentence) of why this alternative is similar
+4. A visual similarity score (0-100) based on classification, proportions, stroke weight, and overall visual impression
 
 IMPORTANT RULES:
-- For originalName, normalize CSS identifiers to proper font names (e.g. "sohne-var" → "Söhne", "SourceCodePro" → "Source Code Pro", "Inter Variable" → "Inter")
-- If the original IS already a free Google Font, set isFree: true, use the original as the alternative, and set similarityScore to 100
-- For Google Fonts URLs, use this exact format: https://fonts.googleapis.com/css2?family=Font+Name:wght@400;500;700&display=swap
+- If the original IS already a free Google Font, use the original as the alternative and set similarityScore to 100
 - All descriptions should be in English
 - Return ONLY valid JSON array, no markdown
 
 Respond with a JSON array where each element has these fields:
-role, originalName, isFree, alternativeName, googleFontsUrl, fallback, similarity, similarityScore, notes, weights`;
+originalName, alternativeName, similarity, similarityScore`;
 }

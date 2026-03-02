@@ -12,7 +12,7 @@ import {
 } from "@/lib/url-utils";
 import { extractFontsWithPlaywright } from "@/lib/playwright-client";
 import { mergeFontResults } from "@/lib/font-merge";
-import type { AnalysisResult, MatchedFont } from "@/types/font";
+import type { AnalysisResult, MatchedFont, AiMatchedFont, ExtractedFont } from "@/types/font";
 import type { AnalyzeResponse, AnalyzeErrorResponse } from "@/types/api";
 import {
   isGoogleFont,
@@ -118,7 +118,8 @@ export async function POST(request: NextRequest) {
     let matchedFonts: MatchedFont[];
     let aiFailed = false;
     try {
-      matchedFonts = await matchFonts(extractedFonts, domain);
+      const aiResults = await matchFonts(extractedFonts, domain);
+      matchedFonts = enrichAiResults(extractedFonts, aiResults);
     } catch {
       aiFailed = true;
       // Fallback: return extracted fonts without AI matching
@@ -150,7 +151,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Validate AI-generated Google Fonts URLs and generate marketplace search URLs
+    // Validate Google Fonts URLs and generate marketplace search URLs
     matchedFonts = await Promise.all(
       matchedFonts.map(async (f) => {
         const checkedGoogle = await checkUrlExists(f.googleFontsUrl);
@@ -228,4 +229,69 @@ function inferFallbackCategory(name: string, role: string): string {
   if (/serif/i.test(lower) && !/sans/i.test(lower)) return "serif";
   if (/mono|code|console/i.test(lower)) return "monospace";
   return "sans-serif";
+}
+
+/** Combine slim AI results with locally available data to produce full MatchedFont[] */
+function enrichAiResults(
+  extractedFonts: ExtractedFont[],
+  aiResults: AiMatchedFont[]
+): MatchedFont[] {
+  // Build a lookup map by normalized originalName for order-safe matching
+  const aiMap = new Map<string, AiMatchedFont>();
+  for (const ai of aiResults) {
+    aiMap.set(ai.originalName.toLowerCase().replace(/\s/g, ""), ai);
+  }
+
+  return extractedFonts.map((extracted) => {
+    const key = extracted.name.toLowerCase().replace(/\s/g, "");
+    const ai = aiMap.get(key);
+
+    if (!ai) {
+      // AI didn't return a match for this font — use local fallback
+      const knownGoogle = extracted.source === "google" || isGoogleFont(extracted.name);
+      const category = getGoogleFontCategory(extracted.name);
+      const fallback = category || inferFallbackCategory(extracted.name, extracted.role);
+      return {
+        role: extracted.role,
+        originalName: extracted.name,
+        isFree: knownGoogle,
+        alternativeName: extracted.name,
+        googleFontsUrl: knownGoogle ? getGoogleFontsUrl(extracted.name, extracted.weights) : null,
+        fallback,
+        similarity: knownGoogle
+          ? "This is a free Google Font — use it directly!"
+          : "Detected font — AI matching unavailable for this font",
+        similarityScore: knownGoogle ? 100 : 0,
+        notes: knownGoogle
+          ? "Available on Google Fonts. Import it with the code below."
+          : "Could not find a free alternative for this font.",
+        weights: extracted.weights,
+        myfontsUrl: null,
+        fontspringUrl: null,
+      };
+    }
+
+    const altIsFree = isGoogleFont(ai.alternativeName);
+    const category = getGoogleFontCategory(ai.alternativeName);
+    const fallback = category || inferFallbackCategory(ai.originalName, extracted.role);
+
+    return {
+      role: extracted.role,
+      originalName: ai.originalName,
+      isFree: altIsFree,
+      alternativeName: ai.alternativeName,
+      googleFontsUrl: altIsFree
+        ? getGoogleFontsUrl(ai.alternativeName, extracted.weights)
+        : null,
+      fallback,
+      similarity: ai.similarity,
+      similarityScore: ai.similarityScore,
+      notes: altIsFree
+        ? "Available on Google Fonts. Import it with the code below."
+        : "This is a commercial font. Consider purchasing a license or use the free alternative above.",
+      weights: extracted.weights,
+      myfontsUrl: null,
+      fontspringUrl: null,
+    };
+  });
 }

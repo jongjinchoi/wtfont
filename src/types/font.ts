@@ -10,7 +10,15 @@ export interface ExtractedFont {
   selectors: string[];
 }
 
-/** AI-matched result for a single font */
+/** Slim AI response — only the fields AI needs to generate */
+export interface AiMatchedFont {
+  originalName: string;
+  alternativeName: string;
+  similarity: string;
+  similarityScore: number;
+}
+
+/** Full matched result used by UI (AI fields + locally enriched fields) */
 export interface MatchedFont {
   role: FontRole;
   originalName: string;

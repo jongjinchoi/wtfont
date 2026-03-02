@@ -1,12 +1,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import OpenAI from "openai";
-import type { ExtractedFont, MatchedFont } from "@/types/font";
+import type { ExtractedFont, AiMatchedFont } from "@/types/font";
 import { buildPrompt, aiResponseSchema } from "./ai-prompt";
 
 export async function matchFonts(
   fonts: ExtractedFont[],
   domain: string
-): Promise<MatchedFont[]> {
+): Promise<AiMatchedFont[]> {
   if (fonts.length === 0) return [];
 
   const prompt = buildPrompt(fonts, domain);
@@ -24,7 +24,7 @@ export async function matchFonts(
   }
 }
 
-async function matchWithGemini(prompt: string): Promise<MatchedFont[]> {
+async function matchWithGemini(prompt: string): Promise<AiMatchedFont[]> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error("GEMINI_API_KEY is not set");
 
@@ -35,21 +35,13 @@ async function matchWithGemini(prompt: string): Promise<MatchedFont[]> {
     items: {
       type: Type.OBJECT,
       properties: {
-        role: { type: Type.STRING },
         originalName: { type: Type.STRING },
-        isFree: { type: Type.BOOLEAN },
         alternativeName: { type: Type.STRING },
-        googleFontsUrl: { type: Type.STRING, nullable: true },
-        fallback: { type: Type.STRING },
         similarity: { type: Type.STRING },
         similarityScore: { type: Type.NUMBER },
-        notes: { type: Type.STRING },
-        weights: { type: Type.ARRAY, items: { type: Type.STRING } },
       },
       required: [
-        "role", "originalName", "isFree", "alternativeName",
-        "googleFontsUrl", "fallback", "similarity", "similarityScore", "notes",
-        "weights",
+        "originalName", "alternativeName", "similarity", "similarityScore",
       ],
     },
   };
@@ -59,7 +51,7 @@ async function matchWithGemini(prompt: string): Promise<MatchedFont[]> {
     contents: prompt,
     config: {
       temperature: 0.3,
-      maxOutputTokens: 4096,
+      maxOutputTokens: 2048,
       responseMimeType: "application/json",
       responseSchema: fontSchema,
     },
@@ -70,7 +62,7 @@ async function matchWithGemini(prompt: string): Promise<MatchedFont[]> {
   return aiResponseSchema.parse(parsed);
 }
 
-async function matchWithOpenAI(prompt: string): Promise<MatchedFont[]> {
+async function matchWithOpenAI(prompt: string): Promise<AiMatchedFont[]> {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
   const completion = await openai.chat.completions.create({
     model: "gpt-4o-mini",
@@ -82,7 +74,7 @@ async function matchWithOpenAI(prompt: string): Promise<MatchedFont[]> {
       { role: "user", content: prompt },
     ],
     temperature: 0.3,
-    max_tokens: 4096,
+    max_tokens: 2048,
     response_format: { type: "json_object" },
   });
 
