@@ -23,7 +23,7 @@
 | AI | Google GenAI SDK (Gemini), OpenAI SDK (GPT-4o mini) |
 | 캐시/레이트리밋 | Upstash Redis + Ratelimit |
 | 분석 | Plausible Analytics |
-| 배포 | Vercel (Next.js) + Railway (Playwright 서비스) |
+| 배포 | Vercel (Next.js) + Google Cloud Run (Playwright 서비스) |
 | 테스트 | Vitest |
 
 ## 프로젝트 구조
@@ -150,7 +150,7 @@ FONTSPRING_AFFILIATE_ID=
 MYFONTS_AFFILIATE_ID=
 
 # Playwright 서비스
-PLAYWRIGHT_SERVICE_URL=          # Railway 배포 URL
+PLAYWRIGHT_SERVICE_URL=          # Google Cloud Run 배포 URL
 PLAYWRIGHT_SERVICE_SECRET=       # Bearer 토큰
 
 # Pre-warm
@@ -190,9 +190,21 @@ cd services/playwright
 # 개발
 npm run dev
 
-# Docker 빌드
+# Docker 로컬 빌드
 docker build -t wtfont-playwright .
 docker run -p 3200:3200 -e SERVICE_SECRET=your-secret wtfont-playwright
+
+# Google Cloud Run 배포
+gcloud run deploy wtfont-playwright \
+  --source . \
+  --region us-central1 \
+  --memory 1Gi \
+  --cpu 1 \
+  --max-instances 2 \
+  --concurrency 3 \
+  --timeout 60 \
+  --set-env-vars "SERVICE_SECRET=your-secret" \
+  --allow-unauthenticated
 ```
 
 ## 레이트리밋
