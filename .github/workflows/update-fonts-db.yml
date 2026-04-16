@@ -1,0 +1,36 @@
+name: Update Google Fonts DB
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Every Monday at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Regenerate src/core/google-fonts-db.ts
+        run: bun run scripts/generate-fonts-db.ts
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: refresh Google Fonts DB"
+          title: "chore: refresh Google Fonts DB"
+          body: |
+            Automated weekly refresh of `src/core/google-fonts-db.ts`.
+
+            Triggered by the `update-fonts-db` workflow.
+          branch: auto/fonts-db-update
+          delete-branch: true
+          add-paths: src/core/google-fonts-db.ts
