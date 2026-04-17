@@ -3,7 +3,9 @@
 Identify web fonts and find free Google Fonts alternatives — from your terminal or through Claude.
 
 ```bash
-npm install -g wtfont
+npm install -g wtfont        # npm
+bun install -g wtfont        # bun
+pnpm add -g wtfont           # pnpm
 ```
 
 ## What it does
