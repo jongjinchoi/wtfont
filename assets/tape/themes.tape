@@ -86,6 +86,38 @@ Sleep 1s
 Screenshot assets/screenshots/theme-dracula.png
 Sleep 500ms
 
+# catppuccin-latte (light)
+Hide
+Type "clear"
+Enter
+Sleep 300ms
+Type "wtfont config theme catppuccin-latte"
+Enter
+Sleep 500ms
+Type "wtfont browse sans-serif --limit 10"
+Enter
+Sleep 2s
+Show
+Sleep 1s
+Screenshot assets/screenshots/theme-catppuccin-latte.png
+Sleep 500ms
+
+# rose-pine-dawn (light)
+Hide
+Type "clear"
+Enter
+Sleep 300ms
+Type "wtfont config theme rose-pine-dawn"
+Enter
+Sleep 500ms
+Type "wtfont browse sans-serif --limit 10"
+Enter
+Sleep 2s
+Show
+Sleep 1s
+Screenshot assets/screenshots/theme-rose-pine-dawn.png
+Sleep 500ms
+
 # Restore default
 Hide
 Type "wtfont config theme default"
