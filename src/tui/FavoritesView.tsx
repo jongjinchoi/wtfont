@@ -1,4 +1,4 @@
-import { Box, Text } from "ink";
+import { Box, Text, useApp, useInput } from "ink";
 import { useEffect, useState } from "react";
 import { loadFavorites, type Favorite } from "../config/favorites.ts";
 import { isGoogleFont } from "../core/google-fonts-db.ts";
@@ -6,6 +6,8 @@ import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
 export default function FavoritesView() {
+  const { exit } = useApp();
+  useInput((input) => { if (input === "q") exit(); });
   const [favs, setFavs] = useState<Favorite[] | null>(null);
 
   useEffect(() => {
@@ -16,7 +18,7 @@ export default function FavoritesView() {
 
   if (favs.length === 0) {
     return (
-      <FrameBox title="Favorites">
+      <FrameBox title="Favorites" hints={[{ key: "q", action: "quit" }]}>
         <Text color={theme.dim}>
           No favorites. Add with `wtfont favorites add &lt;name&gt;`.
         </Text>

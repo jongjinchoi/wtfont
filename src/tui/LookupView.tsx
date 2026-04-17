@@ -1,4 +1,5 @@
-import { Box, Text } from "ink";
+import { Box, Text, useApp, useInput } from "ink";
+import { useState } from "react";
 import {
   isGoogleFont,
   getGoogleFontCategory,
@@ -6,21 +7,43 @@ import {
   getGoogleFontCount,
 } from "../core/google-fonts-db.ts";
 import { specimenUrl } from "../core/preview.ts";
+import { openBrowser } from "../utils/browser.ts";
+import { copyToClipboard } from "../utils/clipboard.ts";
 import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
 export default function LookupView({ name }: { name: string }) {
+  const { exit } = useApp();
+  const [confirmation, setConfirmation] = useState("");
   const found = isGoogleFont(name);
 
-  if (found) {
-    const category = getGoogleFontCategory(name);
-    const url = getGoogleFontsUrl(name);
-    const specimen = specimenUrl(name);
+  const category = found ? getGoogleFontCategory(name) : null;
+  const cssUrl = found ? getGoogleFontsUrl(name) : null;
+  const specimen = found ? specimenUrl(name) : null;
 
+  useInput((input) => {
+    if (input === "q") {
+      exit();
+    } else if (input === "p" && specimen) {
+      openBrowser(specimen);
+      setConfirmation("✓ Opened preview in browser");
+      setTimeout(() => setConfirmation(""), 2000);
+    } else if (input === "c" && cssUrl) {
+      const ok = copyToClipboard(cssUrl);
+      setConfirmation(ok ? "✓ URL copied to clipboard" : "✗ Copy failed");
+      setTimeout(() => setConfirmation(""), 2000);
+    }
+  });
+
+  if (found) {
     return (
       <FrameBox
         title={`wtfont lookup ${name}`}
-        hints={[{ key: "next", action: `wtfont code "${titleCase(name)}" --framework nextjs` }]}
+        hints={[
+          { key: "p", action: "preview" },
+          { key: "c", action: "copy URL" },
+          { key: "q", action: "quit" },
+        ]}
       >
         <Box marginBottom={1}>
           <Text color={theme.green}>✓ </Text>
@@ -39,19 +62,30 @@ export default function LookupView({ name }: { name: string }) {
           </Text>
           <Text>
             <Text color={theme.dim}>{"  "}CSS URL:      </Text>
-            <Text color={theme.text}>{url}</Text>
+            <Text color={theme.text}>{cssUrl}</Text>
           </Text>
           <Text>
             <Text color={theme.dim}>{"  "}Specimen:     </Text>
             <Text color={theme.text}>{specimen}</Text>
           </Text>
         </Box>
+        {confirmation && (
+          <Box marginTop={1}>
+            <Text
+              color={
+                confirmation.startsWith("✓") ? theme.green : theme.red
+              }
+            >
+              {confirmation}
+            </Text>
+          </Box>
+        )}
       </FrameBox>
     );
   }
 
   return (
-    <FrameBox title={`wtfont lookup ${name}`}>
+    <FrameBox title={`wtfont lookup ${name}`} hints={[{ key: "q", action: "quit" }]}>
       <Box marginBottom={1}>
         <Text color={theme.yellow}>✗ </Text>
         <Text color={theme.text} bold>

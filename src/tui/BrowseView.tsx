@@ -1,4 +1,4 @@
-import { Box, Text } from "ink";
+import { Box, Text, useApp, useInput } from "ink";
 import {
   getGoogleFontsByCategory,
   getGoogleFontCount,
@@ -32,13 +32,16 @@ export default function BrowseView({
     );
   }
 
+  const { exit } = useApp();
+  useInput((input) => { if (input === "q") exit(); });
+
   const all = getGoogleFontsByCategory(category);
   const fonts = all.slice(0, limit);
 
   return (
     <FrameBox
       title={`Google Fonts — ${category}`}
-      hints={[{ key: "preview", action: "wtfont preview <name>" }]}
+      hints={[{ key: "q", action: "quit" }]}
     >
       <Box flexDirection="column">
         {fonts.map((name) => (

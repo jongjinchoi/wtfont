@@ -1,4 +1,5 @@
-import { Box, Text } from "ink";
+import { Box, Text, useApp, useInput } from "ink";
+import { useState } from "react";
 import {
   generateCssUsageCode,
   generateFreeImportCode,
@@ -11,6 +12,7 @@ import {
   getGoogleFontsUrl,
   isGoogleFont,
 } from "../core/google-fonts-db.ts";
+import { copyToClipboard } from "../utils/clipboard.ts";
 import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
@@ -29,6 +31,9 @@ export default function CodeView({
   role,
   alternative,
 }: Props) {
+  const { exit } = useApp();
+  const [confirmation, setConfirmation] = useState("");
+
   const altName = alternative ?? name;
   const altIsFree = isGoogleFont(altName);
   const category =
@@ -51,8 +56,27 @@ export default function CodeView({
     ? generateFreeImportCode(font)
     : generatePremiumCode(font, framework);
 
+  useInput((input) => {
+    if (input === "c") {
+      const fullCode = googleFontsUrl
+        ? code
+        : code + "\n\n" + generateCssUsageCode(font);
+      const ok = copyToClipboard(fullCode);
+      setConfirmation(ok ? "✓ Copied to clipboard" : "✗ Copy failed");
+      setTimeout(() => setConfirmation(""), 2000);
+    } else if (input === "q") {
+      exit();
+    }
+  });
+
   return (
-    <FrameBox title={`Code · ${name} (${framework})`}>
+    <FrameBox
+      title={`Code · ${name} (${framework})`}
+      hints={[
+        { key: "c", action: "copy code" },
+        { key: "q", action: "quit" },
+      ]}
+    >
       <Box marginBottom={1}>
         <Text color={altIsFree ? theme.green : theme.yellow}>
           {altIsFree
@@ -96,6 +120,14 @@ export default function CodeView({
               ))}
           </Box>
         </>
+      )}
+
+      {confirmation && (
+        <Box marginTop={1}>
+          <Text color={confirmation.startsWith("✓") ? theme.green : theme.red}>
+            {confirmation}
+          </Text>
+        </Box>
       )}
     </FrameBox>
   );

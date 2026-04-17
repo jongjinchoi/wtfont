@@ -1,4 +1,4 @@
-import { Box, Text, useApp } from "ink";
+import { Box, Text, useApp, useInput } from "ink";
 import { useEffect, useState } from "react";
 import { scanProject, type ScanResult } from "../core/scan-project.ts";
 import { Spinner } from "./Spinner.tsx";
@@ -10,12 +10,15 @@ export default function ScanView({ path }: { path: string }) {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string>("");
 
+  useInput((input) => {
+    if (input === "q") exit();
+  });
+
   useEffect(() => {
     scanProject(path)
       .then((r) => setResult(r))
-      .catch((e) => setError(String(e)))
-      .finally(() => setTimeout(() => exit(), 50));
-  }, [path, exit]);
+      .catch((e) => setError(String(e)));
+  }, [path]);
 
   if (error) {
     return (
@@ -35,7 +38,7 @@ export default function ScanView({ path }: { path: string }) {
 
   if (result.fonts.length === 0) {
     return (
-      <FrameBox title={`Project scan · ${result.rootPath}`}>
+      <FrameBox title={`Project scan · ${result.rootPath}`} hints={[{ key: "q", action: "quit" }]}>
         <Text color={theme.dim}>
           Scanned {result.filesScanned} files. No non-system font-family
           detected.

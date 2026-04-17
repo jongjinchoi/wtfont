@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { analyze, AnalyzeError } from "../core/analyze.ts";
 import type { AnalysisResult } from "../types/font.ts";
 import { addHistory } from "../config/history.ts";
+import { generateComparePage } from "../core/preview.ts";
+import { openBrowser } from "../utils/browser.ts";
 import { installChromium } from "../utils/playwright-install.ts";
 import { Spinner } from "./Spinner.tsx";
 import FrameBox from "./FrameBox.tsx";
@@ -21,6 +23,7 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
   const [phase, setPhase] = useState<Phase>("running");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string>("");
+  const [confirmation, setConfirmation] = useState("");
 
   const runAnalysis = (retryDynamic?: boolean) => {
     setPhase("running");
@@ -75,17 +78,30 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
         }
       } else if (input === "n" || input === "N") {
         setPhase("done");
-        addHistory({
-          url: result!.url,
-          domain: result!.domain,
-          fontNames: result!.fonts.map((f) => f.name),
-          detection: result!.detection,
-          at: result!.analyzedAt,
-        });
-        setTimeout(() => exit(), 50);
+        if (result) {
+          addHistory({
+            url: result.url,
+            domain: result.domain,
+            fontNames: result.fonts.map((f) => f.name),
+            detection: result.detection,
+            at: result.analyzedAt,
+          });
+        }
       }
-    } else if (phase === "done" || phase === "error") {
-      setTimeout(() => exit(), 50);
+    } else if (phase === "done") {
+      if (input === "p" && result) {
+        (async () => {
+          const names = result.fonts.map((f) => f.name);
+          const path = await generateComparePage(names);
+          openBrowser(`file://${path}`);
+          setConfirmation("Opened compare page in browser.");
+          setTimeout(() => setConfirmation(""), 2000);
+        })();
+      } else if (input === "q") {
+        exit();
+      }
+    } else if (phase === "error") {
+      if (input === "q") exit();
     }
   });
 
@@ -109,7 +125,7 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
 
   if (phase === "error") {
     return (
-      <FrameBox title={`wtfont analyze ${url}`}>
+      <FrameBox title={`wtfont analyze ${url}`} hints={[{ key: "q", action: "quit" }]}>
         <Text color={theme.red}>✗ {error}</Text>
       </FrameBox>
     );
@@ -138,8 +154,8 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
               { key: "n", action: "continue with static" },
             ]
           : [
-              { key: "code", action: "wtfont code <name>" },
-              { key: "preview", action: "wtfont preview <name>" },
+              { key: "p", action: "preview all" },
+              { key: "q", action: "quit" },
             ]
       }
     >
@@ -162,9 +178,7 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
           <Text color={theme.yellow}>
             ⚠ Dynamic detection requested but Chromium not found.
           </Text>
-          <Text color={theme.dim}>
-            Install now? (~150MB download)
-          </Text>
+          <Text color={theme.dim}>Install now? (~150MB download)</Text>
         </Box>
       )}
 
@@ -209,6 +223,9 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
             {result.fonts.length === 1 ? "" : "s"} detected. SPA? Try:{" "}
             wtfont analyze {url} --dynamic
           </Text>
+        )}
+        {confirmation && (
+          <Text color={theme.green}>{confirmation}</Text>
         )}
       </Box>
     </FrameBox>

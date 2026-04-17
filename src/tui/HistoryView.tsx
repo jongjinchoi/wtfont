@@ -1,10 +1,12 @@
-import { Box, Text } from "ink";
+import { Box, Text, useApp, useInput } from "ink";
 import { useEffect, useState } from "react";
 import { loadHistory, type HistoryEntry } from "../config/history.ts";
 import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
 export default function HistoryView({ limit = 20 }: { limit?: number }) {
+  const { exit } = useApp();
+  useInput((input) => { if (input === "q") exit(); });
   const [entries, setEntries] = useState<HistoryEntry[] | null>(null);
 
   useEffect(() => {
@@ -15,7 +17,7 @@ export default function HistoryView({ limit = 20 }: { limit?: number }) {
 
   if (entries.length === 0) {
     return (
-      <FrameBox title="History">
+      <FrameBox title="History" hints={[{ key: "q", action: "quit" }]}>
         <Text color={theme.dim}>
           No history yet. Run `wtfont analyze &lt;url&gt;`.
         </Text>
