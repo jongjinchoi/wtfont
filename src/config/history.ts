@@ -33,6 +33,16 @@ export async function addHistory(entry: HistoryEntry): Promise<void> {
   await writeFile(HISTORY_PATH, JSON.stringify(trimmed, null, 2), "utf-8");
 }
 
+export async function removeHistoryAt(index: number): Promise<HistoryEntry[]> {
+  const list = await loadHistory();
+  if (index >= 0 && index < list.length) {
+    list.splice(index, 1);
+    await mkdir(dirname(HISTORY_PATH), { recursive: true });
+    await writeFile(HISTORY_PATH, JSON.stringify(list, null, 2), "utf-8");
+  }
+  return list;
+}
+
 export async function clearHistory(): Promise<void> {
   await mkdir(dirname(HISTORY_PATH), { recursive: true });
   await writeFile(HISTORY_PATH, "[]", "utf-8");
