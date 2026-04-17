@@ -4,6 +4,7 @@ import { analyze, AnalyzeError } from "../core/analyze.ts";
 import type { AnalysisResult } from "../types/font.ts";
 import { addHistory } from "../config/history.ts";
 import { Spinner } from "./Spinner.tsx";
+import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
 interface Props {
@@ -51,23 +52,19 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
 
   if (phase === "running") {
     return (
-      <Box flexDirection="column" paddingY={1}>
-        <Text color={theme.dim}>$ wtfont analyze {url}</Text>
-        <Box marginTop={1}>
-          <Spinner label={dynamic ? "Fetching + Playwright..." : "Fetching HTML..."} />
-        </Box>
-      </Box>
+      <FrameBox title={`wtfont analyze ${url}`}>
+        <Spinner
+          label={dynamic ? "Fetching + Playwright..." : "Fetching HTML..."}
+        />
+      </FrameBox>
     );
   }
 
   if (phase === "error") {
     return (
-      <Box flexDirection="column" paddingY={1}>
-        <Text color={theme.dim}>$ wtfont analyze {url}</Text>
-        <Box marginTop={1}>
-          <Text color={theme.red}>✗ {error}</Text>
-        </Box>
-      </Box>
+      <FrameBox title={`wtfont analyze ${url}`}>
+        <Text color={theme.red}>✗ {error}</Text>
+      </FrameBox>
     );
   }
 
@@ -83,21 +80,21 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
   const freeCount = result.fonts.filter((f) => f.isFree).length;
 
   return (
-    <Box flexDirection="column" paddingY={1}>
-      <Text color={theme.dim}>$ wtfont analyze {url}</Text>
-      <Box marginTop={1}>
+    <FrameBox
+      title={`Fonts on ${result.domain}`}
+      hints={[
+        { key: "code", action: "wtfont code <name>" },
+        { key: "preview", action: "wtfont preview <name>" },
+      ]}
+    >
+      <Box marginBottom={1}>
         <Text>
-          <Text color={theme.green}>✓</Text> Done — {mode}
+          <Text color={theme.green}>✓</Text>
+          <Text color={theme.dim}> Done — {mode}</Text>
         </Text>
       </Box>
 
-      <Box marginTop={1}>
-        <Text color={theme.text} bold>
-          Fonts on {result.domain}
-        </Text>
-      </Box>
-
-      <Box marginTop={1} flexDirection="column">
+      <Box flexDirection="column">
         <Box>
           <Text color={theme.dim}>
             {"role".padEnd(11)}
@@ -107,8 +104,9 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
           </Text>
         </Box>
         <Box>
-          <Text color={theme.dim}>
-            {"─".repeat(10)} {"─".repeat(27)} {"─".repeat(9)} {"─".repeat(21)} ───
+          <Text color={theme.border}>
+            {"─".repeat(10)} {"─".repeat(27)} {"─".repeat(9)} {"─".repeat(21)}{" "}
+            ───
           </Text>
         </Box>
         {result.fonts.map((f, i) => (
@@ -126,19 +124,13 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
         ))}
       </Box>
 
-      <Box marginTop={1} flexDirection="column">
+      <Box marginTop={1}>
         <Text color={theme.dim}>
           {freeCount}/{result.fonts.length} on Google Fonts ·{" "}
           {result.fonts.length} total
         </Text>
-        <Text color={theme.dim}>
-          Next: wtfont code &lt;name&gt; --framework nextjs
-        </Text>
-        <Text color={theme.dim}>
-          Visual: wtfont preview {result.fonts[0]?.name ?? ""}
-        </Text>
       </Box>
-    </Box>
+    </FrameBox>
   );
 }
 

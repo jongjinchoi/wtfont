@@ -2,6 +2,7 @@ import { Box, Text } from "ink";
 import { useEffect, useState } from "react";
 import { loadFavorites, type Favorite } from "../config/favorites.ts";
 import { isGoogleFont } from "../core/google-fonts-db.ts";
+import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
 export default function FavoritesView() {
@@ -15,18 +16,17 @@ export default function FavoritesView() {
 
   if (favs.length === 0) {
     return (
-      <Box paddingY={1}>
+      <FrameBox title="Favorites">
         <Text color={theme.dim}>
           No favorites. Add with `wtfont favorites add &lt;name&gt;`.
         </Text>
-      </Box>
+      </FrameBox>
     );
   }
 
   return (
-    <Box flexDirection="column" paddingY={1}>
-      <Text color={theme.dim}>Favorites</Text>
-      <Box marginTop={1} flexDirection="column">
+    <FrameBox title="Favorites">
+      <Box flexDirection="column">
         {favs.map((f, i) => (
           <Box key={i}>
             <Text color={isGoogleFont(f.name) ? theme.green : theme.yellow}>
@@ -37,6 +37,13 @@ export default function FavoritesView() {
           </Box>
         ))}
       </Box>
-    </Box>
+
+      <Box marginTop={1}>
+        <Text color={theme.dim}>
+          {favs.length} font{favs.length === 1 ? "" : "s"} ·
+          ~/.wtfont/favorites.json
+        </Text>
+      </Box>
+    </FrameBox>
   );
 }

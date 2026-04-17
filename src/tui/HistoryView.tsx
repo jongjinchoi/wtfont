@@ -1,6 +1,7 @@
 import { Box, Text } from "ink";
 import { useEffect, useState } from "react";
 import { loadHistory, type HistoryEntry } from "../config/history.ts";
+import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
 export default function HistoryView({ limit = 20 }: { limit?: number }) {
@@ -14,16 +15,17 @@ export default function HistoryView({ limit = 20 }: { limit?: number }) {
 
   if (entries.length === 0) {
     return (
-      <Box paddingY={1}>
-        <Text color={theme.dim}>No history yet. Run `wtfont analyze &lt;url&gt;`.</Text>
-      </Box>
+      <FrameBox title="History">
+        <Text color={theme.dim}>
+          No history yet. Run `wtfont analyze &lt;url&gt;`.
+        </Text>
+      </FrameBox>
     );
   }
 
   return (
-    <Box flexDirection="column" paddingY={1}>
-      <Text color={theme.dim}>Recent analyses</Text>
-      <Box marginTop={1} flexDirection="column">
+    <FrameBox title="History">
+      <Box flexDirection="column">
         {entries.map((e, i) => (
           <Box key={i} flexDirection="column" marginBottom={1}>
             <Box>
@@ -36,12 +38,21 @@ export default function HistoryView({ limit = 20 }: { limit?: number }) {
             <Text color={theme.dim}>
               {"  "}
               {e.fontNames.slice(0, 5).join(", ")}
-              {e.fontNames.length > 5 ? ` (+${e.fontNames.length - 5} more)` : ""}
+              {e.fontNames.length > 5
+                ? ` (+${e.fontNames.length - 5} more)`
+                : ""}
             </Text>
           </Box>
         ))}
       </Box>
-    </Box>
+
+      <Box marginTop={1}>
+        <Text color={theme.dim}>
+          {entries.length} entr{entries.length === 1 ? "y" : "ies"} ·
+          ~/.wtfont/history.json
+        </Text>
+      </Box>
+    </FrameBox>
   );
 }
 

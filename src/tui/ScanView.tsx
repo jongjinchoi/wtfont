@@ -2,6 +2,7 @@ import { Box, Text, useApp } from "ink";
 import { useEffect, useState } from "react";
 import { scanProject, type ScanResult } from "../core/scan-project.ts";
 import { Spinner } from "./Spinner.tsx";
+import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
 export default function ScanView({ path }: { path: string }) {
@@ -18,51 +19,46 @@ export default function ScanView({ path }: { path: string }) {
 
   if (error) {
     return (
-      <Box paddingY={1}>
+      <FrameBox title="Project scan">
         <Text color={theme.red}>✗ {error}</Text>
-      </Box>
+      </FrameBox>
     );
   }
 
   if (!result) {
     return (
-      <Box paddingY={1}>
-        <Spinner label={`Scanning ${path}...`} />
-      </Box>
+      <FrameBox title={`Scanning ${path}`}>
+        <Spinner label="Reading files..." />
+      </FrameBox>
     );
   }
 
   if (result.fonts.length === 0) {
     return (
-      <Box flexDirection="column" paddingY={1}>
+      <FrameBox title={`Project scan · ${result.rootPath}`}>
         <Text color={theme.dim}>
-          Scanned {result.filesScanned} files in {result.rootPath}.
+          Scanned {result.filesScanned} files. No non-system font-family
+          detected.
         </Text>
-        <Text color={theme.dim}>No non-system font-family usage detected.</Text>
-      </Box>
+      </FrameBox>
     );
   }
 
   const freeCount = result.fonts.filter((f) => f.isFree).length;
 
   return (
-    <Box flexDirection="column" paddingY={1}>
-      <Text color={theme.dim}>
-        $ wtfont scan {result.rootPath}
-      </Text>
-      <Box marginTop={1}>
+    <FrameBox title={`Project scan · ${result.rootPath}`}>
+      <Box marginBottom={1}>
         <Text>
-          <Text color={theme.green}>✓</Text> Scanned {result.filesScanned} files
+          <Text color={theme.green}>✓</Text>
+          <Text color={theme.dim}>
+            {" "}
+            Scanned {result.filesScanned} files
+          </Text>
         </Text>
       </Box>
 
-      <Box marginTop={1}>
-        <Text color={theme.text} bold>
-          Fonts detected in project
-        </Text>
-      </Box>
-
-      <Box marginTop={1} flexDirection="column">
+      <Box flexDirection="column">
         {result.fonts.map((f) => (
           <Box key={f.name} flexDirection="column" marginBottom={1}>
             <Box>
@@ -72,8 +68,8 @@ export default function ScanView({ path }: { path: string }) {
               <Text color={theme.text}> {f.name}</Text>
               <Text color={theme.dim}>
                 {" "}
-                · {f.occurrences} occurrence{f.occurrences === 1 ? "" : "s"} in{" "}
-                {f.files.length} file{f.files.length === 1 ? "" : "s"}
+                · {f.occurrences}× in {f.files.length} file
+                {f.files.length === 1 ? "" : "s"}
               </Text>
             </Box>
             {f.files.slice(0, 3).map((file) => (
@@ -84,8 +80,7 @@ export default function ScanView({ path }: { path: string }) {
             ))}
             {f.files.length > 3 && (
               <Text color={theme.dim}>
-                {"    "}
-                (+{f.files.length - 3} more files)
+                {"    "}(+{f.files.length - 3} more)
               </Text>
             )}
           </Box>
@@ -97,6 +92,6 @@ export default function ScanView({ path }: { path: string }) {
           {freeCount}/{result.fonts.length} are free Google Fonts
         </Text>
       </Box>
-    </Box>
+    </FrameBox>
   );
 }

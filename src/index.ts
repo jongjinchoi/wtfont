@@ -67,40 +67,13 @@ program
   .argument("<name>", "Font name")
   .description("Check whether a font is on Google Fonts")
   .action(async (name: string) => {
-    const {
-      isGoogleFont,
-      getGoogleFontCategory,
-      getGoogleFontsUrl,
-    } = await import("./core/google-fonts-db.ts");
-
-    const found = isGoogleFont(name);
-    if (found) {
-      const category = getGoogleFontCategory(name);
-      const url = getGoogleFontsUrl(name);
-      const specimen = `https://fonts.google.com/specimen/${encodeURIComponent(name.replace(/\s+/g, "+"))}`;
-      process.stdout.write(
-        [
-          `  ✓ ${titleCase(name)}`,
-          `    Category:     ${category}`,
-          `    Google Fonts: yes`,
-          `    CSS URL:      ${url}`,
-          `    Specimen:     ${specimen}`,
-          ``,
-          `    Next: wtfont code "${titleCase(name)}" --framework nextjs`,
-          ``,
-        ].join("\n"),
-      );
-    } else {
-      process.stdout.write(
-        [
-          `  ✗ ${name}`,
-          `    Not found on Google Fonts (${await import("./core/google-fonts-db.ts").then((m) => m.getGoogleFontCount())} entries).`,
-          `    This is likely a commercial typeface.`,
-          `    Tip: via MCP, ask Claude for free alternatives.`,
-          ``,
-        ].join("\n"),
-      );
-    }
+    const config = await loadConfig();
+    setTheme(config.theme);
+    const { render } = await import("ink");
+    const React = (await import("react")).default;
+    const { default: LookupView } = await import("./tui/LookupView.tsx");
+    const instance = render(React.createElement(LookupView, { name }));
+    instance.waitUntilExit().then(() => process.exit(0));
   });
 
 // --- code ---
@@ -193,28 +166,16 @@ program
   )
   .description("Suggest candidate fonts to pair with the given body font")
   .action(async (name: string, opts) => {
-    const { pairFonts } = await import("./core/pair.ts");
+    const config = await loadConfig();
+    setTheme(config.theme);
     const role = opts.role === "display" ? "display" : "heading";
-    const result = pairFonts(name, role);
-
-    const lines: string[] = [];
-    lines.push(``);
-    lines.push(
-      `Pair suggestions for ${name} (${result.input.category ?? "unknown category"}${result.input.isGoogleFont ? ", Google Fonts" : ""})`,
+    const { render } = await import("ink");
+    const React = (await import("react")).default;
+    const { default: PairView } = await import("./tui/PairView.tsx");
+    const instance = render(
+      React.createElement(PairView, { name, targetRole: role }),
     );
-    lines.push(``);
-    if (result.suggestions.length === 0) {
-      lines.push(`  No suggestions found.`);
-    } else {
-      for (const s of result.suggestions) {
-        lines.push(`  · ${titleCase(s.name).padEnd(22)} [${s.category}]`);
-        lines.push(`      ${s.rationale}`);
-      }
-    }
-    lines.push(``);
-    lines.push(`  ${result.note}`);
-    lines.push(``);
-    process.stdout.write(lines.join("\n"));
+    instance.waitUntilExit().then(() => process.exit(0));
   });
 
 // --- scan ---

@@ -1,4 +1,4 @@
-import { Text } from "ink";
+import { Box, Text } from "ink";
 import { useEffect, useState } from "react";
 import { theme } from "./theme.ts";
 
@@ -11,9 +11,11 @@ export function Spinner({ label }: { label?: string }) {
     return () => clearInterval(t);
   }, []);
   return (
-    <Text color={theme.primary}>
-      {FRAMES[i]}
-      {label ? ` ${label}` : ""}
-    </Text>
+    <Box>
+      <Text color={theme.primary}>
+        {FRAMES[i]}
+        {label ? ` ${label}` : ""}
+      </Text>
+    </Box>
   );
 }

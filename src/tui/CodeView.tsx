@@ -11,6 +11,7 @@ import {
   getGoogleFontsUrl,
   isGoogleFont,
 } from "../core/google-fonts-db.ts";
+import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
 interface Props {
@@ -31,7 +32,9 @@ export default function CodeView({
   const altName = alternative ?? name;
   const altIsFree = isGoogleFont(altName);
   const category =
-    getGoogleFontCategory(altName) ?? getGoogleFontCategory(name) ?? "sans-serif";
+    getGoogleFontCategory(altName) ??
+    getGoogleFontCategory(name) ??
+    "sans-serif";
   const googleFontsUrl = altIsFree ? getGoogleFontsUrl(altName, weights) : null;
 
   const font: MatchedFont = {
@@ -49,17 +52,22 @@ export default function CodeView({
     : generatePremiumCode(font, framework);
 
   return (
-    <Box flexDirection="column" paddingY={1}>
-      <Text color={theme.dim}>
-        $ wtfont code {name} --framework {framework}
-      </Text>
-      <Box marginTop={1}>
+    <FrameBox title={`Code · ${name} (${framework})`}>
+      <Box marginBottom={1}>
         <Text color={altIsFree ? theme.green : theme.yellow}>
-          {altIsFree ? "✓ Free on Google Fonts" : "· Commercial font — license required"}
+          {altIsFree
+            ? "✓ Free on Google Fonts"
+            : "· Commercial font — license required"}
         </Text>
       </Box>
 
-      <Box marginTop={1} flexDirection="column">
+      <Box
+        borderStyle="round"
+        borderColor={theme.border}
+        paddingX={1}
+        paddingY={1}
+        flexDirection="column"
+      >
         {code.split("\n").map((line, i) => (
           <Text key={i} color={theme.text}>
             {line || " "}
@@ -68,21 +76,27 @@ export default function CodeView({
       </Box>
 
       {!googleFontsUrl && (
-        <Box marginTop={1}>
-          <Text color={theme.dim}>CSS usage only:</Text>
-        </Box>
+        <>
+          <Box marginTop={1} marginBottom={1}>
+            <Text color={theme.dim}>CSS usage:</Text>
+          </Box>
+          <Box
+            borderStyle="round"
+            borderColor={theme.border}
+            paddingX={1}
+            paddingY={1}
+            flexDirection="column"
+          >
+            {generateCssUsageCode(font)
+              .split("\n")
+              .map((line, i) => (
+                <Text key={i} color={theme.text}>
+                  {line || " "}
+                </Text>
+              ))}
+          </Box>
+        </>
       )}
-      {!googleFontsUrl && (
-        <Box marginTop={1} flexDirection="column">
-          {generateCssUsageCode(font)
-            .split("\n")
-            .map((line, i) => (
-              <Text key={i} color={theme.text}>
-                {line || " "}
-              </Text>
-            ))}
-        </Box>
-      )}
-    </Box>
+    </FrameBox>
   );
 }

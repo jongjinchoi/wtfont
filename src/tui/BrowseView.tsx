@@ -1,5 +1,9 @@
 import { Box, Text } from "ink";
-import { getGoogleFontsByCategory } from "../core/google-fonts-db.ts";
+import {
+  getGoogleFontsByCategory,
+  getGoogleFontCount,
+} from "../core/google-fonts-db.ts";
+import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
 const VALID = new Set([
@@ -19,34 +23,37 @@ export default function BrowseView({
 }) {
   if (!VALID.has(category.toLowerCase())) {
     return (
-      <Box paddingY={1}>
+      <FrameBox title="Browse">
         <Text color={theme.red}>
           Unknown category: {category}. Valid: sans-serif, serif, display,
           handwriting, monospace.
         </Text>
-      </Box>
+      </FrameBox>
     );
   }
 
-  const fonts = getGoogleFontsByCategory(category).slice(0, limit);
+  const all = getGoogleFontsByCategory(category);
+  const fonts = all.slice(0, limit);
+
   return (
-    <Box flexDirection="column" paddingY={1}>
-      <Text color={theme.dim}>
-        Google Fonts — {category} ({fonts.length})
-      </Text>
-      <Box marginTop={1} flexDirection="column">
+    <FrameBox
+      title={`Google Fonts — ${category}`}
+      hints={[{ key: "preview", action: "wtfont preview <name>" }]}
+    >
+      <Box flexDirection="column">
         {fonts.map((name) => (
           <Text key={name} color={theme.text}>
             {toTitleCase(name)}
           </Text>
         ))}
       </Box>
+
       <Box marginTop={1}>
         <Text color={theme.dim}>
-          Showing {fonts.length}. Preview any: wtfont preview &lt;name&gt;
+          Showing {fonts.length} of {all.length} ({getGoogleFontCount()} total)
         </Text>
       </Box>
-    </Box>
+    </FrameBox>
   );
 }
 
