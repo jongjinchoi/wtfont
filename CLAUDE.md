@@ -17,8 +17,7 @@ wtfont는 CLI + MCP 도구다. 중앙집중 웹 서비스가 아니다.
 - **빌드**: `bun run build-npm.ts` → `dist/npm/index.js` (Node 타깃 ESM)
 
 ## Git 커밋
-- Co-Authored-By 트레일러 절대 추가 금지
-- 커밋 메시지에 Claude 관련 attribution 포함하지 않기
+- Co-Authored-By: Claude <noreply@anthropic.com> 트레일러 포함
 
 ## AI 정책
 
