@@ -72,6 +72,30 @@ const PALETTES: Record<string, ThemePalette> = {
     accent: "#ffb86c",
     surface: "#44475a",
   },
+  "catppuccin-latte": {
+    text: "#4c4f69",
+    primary: "#8839ef",
+    green: "#40a02b",
+    red: "#d20f39",
+    yellow: "#df8e1d",
+    blue: "#1e66f5",
+    dim: "#9ca0b0",
+    border: "#acb0be",
+    accent: "#fe640b",
+    surface: "#ccd0da",
+  },
+  "rose-pine-dawn": {
+    text: "#464261",
+    primary: "#907aa9",
+    green: "#286983",
+    red: "#b4637a",
+    yellow: "#ea9d34",
+    blue: "#56949f",
+    dim: "#9893a5",
+    border: "#cecacd",
+    accent: "#ea9d34",
+    surface: "#f4ede8",
+  },
 };
 
 export const THEME_NAMES = Object.keys(PALETTES);
