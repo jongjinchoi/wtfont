@@ -5,25 +5,27 @@ import type {
 } from "../types/font.ts";
 import { isSystemFont } from "./system-fonts.ts";
 
-/**
- * Locally-executed Playwright font extraction.
- *
- * Ported from the original `services/playwright/src/extract-fonts.ts`
- * but without the Fastify service / browser pool — the CLI launches
- * a single browser per invocation and tears it down afterwards.
- *
- * `playwright-core` is an OPTIONAL peer dependency. If not installed,
- * this function returns `null` and the caller falls back to static parsing.
- */
+export type PlaywrightStatus =
+  | "success"
+  | "no_library"
+  | "no_browser"
+  | "error";
+
+export interface PlaywrightResult {
+  fonts: ExtractedFont[] | null;
+  status: PlaywrightStatus;
+  error?: string;
+}
+
 export async function extractFontsLocal(
   url: string,
   timeoutMs = 15000,
-): Promise<ExtractedFont[] | null> {
+): Promise<PlaywrightResult> {
   let playwright: typeof import("playwright-core") | null = null;
   try {
     playwright = await import("playwright-core");
   } catch {
-    return null;
+    return { fonts: null, status: "no_library" };
   }
 
   let browser: Awaited<ReturnType<typeof playwright.chromium.launch>> | null =
@@ -136,12 +138,24 @@ export async function extractFontsLocal(
 
     await context.close();
 
-    return mergeAndClassify(
+    const fonts = mergeAndClassify(
       documentFonts,
       computedFonts,
       resources,
       stylesheetUrls,
     );
+    return { fonts, status: "success" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    const isBrowserMissing =
+      message.includes("Executable doesn't exist") ||
+      message.includes("browserType.launch") ||
+      message.includes("ENOENT");
+    return {
+      fonts: null,
+      status: isBrowserMissing ? "no_browser" : "error",
+      error: message,
+    };
   } finally {
     if (browser) await browser.close().catch(() => {});
   }

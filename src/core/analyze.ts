@@ -43,7 +43,7 @@ export async function analyze(
   const normalizedUrl = normalizeUrl(rawUrl);
   const { domain } = extractDomainAndPath(normalizedUrl);
 
-  const [staticResult, dynamicResult] = await Promise.allSettled([
+  const [staticResult, dynamicRaw] = await Promise.allSettled([
     extractFontsFromUrl(normalizedUrl),
     opts.dynamic
       ? extractFontsLocal(normalizedUrl, opts.timeoutMs)
@@ -52,8 +52,16 @@ export async function analyze(
 
   const staticFonts =
     staticResult.status === "fulfilled" ? staticResult.value : null;
-  const dynamicFonts =
-    dynamicResult.status === "fulfilled" ? dynamicResult.value : null;
+
+  // Unpack PlaywrightResult
+  const pwResult =
+    dynamicRaw.status === "fulfilled" ? dynamicRaw.value : null;
+  const dynamicFonts = pwResult?.fonts ?? null;
+
+  let dynamicStatus: AnalysisResult["dynamicStatus"] = opts.dynamic
+    ? (pwResult?.status ?? "error")
+    : "skipped";
+  const dynamicError = pwResult?.error;
 
   let extracted: ExtractedFont[];
   let detection: AnalysisResult["detection"];
@@ -110,6 +118,8 @@ export async function analyze(
     fonts: finalFonts,
     analyzedAt: new Date().toISOString(),
     detection,
+    dynamicStatus,
+    dynamicError,
   };
 }
 

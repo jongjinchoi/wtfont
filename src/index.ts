@@ -318,6 +318,22 @@ configCmd
     process.stdout.write(`Theme set to: ${name}\n`);
   });
 
+// --- install-playwright ---
+program
+  .command("install-playwright")
+  .description("Download Chromium for dynamic font detection (~150MB)")
+  .action(async () => {
+    const config = await loadConfig();
+    setTheme(config.theme);
+    const { render } = await import("ink");
+    const React = (await import("react")).default;
+    const { default: InstallPlaywrightView } = await import(
+      "./tui/InstallPlaywrightView.tsx"
+    );
+    const instance = render(React.createElement(InstallPlaywrightView));
+    instance.waitUntilExit().then(() => process.exit(0));
+  });
+
 // --- mcp ---
 program
   .command("mcp")

@@ -1,8 +1,9 @@
-import { Box, Text, useApp } from "ink";
+import { Box, Text, useApp, useInput } from "ink";
 import { useEffect, useState } from "react";
 import { analyze, AnalyzeError } from "../core/analyze.ts";
 import type { AnalysisResult } from "../types/font.ts";
 import { addHistory } from "../config/history.ts";
+import { installChromium } from "../utils/playwright-install.ts";
 import { Spinner } from "./Spinner.tsx";
 import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
@@ -13,7 +14,7 @@ interface Props {
   timeoutMs?: number;
 }
 
-type Phase = "running" | "done" | "error";
+type Phase = "running" | "prompt_install" | "installing" | "done" | "error";
 
 export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
   const { exit } = useApp();
@@ -21,12 +22,25 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string>("");
 
-  useEffect(() => {
-    let cancelled = false;
+  const runAnalysis = (retryDynamic?: boolean) => {
+    setPhase("running");
     (async () => {
       try {
-        const r = await analyze(url, { dynamic, timeoutMs });
-        if (cancelled) return;
+        const r = await analyze(url, {
+          dynamic: retryDynamic ?? dynamic,
+          timeoutMs,
+        });
+
+        if (
+          dynamic &&
+          (r.dynamicStatus === "no_browser" ||
+            r.dynamicStatus === "no_library")
+        ) {
+          setResult(r);
+          setPhase("prompt_install");
+          return;
+        }
+
         setResult(r);
         setPhase("done");
         await addHistory({
@@ -37,18 +51,43 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
           at: r.analyzedAt,
         });
       } catch (err) {
-        if (cancelled) return;
         const msg = err instanceof AnalyzeError ? err.message : String(err);
         setError(msg);
         setPhase("error");
-      } finally {
-        if (!cancelled) setTimeout(() => exit(), 50);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [url, dynamic, timeoutMs, exit]);
+  };
+
+  useEffect(() => {
+    runAnalysis();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useInput((input) => {
+    if (phase === "prompt_install") {
+      if (input === "y" || input === "Y") {
+        setPhase("installing");
+        const { success, error: installError } = installChromium();
+        if (success) {
+          runAnalysis(true);
+        } else {
+          setError(`Chromium install failed: ${installError}`);
+          setPhase("done");
+        }
+      } else if (input === "n" || input === "N") {
+        setPhase("done");
+        addHistory({
+          url: result!.url,
+          domain: result!.domain,
+          fontNames: result!.fonts.map((f) => f.name),
+          detection: result!.detection,
+          at: result!.analyzedAt,
+        });
+        setTimeout(() => exit(), 50);
+      }
+    } else if (phase === "done" || phase === "error") {
+      setTimeout(() => exit(), 50);
+    }
+  });
 
   if (phase === "running") {
     return (
@@ -56,6 +95,14 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
         <Spinner
           label={dynamic ? "Fetching + Playwright..." : "Fetching HTML..."}
         />
+      </FrameBox>
+    );
+  }
+
+  if (phase === "installing") {
+    return (
+      <FrameBox title={`wtfont analyze ${url}`}>
+        <Spinner label="Installing Chromium (~150MB)..." />
       </FrameBox>
     );
   }
@@ -78,14 +125,23 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
         : "static parsing only";
 
   const freeCount = result.fonts.filter((f) => f.isFree).length;
+  const showDynamicHint =
+    !dynamic && result.fonts.length <= 2 && result.detection === "static";
 
   return (
     <FrameBox
       title={`Fonts on ${result.domain}`}
-      hints={[
-        { key: "code", action: "wtfont code <name>" },
-        { key: "preview", action: "wtfont preview <name>" },
-      ]}
+      hints={
+        phase === "prompt_install"
+          ? [
+              { key: "y", action: "install & retry" },
+              { key: "n", action: "continue with static" },
+            ]
+          : [
+              { key: "code", action: "wtfont code <name>" },
+              { key: "preview", action: "wtfont preview <name>" },
+            ]
+      }
     >
       <Box marginBottom={1}>
         <Text>
@@ -93,6 +149,24 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
           <Text color={theme.dim}> Done — {mode}</Text>
         </Text>
       </Box>
+
+      {phase === "prompt_install" && (
+        <Box
+          marginBottom={1}
+          flexDirection="column"
+          borderStyle="round"
+          borderColor={theme.yellow}
+          paddingX={1}
+          paddingY={1}
+        >
+          <Text color={theme.yellow}>
+            ⚠ Dynamic detection requested but Chromium not found.
+          </Text>
+          <Text color={theme.dim}>
+            Install now? (~150MB download)
+          </Text>
+        </Box>
+      )}
 
       <Box flexDirection="column">
         <Box>
@@ -124,11 +198,18 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
         ))}
       </Box>
 
-      <Box marginTop={1}>
+      <Box marginTop={1} flexDirection="column">
         <Text color={theme.dim}>
           {freeCount}/{result.fonts.length} on Google Fonts ·{" "}
           {result.fonts.length} total
         </Text>
+        {showDynamicHint && (
+          <Text color={theme.accent}>
+            {result.fonts.length <= 1 ? "Few" : "Only 2"} font
+            {result.fonts.length === 1 ? "" : "s"} detected. SPA? Try:{" "}
+            wtfont analyze {url} --dynamic
+          </Text>
+        )}
       </Box>
     </FrameBox>
   );

@@ -42,4 +42,11 @@ export interface AnalysisResult {
   fonts: EnrichedFont[];
   analyzedAt: string;
   detection: "static" | "dynamic" | "merged";
+  dynamicStatus?:
+    | "success"
+    | "no_library"
+    | "no_browser"
+    | "error"
+    | "skipped";
+  dynamicError?: string;
 }

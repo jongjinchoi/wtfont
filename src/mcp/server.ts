@@ -95,6 +95,23 @@ server.registerTool(
       lines.push(
         `${freeCount}/${result.fonts.length} on Google Fonts. Analyzed at ${result.analyzedAt}.`,
       );
+
+      if (
+        dynamic &&
+        result.dynamicStatus &&
+        result.dynamicStatus !== "success" &&
+        result.dynamicStatus !== "skipped"
+      ) {
+        lines.push("");
+        lines.push(
+          `⚠ Dynamic detection requested but failed (${result.dynamicStatus}).`,
+        );
+        lines.push(
+          `  Run \`wtfont install-playwright\` to install Chromium (~150MB), then retry.`,
+        );
+        lines.push(`  Results above are from static parsing only.`);
+      }
+
       return { content: [{ type: "text" as const, text: lines.join("\n") }] };
     } catch (err) {
       const message =
