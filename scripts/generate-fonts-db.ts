@@ -31,7 +31,7 @@ async function main() {
   const entries: Array<[string, string]> = fams
     .map((f) => [
       f.family.toLowerCase(),
-      f.category.toLowerCase().replace(/\s+/g, "-"),
+      `${f.family}|${f.category.toLowerCase().replace(/\s+/g, "-")}`,
     ] as [string, string])
     .sort(([a], [b]) => a.localeCompare(b));
 

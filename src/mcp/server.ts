@@ -203,7 +203,7 @@ server.registerTool(
       content: [
         {
           type: "text" as const,
-          text: [title, "", ...names.map((n) => `  ${titleCase(n)}`)].join("\n"),
+          text: [title, "", ...names.map((n) => `  ${n}`)].join("\n"),
         },
       ],
     };

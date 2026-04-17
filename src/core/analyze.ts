@@ -8,6 +8,7 @@ import {
   getGoogleFontsUrl,
   isGoogleFont,
 } from "./google-fonts-db.ts";
+import { specimenUrl as buildSpecimenUrl } from "./preview.ts";
 
 export interface AnalyzeOptions {
   dynamic?: boolean;
@@ -97,9 +98,7 @@ export async function analyze(
       isFree,
       category,
       googleFontsUrl: isFree ? getGoogleFontsUrl(f.name, f.weights) : null,
-      specimenUrl: isFree
-        ? `https://fonts.google.com/specimen/${encodeURIComponent(f.name.replace(/\s+/g, "+"))}`
-        : null,
+      specimenUrl: isFree ? buildSpecimenUrl(f.name) : null,
     };
   });
 

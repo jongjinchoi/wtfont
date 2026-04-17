@@ -41,8 +41,8 @@ export function pairFonts(
   //  • If body is monospace → suggest sans-serif for body/heading contrast
   //  • Otherwise → default mix
   const buckets: Record<string, string[]> = {};
-  for (const [name, category] of all) {
-    (buckets[category] ??= []).push(name);
+  for (const [, displayName, category] of all) {
+    (buckets[category] ??= []).push(displayName);
   }
 
   const popular = (category: string): string[] => {

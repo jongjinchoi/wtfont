@@ -2,15 +2,16 @@ import { createHash } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { isGoogleFont } from "./google-fonts-db.ts";
+import { isGoogleFont, getGoogleFontDisplayName } from "./google-fonts-db.ts";
 
 const DEFAULT_SAMPLE =
   "The quick brown fox jumps over the lazy dog. 1234567890";
 
 /** Return the Google Fonts specimen URL (or a marketplace search URL as fallback). */
 export function specimenUrl(name: string): string {
-  if (isGoogleFont(name)) {
-    return `https://fonts.google.com/specimen/${encodeURIComponent(name.replace(/\s+/g, "+"))}`;
+  const displayName = getGoogleFontDisplayName(name);
+  if (displayName) {
+    return `https://fonts.google.com/specimen/${encodeURIComponent(displayName.replace(/\s+/g, "+"))}`;
   }
   return `https://www.myfonts.com/search?query=${encodeURIComponent(name)}`;
 }

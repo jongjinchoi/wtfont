@@ -49,12 +49,12 @@ export default function BrowseView({
     } else if (input === "k" || key.upArrow) {
       setCursor((i) => Math.max(i - 1, 0));
     } else if (input === "p" && fonts[cursor]) {
-      openBrowser(specimenUrl(toTitleCase(fonts[cursor])));
+      openBrowser(specimenUrl(fonts[cursor]));
       setConfirmation("✓ Opened preview in browser");
       setTimeout(() => setConfirmation(""), 2000);
     } else if (input === "f" && fonts[cursor]) {
-      addFavorite(toTitleCase(fonts[cursor]));
-      setConfirmation(`✓ Added ${toTitleCase(fonts[cursor])} to favorites`);
+      addFavorite(fonts[cursor]);
+      setConfirmation(`✓ Added ${fonts[cursor]} to favorites`);
       setTimeout(() => setConfirmation(""), 2000);
     } else if (input === "q") {
       exit();
@@ -83,7 +83,7 @@ export default function BrowseView({
                 color={theme.text}
                 backgroundColor={selected ? theme.surface : undefined}
               >
-                {toTitleCase(name)}
+                {name}
               </Text>
             </Box>
           );

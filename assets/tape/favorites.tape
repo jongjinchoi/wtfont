@@ -1,4 +1,4 @@
-Output assets/screenshots/analyze.gif
+Output assets/screenshots/favorites.gif
 
 Require wtfont
 
@@ -9,15 +9,13 @@ Set Height 700
 Set Padding 20
 Env PROMPT_EOL_MARK ""
 
-Type "wtfont analyze vercel.com"
+Type "wtfont favorites list"
 Sleep 500ms
 Enter
-Sleep 6s
-Down
-Sleep 300ms
+Sleep 2s
 Down
 Sleep 500ms
-Screenshot assets/screenshots/analyze.png
+Screenshot assets/screenshots/favorites.png
 Sleep 1s
 Type "q"
 Sleep 300ms
