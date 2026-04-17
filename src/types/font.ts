@@ -1,7 +1,13 @@
 export type FontRole = "heading" | "body" | "display" | "monospace";
 export type FontSource = "google" | "adobe" | "custom" | "system";
+export type FontCategory =
+  | "sans-serif"
+  | "serif"
+  | "display"
+  | "handwriting"
+  | "monospace";
 
-/** Extracted from target website's CSS */
+/** Extracted from a target website's CSS or rendered page. */
 export interface ExtractedFont {
   name: string;
   role: FontRole;
@@ -10,15 +16,15 @@ export interface ExtractedFont {
   selectors: string[];
 }
 
-/** Slim AI response — only the fields AI needs to generate */
-export interface AiMatchedFont {
-  originalName: string;
-  alternativeName: string;
-  similarity: string;
-  similarityScore: number;
+/** An extracted font enriched with Google Fonts DB lookup. */
+export interface EnrichedFont extends ExtractedFont {
+  isFree: boolean;
+  category: string;
+  googleFontsUrl: string | null;
+  specimenUrl: string | null;
 }
 
-/** Full matched result used by UI (AI fields + locally enriched fields) */
+/** Input to code-template generators. */
 export interface MatchedFont {
   role: FontRole;
   originalName: string;
@@ -26,20 +32,21 @@ export interface MatchedFont {
   alternativeName: string;
   googleFontsUrl: string | null;
   fallback: string;
-  similarity: string;
-  similarityScore: number;
-  notes: string;
   weights: string[];
-  myfontsUrl: string | null;
-  fontspringUrl: string | null;
 }
 
-/** Complete analysis result stored in cache */
+/** Full analysis result. */
 export interface AnalysisResult {
   url: string;
   domain: string;
-  slug: string;
-  extractedFonts: ExtractedFont[];
-  matchedFonts: MatchedFont[];
+  fonts: EnrichedFont[];
   analyzedAt: string;
+  detection: "static" | "dynamic" | "merged";
+  dynamicStatus?:
+    | "success"
+    | "no_library"
+    | "no_browser"
+    | "error"
+    | "skipped";
+  dynamicError?: string;
 }

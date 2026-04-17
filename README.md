@@ -1,218 +1,204 @@
-# WTFont.wtf
+# wtfont
 
-웹사이트에서 사용 중인 폰트를 감지하고, 무료 대안 폰트를 찾아주는 분석 도구.
-
-## 주요 기능
-
-- **폰트 감지** — URL을 입력하면 CSS 정적 파싱 + Playwright 동적 렌더링을 병렬로 실행하여 폰트를 추출
-- **AI 매칭** — Gemini 2.0 Flash (1순위) / GPT-4o mini (폴백)로 무료 Google Fonts 대안을 추천
-- **코드 생성** — HTML, Next.js, Nuxt, React 프레임워크별 복사 가능한 코드 스니펫 제공
-- **Google Fonts DB** — 1,911개 Google Fonts 로컬 데이터베이스로 AI 없이도 무료 폰트 즉시 식별
-- **제휴 마케팅** — 유료 폰트에 대한 Fontspring/MyFonts 구매 링크 (CJ Affiliate)
-- **캐시** — Upstash Redis 14일 TTL, URL → slug 매핑으로 결과 페이지 공유 가능
-- **Pre-warm** — GitHub Actions 크론으로 14일마다 인기 URL 캐시 갱신
-
-## 기술 스택
-
-| 영역 | 기술 |
-|------|------|
-| 프레임워크 | Next.js 15, React 19, TypeScript |
-| 스타일링 | Tailwind CSS 3.4, Geist 폰트 (Sans/Mono/Pixel Square) |
-| CSS 파싱 | cheerio + css-tree |
-| 동적 렌더링 | Playwright 마이크로서비스 (Fastify, Docker) |
-| AI | Google GenAI SDK (Gemini), OpenAI SDK (GPT-4o mini) |
-| 캐시/레이트리밋 | Upstash Redis + Ratelimit |
-| 분석 | Plausible Analytics |
-| 배포 | Vercel (Next.js) + Google Cloud Run (Playwright 서비스) |
-| 테스트 | Vitest |
-
-## 프로젝트 구조
-
-```
-src/
-├── app/
-│   ├── api/
-│   │   ├── analyze/route.ts    # POST /api/analyze — 메인 분석 API
-│   │   └── track/route.ts      # POST /api/track — 이벤트 트래킹 (Plausible)
-│   ├── r/[slug]/               # 결과 페이지 (SSR + Client)
-│   │   ├── page.tsx            # RSC — 캐시 조회 + 메타데이터
-│   │   ├── result-client.tsx   # 클라이언트 — 분석 UI + 폰트 카드
-│   │   ├── opengraph-image.tsx # 동적 OG 이미지
-│   │   ├── loading.tsx         # 로딩 스켈레톤
-│   │   ├── error.tsx           # 에러 바운더리
-│   │   └── not-found.tsx       # 404
-│   ├── page.tsx                # 홈 — 터미널 부팅 시퀀스 UI
-│   ├── layout.tsx              # 루트 레이아웃 + ThemeProvider
-│   ├── robots.ts               # robots.txt (AI 크롤러 차단)
-│   └── sitemap.ts              # 동적 사이트맵 (Redis 캐시 기반)
-├── components/
-│   ├── font-card.tsx           # 폰트 분석 결과 카드
-│   ├── font-card-free-section.tsx   # 무료 대안 섹션
-│   ├── font-card-premium-section.tsx # 유료 구매 섹션
-│   ├── font-preview.tsx        # 폰트 미리보기 (편집 가능)
-│   ├── framework-tabs.tsx      # 프레임워크별 코드 탭
-│   ├── code-block.tsx          # 코드 블록 + 복사
-│   ├── copy-button.tsx         # 복사 버튼
-│   ├── share-button.tsx        # 공유 (Twitter + 링크 복사)
-│   ├── url-input.tsx           # URL 입력 폼
-│   ├── header.tsx              # 헤더 (macOS 윈도우 스타일)
-│   ├── footer.tsx              # 푸터
-│   ├── theme-provider.tsx      # next-themes 래퍼
-│   ├── theme-toggle.tsx        # 다크/라이트 토글
-│   └── ui/                     # 기본 UI 컴포넌트 (Badge, Button, Card, Skeleton, Tabs)
-├── lib/
-│   ├── font-parser.ts          # CSS 정적 파싱 (cheerio + css-tree)
-│   ├── playwright-client.ts    # Playwright 서비스 클라이언트
-│   ├── font-merge.ts           # 정적/동적 결과 병합
-│   ├── ai-matcher.ts           # AI 폰트 매칭 (Gemini → OpenAI 폴백)
-│   ├── ai-prompt.ts            # AI 프롬프트 + Zod 스키마
-│   ├── google-fonts-db.ts      # 1,911개 Google Fonts 로컬 DB
-│   ├── system-fonts.ts         # 시스템 폰트 필터링 목록
-│   ├── cache.ts                # Redis 캐시 (React.cache 래핑)
-│   ├── rate-limiter.ts         # IP 기반 레이트리밋 (10회/일)
-│   ├── code-templates.ts       # 프레임워크별 코드 생성기
-│   ├── url-utils.ts            # URL 정규화/검증/슬러그
-│   ├── affiliate.ts            # 제휴 URL 빌더 (Fontspring/MyFonts)
-│   └── track.ts                # 클라이언트 이벤트 트래킹
-└── types/
-    ├── font.ts                 # ExtractedFont, MatchedFont, AnalysisResult
-    └── api.ts                  # API 요청/응답 타입
-
-services/playwright/            # Playwright 마이크로서비스 (별도 배포)
-├── src/
-│   ├── server.ts               # Fastify 서버 (POST /extract, GET /health)
-│   ├── extract-fonts.ts        # 브라우저 내 폰트 추출 로직
-│   └── browser-pool.ts         # 브라우저 인스턴스 풀
-├── Dockerfile                  # mcr.microsoft.com/playwright 기반
-└── package.json
-
-scripts/
-├── pre-warm.ts                 # 캐시 Pre-warm 스크립트
-└── pre-warm-urls.ts            # Pre-warm 대상 URL 목록
-
-.github/workflows/
-└── pre-warm.yml                # 14일마다 캐시 갱신 크론
-```
-
-## 분석 파이프라인
-
-```
-URL 입력
-  ↓
-POST /api/analyze
-  ↓
-레이트리밋 확인 (10회/일/IP)
-  ↓
-Redis 캐시 확인 → 히트 시 즉시 반환
-  ↓
-[병렬 실행]
-├── CSS 정적 파싱 (cheerio + css-tree)
-│   ├── Google Fonts <link> 태그
-│   ├── @import 규칙
-│   ├── @font-face 선언
-│   ├── font-family 사용처 + 셀렉터
-│   └── 인라인 스타일
-└── Playwright 동적 렌더링
-    ├── document.fonts API
-    ├── computedStyle 분석
-    └── 폰트 리소스 URL 감지
-  ↓
-결과 병합 (중복 제거, 소스/역할 우선순위 적용)
-  ↓
-AI 매칭 (Gemini → OpenAI 폴백)
-  ├── 무료 Google Fonts 대안 추천
-  ├── 유사도 점수 (0-100)
-  └── 유료 폰트 구매 링크
-  ↓
-제휴 ID 주입 (Fontspring/MyFonts)
-  ↓
-Redis 캐시 저장 (after() 비차단)
-  ↓
-응답 반환
-```
-
-## 환경변수
+Identify web fonts and find free Google Fonts alternatives — from your terminal or through Claude.
 
 ```bash
-# AI 제공자 (최소 하나 필요)
-GEMINI_API_KEY=                  # Google Gemini API 키
-OPENAI_API_KEY=                  # OpenAI API 키 (폴백)
-
-# Upstash Redis (캐시 + 레이트리밋)
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
-
-# 분석
-NEXT_PUBLIC_PLAUSIBLE_DOMAIN=wtfont.wtf
-
-# 제휴 마케팅 (CJ Affiliate)
-FONTSPRING_AFFILIATE_ID=
-MYFONTS_AFFILIATE_ID=
-
-# Playwright 서비스
-PLAYWRIGHT_SERVICE_URL=          # Google Cloud Run 배포 URL
-PLAYWRIGHT_SERVICE_SECRET=       # Bearer 토큰
-
-# Pre-warm
-PREWARM_SECRET=                  # 레이트리밋 우회용
+npm install -g wtfont
 ```
 
-## 시작하기
+## What it does
+
+- **Detect fonts** on any website (static HTML parsing; optional Playwright for SPAs)
+- **Look up** any font in a local 1,929-entry Google Fonts database (offline after install)
+- **Generate code** for HTML, Next.js, Nuxt, or React — copy to clipboard with `c`
+- **Preview & compare** fonts visually in your browser
+- **Audit projects** — scan your local CSS/JS for `font-family` usage
+- **Pair fonts** — get candidate partners for a body font
+- **MCP server** — let Claude (Desktop or Code) drive the whole workflow
+
+No API keys required. No servers. Everything runs locally.
+
+## Quick start
 
 ```bash
-# 의존성 설치
-pnpm install
+# Analyze a website — navigate results with j/k
+wtfont analyze vercel.com
 
-# 환경변수 설정
-cp .env.example .env.local
-# .env.local 편집
+# Dynamic (JS-rendered) sites — installs Chromium on first use
+wtfont analyze linear.app --dynamic
 
-# 개발 서버 (포트 3100)
-pnpm dev
+# Or install Chromium ahead of time
+wtfont install-playwright
 
-# 타입 체크
-npx tsc --noEmit
+# Is this font on Google Fonts?
+wtfont lookup Inter
 
-# 테스트
-pnpm test:run
+# Generate Next.js code
+wtfont code Inter --framework nextjs --weights 400,500,700
 
-# 빌드
-pnpm build
+# Compare fonts side-by-side in a browser
+wtfont preview Inter "Plus Jakarta Sans" Manrope
+
+# Audit the current project
+wtfont scan
 ```
 
-## Playwright 서비스
+## Interactive navigation
 
-Playwright 마이크로서비스는 별도로 배포합니다. JS로 동적 렌더링되는 폰트를 감지하기 위해 실제 브라우저를 사용합니다.
+`wtfont analyze` acts as a **hub** — browse detected fonts and take action without leaving the session:
+
+```
+┌─ Fonts on vercel.com ─────────────────────────────────────────┐
+│ ✓ Done — static parsing only                                  │
+│                                                                │
+│   role       name              source   weights           free │
+│   ────────── ───────────────── ──────── ──────────────── ───  │
+│   body       Geist             custom   100 900           ✓   │
+│ ▸ body       Geist Mono        custom   100 900           ✓   │
+│   body       Roboto Mono       custom   400,500,700       ✓   │
+│   monospace  Space Mono        custom   400               ✓   │
+│                                                                │
+│ 6/13 on Google Fonts · 13 total                                │
+├────────────────────────────────────────────────────────────────┤
+│ j/k move · p preview · c code · enter lookup · q quit         │
+└────────────────────────────────────────────────────────────────┘
+```
+
+| Key | Action |
+|-----|--------|
+| `j/k` or `↑/↓` | Move cursor between fonts |
+| `c` | Open code view for the selected font (copy with `c` inside) |
+| `enter` | Open lookup view for the selected font |
+| `p` | Open preview in browser for the selected font |
+| `esc` | Return from code/lookup back to the list |
+| `q` | Quit |
+
+The same `j/k` navigation works in `browse`, `history`, and `favorites` views.
+
+## MCP — use wtfont through Claude
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "wtfont": {
+      "command": "npx",
+      "args": ["-y", "wtfont", "mcp"]
+    }
+  }
+}
+```
+
+Or for Claude Code:
 
 ```bash
-cd services/playwright
-
-# 개발
-npm run dev
-
-# Docker 로컬 빌드
-docker build -t wtfont-playwright .
-docker run -p 3200:3200 -e SERVICE_SECRET=your-secret wtfont-playwright
-
-# Google Cloud Run 배포
-gcloud run deploy wtfont-playwright \
-  --source . \
-  --region us-central1 \
-  --memory 1Gi \
-  --cpu 1 \
-  --max-instances 2 \
-  --concurrency 3 \
-  --timeout 60 \
-  --set-env-vars "SERVICE_SECRET=your-secret" \
-  --allow-unauthenticated
+claude mcp add wtfont -- npx -y wtfont mcp
 ```
 
-## 레이트리밋
+Then ask Claude things like:
 
-- IP 기반 고정 윈도우: **10회/일**
-- Pre-warm 요청은 `x-prewarm-secret` 헤더로 레이트리밋 우회
-- Redis 미설정 시 레이트리밋 비활성화
+- *"What fonts does stripe.com use? Recommend free alternatives."*
+- *"Inter on body — suggest a heading font and show me side by side."*
+- *"Scan this project and tell me which fonts are commercial."*
 
-## 라이선스
+Claude calls the 8 MCP tools: `extract_fonts`, `lookup_google_font`, `list_google_fonts`, `compare_fonts`, `pair_fonts`, `generate_font_code`, `preview_fonts`, `scan_project_fonts`. The server provides facts; Claude provides the taste.
 
-Private
+## CLI reference
+
+| Command | Description |
+|---|---|
+| `wtfont analyze <url>` | Detect fonts. `--dynamic` for SPAs. `--format json` for scripting. |
+| `wtfont lookup <name>` | Check Google Fonts DB. `p` preview, `c` copy URL. |
+| `wtfont code <name>` | Generate code. `--framework html\|nextjs\|nuxt\|react`. `c` to copy. |
+| `wtfont preview <names...>` | Open specimen (1 font) or local compare HTML (2+). |
+| `wtfont pair <name>` | Candidate pairing fonts. `p` to preview compare. |
+| `wtfont scan [path]` | Audit local project font usage. |
+| `wtfont browse <category>` | Browse Google Fonts. `p` preview, `f` add to favorites. |
+| `wtfont history` | Recent analyses. `p` preview fonts, `d` delete. `--clear` to reset. |
+| `wtfont favorites <add\|list\|remove>` | Bookmark fonts. `p` preview, `d` remove. |
+| `wtfont init` | Interactive setup (theme + Playwright). |
+| `wtfont config theme [name]` | Switch terminal theme. `--list` to see all. |
+| `wtfont install-playwright` | Download Chromium for `--dynamic` (~150MB). |
+| `wtfont mcp` | Start MCP stdio server. |
+
+## Themes
+
+7 built-in themes — 5 dark, 2 light:
+
+| Theme | Type |
+|---|---|
+| `default` | Dark |
+| `monochrome` | Dark |
+| `solarized` | Dark |
+| `catppuccin-mocha` | Dark |
+| `dracula` | Dark |
+| `catppuccin-latte` | Light |
+| `rose-pine-dawn` | Light |
+
+```bash
+wtfont config theme catppuccin-latte   # switch theme
+wtfont config theme --list             # see all themes
+```
+
+## Playwright / dynamic detection
+
+Static parsing covers most SSR/MPA sites. For SPAs (React/Vue/Next CSR) where fonts load via JavaScript, use `--dynamic`:
+
+```bash
+wtfont analyze linear.app --dynamic
+```
+
+If Chromium isn't installed, wtfont will prompt to install it:
+
+```
+⚠ Dynamic detection requested but Chromium not found.
+  Install now? (~150MB download)
+  [y] Install and retry  [n] Continue with static
+```
+
+Or install ahead of time:
+
+```bash
+wtfont install-playwright
+```
+
+`playwright-core` is bundled with wtfont (auto-installed). Only the Chromium browser binary (~150MB) requires the extra step.
+
+## How it works
+
+Static parsing uses [cheerio](https://cheerio.js.org/) + [css-tree](https://github.com/csstree/csstree) to pull fonts from `<link>`, `@font-face`, `@import`, `font-family` rules, and inline styles.
+
+Dynamic detection uses Playwright to launch Chromium, then collects fonts via `document.fonts`, `getComputedStyle`, and the Resource Timing API — cross-validating against what's actually loaded.
+
+The Google Fonts DB (`src/core/google-fonts-db.ts`, 1,929 entries with original display names) is regenerated weekly by a GitHub Actions workflow that fetches `fonts.google.com/metadata/fonts` and opens a PR.
+
+## Configuration
+
+Stored at `~/.wtfont/`:
+
+- `config.json` — theme, defaults
+- `history.json` — recent analyses (last 100)
+- `favorites.json` — bookmarked fonts
+
+## Why no AI in the CLI?
+
+The original wtfont used Gemini/OpenAI for font alternative matching. This CLI removes that:
+
+- **MCP users** get better recommendations from Claude itself (Opus/Sonnet), with full conversational context
+- **CLI-only users** get the raw Google Fonts DB match — and can pipe `--format json` into their own tooling
+
+Licensing: detecting a font does not grant a license to use it. Many web fonts are commercial software — always purchase a proper license before shipping.
+
+## Development
+
+```bash
+bun install
+bun run build:npm     # dist/npm/index.js
+bun run test:run      # vitest
+bun run update-db     # manually refresh Google Fonts DB
+```
+
+## License
+
+MIT
