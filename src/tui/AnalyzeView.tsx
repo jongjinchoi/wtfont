@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { analyze, AnalyzeError } from "../core/analyze.ts";
 import type { AnalysisResult } from "../types/font.ts";
 import { addHistory } from "../config/history.ts";
-import { generateComparePage } from "../core/preview.ts";
+import { specimenUrl } from "../core/preview.ts";
 import { openBrowser } from "../utils/browser.ts";
 import { installChromium } from "../utils/playwright-install.ts";
 import { Spinner } from "./Spinner.tsx";
 import FrameBox from "./FrameBox.tsx";
+import CodeView from "./CodeView.tsx";
+import LookupView from "./LookupView.tsx";
 import { theme } from "./theme.ts";
 
 interface Props {
@@ -16,11 +18,19 @@ interface Props {
   timeoutMs?: number;
 }
 
-type Phase = "running" | "prompt_install" | "installing" | "done" | "error";
+type Phase =
+  | "running"
+  | "prompt_install"
+  | "installing"
+  | "selecting"
+  | "code"
+  | "lookup"
+  | "error";
 
 export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
   const { exit } = useApp();
   const [phase, setPhase] = useState<Phase>("running");
+  const [cursor, setCursor] = useState(0);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string>("");
   const [confirmation, setConfirmation] = useState("");
@@ -45,7 +55,7 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
         }
 
         setResult(r);
-        setPhase("done");
+        setPhase("selecting");
         await addHistory({
           url: r.url,
           domain: r.domain,
@@ -65,46 +75,59 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
     runAnalysis();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useInput((input) => {
-    if (phase === "prompt_install") {
-      if (input === "y" || input === "Y") {
-        setPhase("installing");
-        const { success, error: installError } = installChromium();
-        if (success) {
-          runAnalysis(true);
-        } else {
-          setError(`Chromium install failed: ${installError}`);
-          setPhase("done");
+  // Parent input — active only when not in code/lookup sub-views
+  useInput(
+    (input, key) => {
+      if (phase === "prompt_install") {
+        if (input === "y" || input === "Y") {
+          setPhase("installing");
+          const { success, error: installError } = installChromium();
+          if (success) {
+            runAnalysis(true);
+          } else {
+            setError(`Chromium install failed: ${installError}`);
+            setPhase("selecting");
+          }
+        } else if (input === "n" || input === "N") {
+          setPhase("selecting");
+          if (result) {
+            addHistory({
+              url: result.url,
+              domain: result.domain,
+              fontNames: result.fonts.map((f) => f.name),
+              detection: result.detection,
+              at: result.analyzedAt,
+            });
+          }
         }
-      } else if (input === "n" || input === "N") {
-        setPhase("done");
-        if (result) {
-          addHistory({
-            url: result.url,
-            domain: result.domain,
-            fontNames: result.fonts.map((f) => f.name),
-            detection: result.detection,
-            at: result.analyzedAt,
-          });
+      } else if (phase === "selecting" && result) {
+        if (input === "j" || key.downArrow) {
+          setCursor((i) => Math.min(i + 1, result.fonts.length - 1));
+        } else if (input === "k" || key.upArrow) {
+          setCursor((i) => Math.max(i - 1, 0));
+        } else if (input === "p") {
+          const font = result.fonts[cursor];
+          if (font) {
+            const url = specimenUrl(font.name);
+            openBrowser(url);
+            setConfirmation("Opened preview in browser.");
+            setTimeout(() => setConfirmation(""), 2000);
+          }
+        } else if (input === "c") {
+          setPhase("code");
+        } else if (key.return) {
+          setPhase("lookup");
+        } else if (input === "q") {
+          exit();
         }
+      } else if (phase === "error") {
+        if (input === "q") exit();
       }
-    } else if (phase === "done") {
-      if (input === "p" && result) {
-        (async () => {
-          const names = result.fonts.map((f) => f.name);
-          const path = await generateComparePage(names);
-          openBrowser(`file://${path}`);
-          setConfirmation("Opened compare page in browser.");
-          setTimeout(() => setConfirmation(""), 2000);
-        })();
-      } else if (input === "q") {
-        exit();
-      }
-    } else if (phase === "error") {
-      if (input === "q") exit();
-    }
-  });
+    },
+    { isActive: phase !== "code" && phase !== "lookup" },
+  );
 
+  // --- Loading / Installing ---
   if (phase === "running") {
     return (
       <FrameBox title={`wtfont analyze ${url}`}>
@@ -123,9 +146,13 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
     );
   }
 
+  // --- Error ---
   if (phase === "error") {
     return (
-      <FrameBox title={`wtfont analyze ${url}`} hints={[{ key: "q", action: "quit" }]}>
+      <FrameBox
+        title={`wtfont analyze ${url}`}
+        hints={[{ key: "q", action: "quit" }]}
+      >
         <Text color={theme.red}>✗ {error}</Text>
       </FrameBox>
     );
@@ -133,6 +160,57 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
 
   if (!result) return null;
 
+  const selectedFont = result.fonts[cursor];
+
+  // --- Code sub-view ---
+  if (phase === "code" && selectedFont) {
+    return (
+      <FrameBox
+        title={`Code · ${selectedFont.name} (nextjs)`}
+        hints={[
+          { key: "c", action: "copy code" },
+          { key: "esc", action: "back" },
+          { key: "q", action: "quit" },
+        ]}
+      >
+        <CodeView
+          name={selectedFont.name}
+          framework="nextjs"
+          weights={selectedFont.weights}
+          role={selectedFont.role}
+          embedded
+          onBack={() => setPhase("selecting")}
+        />
+      </FrameBox>
+    );
+  }
+
+  // --- Lookup sub-view ---
+  if (phase === "lookup" && selectedFont) {
+    return (
+      <FrameBox
+        title={`wtfont lookup ${selectedFont.name}`}
+        hints={[
+          ...(selectedFont.isFree
+            ? [
+                { key: "p", action: "preview" },
+                { key: "c", action: "copy URL" },
+              ]
+            : []),
+          { key: "esc", action: "back" },
+          { key: "q", action: "quit" },
+        ]}
+      >
+        <LookupView
+          name={selectedFont.name}
+          embedded
+          onBack={() => setPhase("selecting")}
+        />
+      </FrameBox>
+    );
+  }
+
+  // --- Selecting (main result table) ---
   const mode =
     result.detection === "merged"
       ? "static + dynamic"
@@ -154,7 +232,10 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
               { key: "n", action: "continue with static" },
             ]
           : [
-              { key: "p", action: "preview all" },
+              { key: "j/k", action: "move" },
+              { key: "p", action: "preview" },
+              { key: "c", action: "code" },
+              { key: "enter", action: "lookup" },
               { key: "q", action: "quit" },
             ]
       }
@@ -185,6 +266,7 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
       <Box flexDirection="column">
         <Box>
           <Text color={theme.dim}>
+            {"  "}
             {"role".padEnd(11)}
             {"name".padEnd(28)}
             {"source".padEnd(10)}
@@ -193,23 +275,41 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
         </Box>
         <Box>
           <Text color={theme.border}>
+            {"  "}
             {"─".repeat(10)} {"─".repeat(27)} {"─".repeat(9)} {"─".repeat(21)}{" "}
             ───
           </Text>
         </Box>
-        {result.fonts.map((f, i) => (
-          <Box key={`${f.name}-${i}`}>
-            <Text>{f.role.padEnd(11)}</Text>
-            <Text color={theme.text}>{truncate(f.name, 27).padEnd(28)}</Text>
-            <Text color={theme.dim}>{f.source.padEnd(10)}</Text>
-            <Text color={theme.dim}>
-              {truncate(f.weights.join(","), 21).padEnd(22)}
-            </Text>
-            <Text color={f.isFree ? theme.green : theme.yellow}>
-              {f.isFree ? "✓" : "·"}
-            </Text>
-          </Box>
-        ))}
+        {result.fonts.map((f, i) => {
+          const selected = i === cursor && phase === "selecting";
+          return (
+            <Box key={`${f.name}-${i}`}>
+              <Text color={selected ? theme.primary : undefined}>
+                {selected ? "▸ " : "  "}
+              </Text>
+              <Text
+                color={theme.text}
+                backgroundColor={selected ? theme.surface : undefined}
+              >
+                {f.role.padEnd(11)}
+                {truncate(f.name, 27).padEnd(28)}
+              </Text>
+              <Text
+                color={theme.dim}
+                backgroundColor={selected ? theme.surface : undefined}
+              >
+                {f.source.padEnd(10)}
+                {truncate(f.weights.join(","), 21).padEnd(22)}
+              </Text>
+              <Text
+                color={f.isFree ? theme.green : theme.yellow}
+                backgroundColor={selected ? theme.surface : undefined}
+              >
+                {f.isFree ? "✓" : "·"}
+              </Text>
+            </Box>
+          );
+        })}
       </Box>
 
       <Box marginTop={1} flexDirection="column">
@@ -224,9 +324,7 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
             wtfont analyze {url} --dynamic
           </Text>
         )}
-        {confirmation && (
-          <Text color={theme.green}>{confirmation}</Text>
-        )}
+        {confirmation && <Text color={theme.green}>{confirmation}</Text>}
       </Box>
     </FrameBox>
   );

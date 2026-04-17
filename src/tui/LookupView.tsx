@@ -12,7 +12,13 @@ import { copyToClipboard } from "../utils/clipboard.ts";
 import FrameBox from "./FrameBox.tsx";
 import { theme } from "./theme.ts";
 
-export default function LookupView({ name }: { name: string }) {
+interface Props {
+  name: string;
+  embedded?: boolean;
+  onBack?: () => void;
+}
+
+export default function LookupView({ name, embedded, onBack }: Props) {
   const { exit } = useApp();
   const [confirmation, setConfirmation] = useState("");
   const found = isGoogleFont(name);
@@ -21,9 +27,14 @@ export default function LookupView({ name }: { name: string }) {
   const cssUrl = found ? getGoogleFontsUrl(name) : null;
   const specimen = found ? specimenUrl(name) : null;
 
-  useInput((input) => {
-    if (input === "q") {
-      exit();
+  const handleExit = () => {
+    if (embedded && onBack) onBack();
+    else exit();
+  };
+
+  useInput((input, key) => {
+    if (input === "q" || key.escape || input === "b") {
+      handleExit();
     } else if (input === "p" && specimen) {
       openBrowser(specimen);
       setConfirmation("✓ Opened preview in browser");
@@ -35,57 +46,60 @@ export default function LookupView({ name }: { name: string }) {
     }
   });
 
-  if (found) {
-    return (
-      <FrameBox
-        title={`wtfont lookup ${name}`}
-        hints={[
-          { key: "p", action: "preview" },
-          { key: "c", action: "copy URL" },
-          { key: "q", action: "quit" },
-        ]}
-      >
-        <Box marginBottom={1}>
-          <Text color={theme.green}>✓ </Text>
-          <Text color={theme.text} bold>
-            {titleCase(name)}
-          </Text>
-        </Box>
-        <Box flexDirection="column">
-          <Text>
-            <Text color={theme.dim}>{"  "}Category:     </Text>
-            <Text color={theme.text}>{category}</Text>
-          </Text>
-          <Text>
-            <Text color={theme.dim}>{"  "}Google Fonts: </Text>
-            <Text color={theme.green}>yes</Text>
-          </Text>
-          <Text>
-            <Text color={theme.dim}>{"  "}CSS URL:      </Text>
-            <Text color={theme.text}>{cssUrl}</Text>
-          </Text>
-          <Text>
-            <Text color={theme.dim}>{"  "}Specimen:     </Text>
-            <Text color={theme.text}>{specimen}</Text>
-          </Text>
-        </Box>
-        {confirmation && (
-          <Box marginTop={1}>
-            <Text
-              color={
-                confirmation.startsWith("✓") ? theme.green : theme.red
-              }
-            >
-              {confirmation}
-            </Text>
-          </Box>
-        )}
-      </FrameBox>
-    );
-  }
+  const hintsFound = embedded
+    ? [
+        { key: "p", action: "preview" },
+        { key: "c", action: "copy URL" },
+        { key: "esc", action: "back" },
+      ]
+    : [
+        { key: "p", action: "preview" },
+        { key: "c", action: "copy URL" },
+        { key: "q", action: "quit" },
+      ];
 
-  return (
-    <FrameBox title={`wtfont lookup ${name}`} hints={[{ key: "q", action: "quit" }]}>
+  const hintsNotFound = embedded
+    ? [{ key: "esc", action: "back" }]
+    : [{ key: "q", action: "quit" }];
+
+  const content = found ? (
+    <>
+      <Box marginBottom={1}>
+        <Text color={theme.green}>✓ </Text>
+        <Text color={theme.text} bold>
+          {titleCase(name)}
+        </Text>
+      </Box>
+      <Box flexDirection="column">
+        <Text>
+          <Text color={theme.dim}>{"  "}Category:     </Text>
+          <Text color={theme.text}>{category}</Text>
+        </Text>
+        <Text>
+          <Text color={theme.dim}>{"  "}Google Fonts: </Text>
+          <Text color={theme.green}>yes</Text>
+        </Text>
+        <Text>
+          <Text color={theme.dim}>{"  "}CSS URL:      </Text>
+          <Text color={theme.text}>{cssUrl}</Text>
+        </Text>
+        <Text>
+          <Text color={theme.dim}>{"  "}Specimen:     </Text>
+          <Text color={theme.text}>{specimen}</Text>
+        </Text>
+      </Box>
+      {confirmation && (
+        <Box marginTop={1}>
+          <Text
+            color={confirmation.startsWith("✓") ? theme.green : theme.red}
+          >
+            {confirmation}
+          </Text>
+        </Box>
+      )}
+    </>
+  ) : (
+    <>
       <Box marginBottom={1}>
         <Text color={theme.yellow}>✗ </Text>
         <Text color={theme.text} bold>
@@ -103,6 +117,17 @@ export default function LookupView({ name }: { name: string }) {
           {"  "}Tip: via MCP, ask Claude for free alternatives.
         </Text>
       </Box>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <FrameBox
+      title={`wtfont lookup ${name}`}
+      hints={found ? hintsFound : hintsNotFound}
+    >
+      {content}
     </FrameBox>
   );
 }

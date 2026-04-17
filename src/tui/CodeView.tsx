@@ -22,6 +22,8 @@ interface Props {
   weights: string[];
   role: "heading" | "body" | "display" | "monospace";
   alternative?: string;
+  embedded?: boolean;
+  onBack?: () => void;
 }
 
 export default function CodeView({
@@ -30,6 +32,8 @@ export default function CodeView({
   weights,
   role,
   alternative,
+  embedded,
+  onBack,
 }: Props) {
   const { exit } = useApp();
   const [confirmation, setConfirmation] = useState("");
@@ -56,7 +60,7 @@ export default function CodeView({
     ? generateFreeImportCode(font)
     : generatePremiumCode(font, framework);
 
-  useInput((input) => {
+  useInput((input, key) => {
     if (input === "c") {
       const fullCode = googleFontsUrl
         ? code
@@ -64,19 +68,28 @@ export default function CodeView({
       const ok = copyToClipboard(fullCode);
       setConfirmation(ok ? "✓ Copied to clipboard" : "✗ Copy failed");
       setTimeout(() => setConfirmation(""), 2000);
+    } else if (key.escape || input === "b") {
+      if (embedded && onBack) onBack();
+      else exit();
     } else if (input === "q") {
-      exit();
+      if (embedded && onBack) onBack();
+      else exit();
     }
   });
 
-  return (
-    <FrameBox
-      title={`Code · ${name} (${framework})`}
-      hints={[
+  const hints = embedded
+    ? [
+        { key: "c", action: "copy code" },
+        { key: "esc", action: "back" },
+        { key: "q", action: "quit" },
+      ]
+    : [
         { key: "c", action: "copy code" },
         { key: "q", action: "quit" },
-      ]}
-    >
+      ];
+
+  const content = (
+    <>
       <Box marginBottom={1}>
         <Text color={altIsFree ? theme.green : theme.yellow}>
           {altIsFree
@@ -124,11 +137,21 @@ export default function CodeView({
 
       {confirmation && (
         <Box marginTop={1}>
-          <Text color={confirmation.startsWith("✓") ? theme.green : theme.red}>
+          <Text
+            color={confirmation.startsWith("✓") ? theme.green : theme.red}
+          >
             {confirmation}
           </Text>
         </Box>
       )}
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <FrameBox title={`Code · ${name} (${framework})`} hints={hints}>
+      {content}
     </FrameBox>
   );
 }
