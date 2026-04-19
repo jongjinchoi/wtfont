@@ -32,6 +32,8 @@ You find a beautifully typeset website. You want the same fonts. So you open Dev
 
 ## Features
 
+Find the font any website uses, check if it's free, and get ready-to-paste code — or let Claude do all of it for you through MCP.
+
 - **Instant** — static parsing in ~1 second. Playwright for SPAs.
 - **Offline DB** — 1,929 Google Fonts with correct display names. No API calls.
 - **MCP native** — Claude Code, Claude Desktop, and Cursor can analyze fonts directly.
@@ -42,6 +44,8 @@ You find a beautifully typeset website. You want the same fonts. So you open Dev
 
 <h2 id="install">Install</h2>
 
+> **Not comfortable with the terminal?** [Skip to the Claude setup](#mcp) — no command-line knowledge needed once configured.
+
 ```bash
 npm install -g wtfont        # npm
 bun install -g wtfont        # bun
@@ -49,6 +53,8 @@ pnpm add -g wtfont           # pnpm
 ```
 
 No API keys required. No servers. Everything runs locally.
+
+**New to Node.js?** Install it from [nodejs.org](https://nodejs.org) (includes `npm`), then run any command above. The MCP setup below works the same way — Claude runs `npx` for you.
 
 <h2 id="usage">Usage</h2>
 
@@ -144,6 +150,8 @@ wtfont analyze vercel.com --format json | jq '.fonts[] | select(.isFree == false
 <h2 id="mcp">MCP</h2>
 
 wtfont runs as a local MCP server. Your AI assistant analyzes fonts without you switching context.
+
+**This is the path if you're not a terminal person.** After the one-time setup below, just ask Claude in plain English — it picks the right tool.
 
 ### Claude Code
 
@@ -260,6 +268,8 @@ Claude: [calls pair_fonts → gets candidates]
 
 All queries run locally. No data leaves your machine.
 
+**Stuck on a config error?** Copy the exact error message and paste it into Claude — it'll walk you through the fix. Most issues are path typos or missing quotes in the JSON.
+
 <h2 id="themes">Themes</h2>
 
 7 built-in themes — 5 dark, 2 light. Default is shown throughout the screenshots above; the 6 alternatives preview below. Switch with `wtfont config theme <name>`.
@@ -281,6 +291,8 @@ All queries run locally. No data leaves your machine.
 | **Rose Pine Dawn** | Light |
 
 ## Security
+
+**TL;DR:** Everything runs on your machine. wtfont only makes network calls to the website you analyze and to `fonts.googleapis.com`. No telemetry, no remote servers, no data sent anywhere else.
 
 wtfont is a local MCP server. When Claude Desktop / Code / Cursor / Windsurf / VS Code launches it via `npx`, the server runs as a **subprocess with your full user privileges** — exactly like any other program you run in your terminal.
 
