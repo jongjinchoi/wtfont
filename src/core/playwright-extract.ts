@@ -4,6 +4,7 @@ import type {
   FontSource,
 } from "../types/font.ts";
 import { isSystemFont } from "./system-fonts.ts";
+import { SsrfBlockedError, assertPublicUrl } from "./url-guard.ts";
 
 export type PlaywrightStatus =
   | "success"
@@ -21,6 +22,16 @@ export async function extractFontsLocal(
   url: string,
   timeoutMs = 15000,
 ): Promise<PlaywrightResult> {
+  // SSRF pre-check: refuse private / reserved / loopback before spinning up
+  // a browser. Re-asserted on every intercepted request below so subresource
+  // fetches and redirects cannot reach internal hosts either.
+  try {
+    await assertPublicUrl(url);
+  } catch (err) {
+    if (err instanceof SsrfBlockedError) throw err;
+    throw err;
+  }
+
   let playwright: typeof import("playwright-core") | null = null;
   try {
     playwright = await import("playwright-core");
@@ -52,6 +63,18 @@ export async function extractFontsLocal(
     });
 
     const page = await context.newPage();
+
+    // Per-request SSRF guard: any subresource or redirect that targets a
+    // private / reserved / loopback address is aborted.
+    await page.route("**/*", async (route) => {
+      try {
+        await assertPublicUrl(route.request().url());
+        await route.continue();
+      } catch {
+        await route.abort("blockedbyclient");
+      }
+    });
+
     await page.goto(url, { waitUntil: "networkidle", timeout: timeoutMs });
     await page.waitForTimeout(1500);
     await page.evaluate(() => document.fonts.ready.then(() => {}));

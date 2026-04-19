@@ -3,6 +3,7 @@ import { extractFontsFromUrl } from "./font-parser.ts";
 import { mergeFontResults } from "./font-merge.ts";
 import { extractFontsLocal } from "./playwright-extract.ts";
 import { extractDomainAndPath, normalizeUrl, validateUrl } from "./url-utils.ts";
+import { SsrfBlockedError, safeFetch } from "./url-guard.ts";
 import {
   getGoogleFontCategory,
   getGoogleFontsUrl,
@@ -27,7 +28,8 @@ export class AnalyzeError extends Error {
       | "INVALID_URL"
       | "FETCH_FAILED"
       | "PARSE_FAILED"
-      | "DYNAMIC_UNAVAILABLE",
+      | "DYNAMIC_UNAVAILABLE"
+      | "SSRF_BLOCKED",
   ) {
     super(message);
     this.name = "AnalyzeError";
@@ -50,6 +52,21 @@ export async function analyze(
       ? extractFontsLocal(normalizedUrl, opts.timeoutMs)
       : Promise.resolve(null),
   ]);
+
+  // Surface SSRF blocks as a specific error (not swallowed into "FETCH_FAILED")
+  // so users/clients understand they've hit the guard, not a network issue.
+  if (
+    staticResult.status === "rejected" &&
+    staticResult.reason instanceof SsrfBlockedError
+  ) {
+    throw new AnalyzeError(staticResult.reason.message, "SSRF_BLOCKED");
+  }
+  if (
+    dynamicRaw.status === "rejected" &&
+    dynamicRaw.reason instanceof SsrfBlockedError
+  ) {
+    throw new AnalyzeError(dynamicRaw.reason.message, "SSRF_BLOCKED");
+  }
 
   const staticFonts =
     staticResult.status === "fulfilled" ? staticResult.value : null;
@@ -126,11 +143,7 @@ export async function analyze(
 async function checkUrlExists(url: string | null): Promise<string | null> {
   if (!url) return null;
   try {
-    const res = await fetch(url, {
-      method: "HEAD",
-      signal: AbortSignal.timeout(5000),
-      redirect: "follow",
-    });
+    const res = await safeFetch(url, { method: "HEAD" }, { timeoutMs: 5000 });
     return res.ok ? url : null;
   } catch {
     return null;

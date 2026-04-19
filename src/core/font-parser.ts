@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import * as cssTree from "css-tree";
 import { isSystemFont } from "./system-fonts.ts";
+import { safeFetch } from "./url-guard.ts";
 import type { ExtractedFont, FontRole, FontSource } from "../types/font.ts";
 
 interface RawFontEntry {
@@ -13,10 +14,11 @@ interface RawFontEntry {
 export async function extractFontsFromUrl(
   url: string
 ): Promise<ExtractedFont[]> {
-  const response = await fetch(url, {
-    headers: { "User-Agent": "WTFontBot/1.0 (+https://wtfont.wtf)" },
-    signal: AbortSignal.timeout(10000),
-  });
+  const response = await safeFetch(
+    url,
+    { headers: { "User-Agent": "WTFontBot/1.0 (+https://wtfont.wtf)" } },
+    { timeoutMs: 10000 },
+  );
   if (!response.ok) {
     throw new Error(`Failed to fetch ${url}: ${response.status}`);
   }
@@ -109,10 +111,11 @@ export async function extractFontsFromHtml(
 
   const cssResults = await Promise.allSettled(
     stylesheetUrls.map((cssUrl) =>
-      fetch(cssUrl, {
-        headers: { "User-Agent": "WTFontBot/1.0" },
-        signal: AbortSignal.timeout(5000),
-      }).then((r) => (r.ok ? r.text() : ""))
+      safeFetch(
+        cssUrl,
+        { headers: { "User-Agent": "WTFontBot/1.0" } },
+        { timeoutMs: 5000 },
+      ).then((r) => (r.ok ? r.text() : ""))
     )
   );
   for (const result of cssResults) {

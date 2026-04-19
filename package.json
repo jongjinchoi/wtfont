@@ -1,6 +1,6 @@
 {
   "name": "wtfont",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Identify web fonts and find free Google Fonts alternatives from your terminal.",
   "type": "module",
   "main": "dist/npm/index.js",
@@ -35,6 +35,7 @@
     "prepack": "bun run build-npm.ts",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:integration": "bun run build:npm && vitest run --config vitest.integration.config.ts",
     "update-db": "bun run scripts/generate-fonts-db.ts"
   },
   "dependencies": {
@@ -43,6 +44,7 @@
     "commander": "^14.0.0",
     "css-tree": "^3.1.0",
     "ink": "^6.0.0",
+    "ipaddr.js": "^2.3.0",
     "playwright-core": "^1.58.0",
     "react": "^19.0.0",
     "zod": "^3.24.0"

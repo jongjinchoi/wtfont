@@ -280,6 +280,35 @@ All queries run locally. No data leaves your machine.
 | **Catppuccin Latte** | Light |
 | **Rose Pine Dawn** | Light |
 
+## Security
+
+wtfont is a local MCP server. When Claude Desktop / Code / Cursor / Windsurf / VS Code launches it via `npx`, the server runs as a **subprocess with your full user privileges** — exactly like any other program you run in your terminal.
+
+**What wtfont does and doesn't do:**
+
+- ✓ Uses **stdio** transport only — no HTTP listener, no network port, no cross-process access.
+- ✓ **https-only**: refuses plain `http://` outright, including at every redirect hop. No downgrade attacks, no MITM surface on public Wi-Fi.
+- ✓ Validates every URL before fetching: blocks **private IPs, loopback, link-local, cloud metadata endpoints (`169.254.169.254`), carrier-grade NAT, and reserved ranges** — IPv4 and IPv6, including IPv4-mapped variants. Re-validated at every redirect hop and every Playwright subresource (MCP spec [§Security Best Practices](https://modelcontextprotocol.io/specification/2025-06-18/basic/security_best_practices)).
+- ✓ Zero telemetry. No outbound calls except to the URL you analyze and `fonts.googleapis.com` (Google Fonts CSS URL validation, HEAD only).
+- ✓ Released builds carry an **npm provenance attestation** (from v0.1.1). Every published tarball is cryptographically signed by GitHub Actions, proving it was built from this repository at a specific commit. Verify locally with `npm audit signatures`.
+- ✗ Does **not** sandbox itself — if you don't trust the package, don't install it. Verify integrity before upgrading.
+
+**Version pinning (recommended for security-conscious users):**
+
+Instead of the always-latest `npx -y wtfont mcp`, pin to a known version:
+
+```bash
+npx -y wtfont@0.1.1 mcp
+```
+
+Check releases at https://github.com/jongjinchoi/wtfont/releases before upgrading, and verify integrity:
+
+```bash
+npm audit signatures
+```
+
+**Reporting security issues:** Please open a private advisory at https://github.com/jongjinchoi/wtfont/security/advisories/new. Do not file public issues for vulnerabilities.
+
 ## Playwright / dynamic detection
 
 Static parsing covers most SSR/MPA sites. For SPAs where fonts load via JavaScript, use `--dynamic`:

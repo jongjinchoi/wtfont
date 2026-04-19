@@ -5,6 +5,9 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    // Integration tests that require the built bundle are run separately via
+    // `bun run test:integration`.
+    exclude: ["src/mcp/server.test.ts", "**/node_modules/**", "**/dist/**"],
   },
   resolve: {
     alias: {
