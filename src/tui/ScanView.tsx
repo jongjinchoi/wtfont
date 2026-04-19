@@ -1,5 +1,6 @@
 import { Box, Text, useApp, useInput } from "ink";
 import { useEffect, useState } from "react";
+import { relative } from "node:path";
 import { scanProject, type ScanResult } from "../core/scan-project.ts";
 import { Spinner } from "./Spinner.tsx";
 import FrameBox from "./FrameBox.tsx";
@@ -36,9 +37,11 @@ export default function ScanView({ path }: { path: string }) {
     );
   }
 
+  const displayPath = relative(process.cwd(), result.rootPath) || ".";
+
   if (result.fonts.length === 0) {
     return (
-      <FrameBox title={`Project scan · ${result.rootPath}`} hints={[{ key: "q", action: "quit" }]}>
+      <FrameBox title={`Project scan · ${displayPath}`} hints={[{ key: "q", action: "quit" }]}>
         <Text color={theme.dim}>
           Scanned {result.filesScanned} files. No non-system font-family
           detected.
@@ -50,7 +53,7 @@ export default function ScanView({ path }: { path: string }) {
   const freeCount = result.fonts.filter((f) => f.isFree).length;
 
   return (
-    <FrameBox title={`Project scan · ${result.rootPath}`}>
+    <FrameBox title={`Project scan · ${displayPath}`}>
       <Box marginBottom={1}>
         <Text>
           <Text color={theme.green}>✓</Text>

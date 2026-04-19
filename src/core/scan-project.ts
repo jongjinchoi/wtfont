@@ -133,20 +133,26 @@ function extractFontFamilies(text: string): string[] {
 function splitFontFamilyValue(value: string): string[] {
   return value
     .split(",")
-    .map((v) =>
-      v
-        .trim()
-        .replace(/^['"`]|['"`]$/g, "")
-        .trim(),
-    )
+    .map((v) => {
+      let s = v.trim();
+      while (s.length > 0 && /^['"`]|['"`]$/.test(s)) {
+        s = s.replace(/^['"`]|['"`]$/, "").trim();
+      }
+      return s;
+    })
     .filter(Boolean);
 }
+
+const TS_PRIMITIVES =
+  /^(string|number|boolean|unknown|any|void|never|object|symbol|bigint)$/;
 
 function isValidCandidate(name: string): boolean {
   if (!name || name.length < 3) return false;
   if (isSystemFont(name)) return false;
   if (/^var\s*\(|^\w+\s*\(/.test(name)) return false;
   if (/^(inherit|initial|unset|revert|none|normal|auto)$/i.test(name)) return false;
-  if (/^[${}\[\]()]/.test(name)) return false;
+  if (/[\\${}\[\]()<>|]/.test(name)) return false;
+  if (TS_PRIMITIVES.test(name)) return false;
+  if (/^[a-zA-Z_$][\w$]*\.[a-zA-Z_$][\w$]*/.test(name)) return false;
   return true;
 }

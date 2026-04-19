@@ -1,0 +1,8 @@
+:root {
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.6;
+}
