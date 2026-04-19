@@ -9,8 +9,6 @@ export interface Config {
   theme: string;
   /** User acknowledged the Playwright opt-in notice. */
   playwrightAcknowledged?: boolean;
-  /** Default framework for `wtfont code` when not specified. */
-  defaultFramework?: "html" | "nextjs" | "nuxt" | "react";
 }
 
 const DEFAULT_CONFIG: Config = {

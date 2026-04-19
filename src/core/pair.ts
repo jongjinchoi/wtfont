@@ -1,5 +1,4 @@
 import {
-  getAllGoogleFonts,
   getGoogleFontCategory,
   isGoogleFont,
 } from "./google-fonts-db.ts";
@@ -33,18 +32,11 @@ export function pairFonts(
 ): PairResult {
   const inputCategory = getGoogleFontCategory(bodyFont);
 
-  const all = getAllGoogleFonts();
-
   // Strategy:
   //  • If body is sans-serif → suggest serif + a bolder sans + a display
   //  • If body is serif → suggest sans-serif + display + another serif
   //  • If body is monospace → suggest sans-serif for body/heading contrast
   //  • Otherwise → default mix
-  const buckets: Record<string, string[]> = {};
-  for (const [, displayName, category] of all) {
-    (buckets[category] ??= []).push(displayName);
-  }
-
   const popular = (category: string): string[] => {
     // Use a curated shortlist of well-known Google Fonts per category
     // so we don't need popularity data embedded in the DB.
@@ -76,8 +68,7 @@ export function pairFonts(
       ],
       monospace: ["JetBrains Mono", "Fira Code", "Space Mono", "IBM Plex Mono"],
     };
-    const list = curated[category] ?? [];
-    return list.filter((n) => (buckets[category] ?? []).includes(n.toLowerCase()));
+    return (curated[category] ?? []).filter((n) => isGoogleFont(n));
   };
 
   const suggestions: PairSuggestion[] = [];
