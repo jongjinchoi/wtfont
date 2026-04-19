@@ -14,9 +14,9 @@
   — from your terminal or through Claude.
 </p>
 <p align="center">
-  <a href="#install">Install</a> ·
-  <a href="#usage">Usage</a> ·
+  <a href="#install">Quick start</a> ·
   <a href="#mcp">MCP</a> ·
+  <a href="#usage">CLI</a> ·
   <a href="#themes">Themes</a>
 </p>
 
@@ -42,21 +42,168 @@ Find the font any website uses, check if it's free, and get ready-to-paste code 
 - **Themeable** — 7 built-in themes (5 dark + 2 light).
 - **Open source** — MIT. Zero telemetry. Everything local.
 
-<h2 id="install">Install</h2>
+<h2 id="install">Quick start</h2>
 
-> **Not comfortable with the terminal?** [Skip to the Claude setup](#mcp) — no command-line knowledge needed once configured.
+Two ways to use wtfont:
 
-```bash
-npm install -g wtfont        # npm
-bun install -g wtfont        # bun
-pnpm add -g wtfont           # pnpm
+### Through Claude (MCP)
+
+Add this to your Claude Desktop config (Settings → Developer → Edit Config):
+
+```json
+{
+  "mcpServers": {
+    "wtfont": {
+      "command": "npx",
+      "args": ["-y", "wtfont", "mcp"]
+    }
+  }
+}
 ```
 
-No API keys required. No servers. Everything runs locally.
+Restart Claude, then ask: *"What fonts does vercel.com use?"*
 
-**New to Node.js?** Install it from [nodejs.org](https://nodejs.org) (includes `npm`), then run any command above. The MCP setup below works the same way — Claude runs `npx` for you.
+→ [Setup for Claude Code, Cursor, Windsurf, VS Code](#mcp)
 
-<h2 id="usage">Usage</h2>
+### In terminal (CLI)
+
+```bash
+npm install -g wtfont       # or: bun install -g wtfont · pnpm add -g wtfont
+wtfont analyze vercel.com
+```
+
+→ [Full CLI reference](#usage)
+
+---
+
+Both paths require [Node.js](https://nodejs.org).
+
+## See it in action
+
+A few real conversations with Claude:
+
+**Find free alternatives**
+
+```
+You:    "What fonts does stripe.com use? Recommend free alternatives."
+
+Claude: [calls extract_fonts → finds "sohne-var" (commercial)]
+        [calls lookup_google_font → confirms not on Google Fonts]
+        [suggests Inter, Space Grotesk, Manrope based on visual similarity]
+        [calls preview_fonts → opens comparison in browser]
+
+        "Stripe uses Söhne, a commercial geometric sans-serif.
+        Inter is the closest free alternative (humanist proportions,
+        similar x-height). Want me to generate Next.js code?"
+```
+
+**Audit a project**
+
+```
+You:    "Scan this project and tell me which fonts are commercial."
+
+Claude: [calls scan_project_fonts]
+
+        "Found 2 fonts: Inter (free, Google Fonts) and Proxima Nova
+        (commercial, used in 3 files). Consider replacing Proxima Nova
+        with Plus Jakarta Sans — similar geometric style."
+```
+
+**Pair fonts**
+
+```
+You:    "Inter on body — suggest a heading font and show me side by side."
+
+Claude: [calls pair_fonts → gets candidates]
+        [calls preview_fonts → opens compare page]
+
+        "Fraunces pairs well — classic serif/sans contrast.
+        I opened a comparison in your browser. What do you think?"
+```
+
+All queries run locally. No data leaves your machine.
+
+<h2 id="mcp">MCP setup</h2>
+
+wtfont runs as a local MCP server. Your AI assistant analyzes fonts without you switching context.
+
+### Claude Code
+
+```bash
+# All projects (recommended)
+claude mcp add --scope user --transport stdio wtfont -- npx -y wtfont mcp
+
+# Current folder only
+claude mcp add --transport stdio wtfont -- npx -y wtfont mcp
+```
+
+### Claude Desktop
+
+Settings → Developer → Edit Config:
+
+```json
+{
+  "mcpServers": {
+    "wtfont": {
+      "command": "npx",
+      "args": ["-y", "wtfont", "mcp"]
+    }
+  }
+}
+```
+
+### Cursor
+
+Settings → Tools & Integrations → New MCP Server (command type):
+
+```json
+{
+  "mcpServers": {
+    "wtfont": {
+      "command": "npx",
+      "args": ["-y", "wtfont", "mcp"]
+    }
+  }
+}
+```
+
+### Windsurf
+
+Edit `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "wtfont": {
+      "command": "npx",
+      "args": ["-y", "wtfont", "mcp"]
+    }
+  }
+}
+```
+
+### VS Code (Cline)
+
+Command Palette → `MCP: Add server` → stdio → `npx -y wtfont mcp`
+
+---
+
+**Tools:**
+
+| Tool | Description |
+|------|-------------|
+| `extract_fonts` | Detect fonts on a website |
+| `lookup_google_font` | Check Google Fonts DB |
+| `list_google_fonts` | Browse fonts by category |
+| `compare_fonts` | Compare multiple fonts |
+| `pair_fonts` | Suggest pairing candidates |
+| `generate_font_code` | Generate framework code |
+| `preview_fonts` | Open visual comparison in browser |
+| `scan_project_fonts` | Audit project font usage |
+
+**Hit a config error?** Copy the exact error message and paste it into Claude — it'll walk you through the fix. Most issues are path typos or a missing comma in the JSON.
+
+<h2 id="usage">CLI commands</h2>
 
 ```bash
 wtfont analyze vercel.com                               # detect fonts
@@ -146,129 +293,6 @@ wtfont favorites list             # view bookmarks (p preview, d remove)
 ```bash
 wtfont analyze vercel.com --format json | jq '.fonts[] | select(.isFree == false) | .name'
 ```
-
-<h2 id="mcp">MCP</h2>
-
-wtfont runs as a local MCP server. Your AI assistant analyzes fonts without you switching context.
-
-**This is the path if you're not a terminal person.** After the one-time setup below, just ask Claude in plain English — it picks the right tool.
-
-### Claude Code
-
-```bash
-# All projects (recommended)
-claude mcp add --scope user --transport stdio wtfont -- npx -y wtfont mcp
-
-# Current folder only
-claude mcp add --transport stdio wtfont -- npx -y wtfont mcp
-```
-
-### Claude Desktop
-
-Settings → Developer → Edit Config:
-
-```json
-{
-  "mcpServers": {
-    "wtfont": {
-      "command": "npx",
-      "args": ["-y", "wtfont", "mcp"]
-    }
-  }
-}
-```
-
-### Cursor
-
-Settings → Tools & Integrations → New MCP Server (command type):
-
-```json
-{
-  "mcpServers": {
-    "wtfont": {
-      "command": "npx",
-      "args": ["-y", "wtfont", "mcp"]
-    }
-  }
-}
-```
-
-### Windsurf
-
-Edit `~/.codeium/windsurf/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "wtfont": {
-      "command": "npx",
-      "args": ["-y", "wtfont", "mcp"]
-    }
-  }
-}
-```
-
-### VS Code (Cline)
-
-Command Palette → `MCP: Add server` → stdio → `npx -y wtfont mcp`
-
----
-
-**Tools:**
-
-| Tool | Description |
-|------|-------------|
-| `extract_fonts` | Detect fonts on a website |
-| `lookup_google_font` | Check Google Fonts DB |
-| `list_google_fonts` | Browse fonts by category |
-| `compare_fonts` | Compare multiple fonts |
-| `pair_fonts` | Suggest pairing candidates |
-| `generate_font_code` | Generate framework code |
-| `preview_fonts` | Open visual comparison in browser |
-| `scan_project_fonts` | Audit project font usage |
-
-**Example: Find free alternatives**
-
-```
-You:    "What fonts does stripe.com use? Recommend free alternatives."
-
-Claude: [calls extract_fonts → finds "sohne-var" (commercial)]
-        [calls lookup_google_font → confirms not on Google Fonts]
-        [suggests Inter, Space Grotesk, Manrope based on visual similarity]
-        [calls preview_fonts → opens comparison in browser]
-
-        "Stripe uses Söhne, a commercial geometric sans-serif.
-        Inter is the closest free alternative (humanist proportions,
-        similar x-height). Want me to generate Next.js code?"
-```
-
-**Example: Audit a project**
-
-```
-You:    "Scan this project and tell me which fonts are commercial."
-
-Claude: [calls scan_project_fonts]
-
-        "Found 2 fonts: Inter (free, Google Fonts) and Proxima Nova
-        (commercial, used in 3 files). Consider replacing Proxima Nova
-        with Plus Jakarta Sans — similar geometric style."
-```
-
-**Example: Font pairing**
-
-```
-You:    "Inter on body — suggest a heading font and show me side by side."
-
-Claude: [calls pair_fonts → gets candidates]
-        [calls preview_fonts → opens compare page]
-
-        "Fraunces pairs well — classic serif/sans contrast.
-        I opened a comparison in your browser. What do you think?"
-```
-
-All queries run locally. No data leaves your machine.
-
-**Stuck on a config error?** Copy the exact error message and paste it into Claude — it'll walk you through the fix. Most issues are path typos or missing quotes in the JSON.
 
 <h2 id="themes">Themes</h2>
 
