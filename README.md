@@ -262,11 +262,11 @@ All queries run locally. No data leaves your machine.
 
 <h2 id="themes">Themes</h2>
 
-7 built-in themes — 5 dark, 2 light. Switch with `wtfont config theme <name>`.
+7 built-in themes — 5 dark, 2 light. Default is shown throughout the screenshots above; the 6 alternatives preview below. Switch with `wtfont config theme <name>`.
 
 | | |
 |---|---|
-| ![Default](https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/screenshots/theme-default.png) | ![Catppuccin Mocha](https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/screenshots/theme-catppuccin-mocha.png) |
+| ![Monochrome](https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/screenshots/theme-monochrome.png) | ![Catppuccin Mocha](https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/screenshots/theme-catppuccin-mocha.png) |
 | ![Dracula](https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/screenshots/theme-dracula.png) | ![Solarized](https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/screenshots/theme-solarized.png) |
 | ![Catppuccin Latte](https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/screenshots/theme-catppuccin-latte.png) | ![Rose Pine Dawn](https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/screenshots/theme-rose-pine-dawn.png) |
 
