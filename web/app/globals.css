@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0d0e12;
+  --color-surface: #161821;
+  --color-surface-2: #1c1f2a;
+  --color-text: #e8ebf0;
+  --color-text-strong: #ffffff;
+  --color-dim: #8a8f9a;
+  --color-border: #262a36;
+  --color-border-strong: #323847;
+  --color-primary: #ff8a5c;
+  --color-accent: #af87ff;
+  --color-green: #6bdc99;
+
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: var(--font-jbmono), ui-monospace, monospace;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
+}
+
+.grad {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 600;
+}
+
+/* Hero radial glow */
+.hero-bg::before {
+  content: "";
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1200px;
+  height: 600px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(175, 135, 255, 0.18),
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Interface toggle: CSS-only visibility based on html[data-interface].
+   Pre-hydration boot script (layout.tsx) sets the attribute so the
+   correct view is shown from first paint — no hydration flicker. */
+html[data-interface="mcp"] [data-view="cli"],
+html[data-interface="cli"] [data-view="mcp"] {
+  display: none;
+}
