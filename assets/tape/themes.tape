@@ -21,6 +21,9 @@ Show
 Sleep 1s
 Screenshot assets/screenshots/theme-default.png
 Sleep 500ms
+Hide
+Type "q"
+Sleep 500ms
 
 # monochrome
 Hide
@@ -36,6 +39,9 @@ Sleep 2s
 Show
 Sleep 1s
 Screenshot assets/screenshots/theme-monochrome.png
+Sleep 500ms
+Hide
+Type "q"
 Sleep 500ms
 
 # solarized
@@ -53,6 +59,9 @@ Show
 Sleep 1s
 Screenshot assets/screenshots/theme-solarized.png
 Sleep 500ms
+Hide
+Type "q"
+Sleep 500ms
 
 # catppuccin-mocha
 Hide
@@ -68,6 +77,9 @@ Sleep 2s
 Show
 Sleep 1s
 Screenshot assets/screenshots/theme-catppuccin-mocha.png
+Sleep 500ms
+Hide
+Type "q"
 Sleep 500ms
 
 # dracula
@@ -85,37 +97,8 @@ Show
 Sleep 1s
 Screenshot assets/screenshots/theme-dracula.png
 Sleep 500ms
-
-# catppuccin-latte (light)
 Hide
-Type "clear"
-Enter
-Sleep 300ms
-Type "wtfont config theme catppuccin-latte"
-Enter
-Sleep 500ms
-Type "wtfont browse sans-serif --limit 10"
-Enter
-Sleep 2s
-Show
-Sleep 1s
-Screenshot assets/screenshots/theme-catppuccin-latte.png
-Sleep 500ms
-
-# rose-pine-dawn (light)
-Hide
-Type "clear"
-Enter
-Sleep 300ms
-Type "wtfont config theme rose-pine-dawn"
-Enter
-Sleep 500ms
-Type "wtfont browse sans-serif --limit 10"
-Enter
-Sleep 2s
-Show
-Sleep 1s
-Screenshot assets/screenshots/theme-rose-pine-dawn.png
+Type "q"
 Sleep 500ms
 
 # Restore default

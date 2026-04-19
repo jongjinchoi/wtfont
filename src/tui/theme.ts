@@ -14,14 +14,14 @@ export interface ThemePalette {
 const PALETTES: Record<string, ThemePalette> = {
   default: {
     text: "#e8e8e8",
-    primary: "#af87ff",
+    primary: "#ff8a5c",
     green: "#6bdc99",
     red: "#e05555",
     yellow: "#f0c060",
     blue: "#6aa9ff",
     dim: "#7f848a",
     border: "#3a3d44",
-    accent: "#ff8a5c",
+    accent: "#af87ff",
     surface: "#262630",
   },
   monochrome: {
