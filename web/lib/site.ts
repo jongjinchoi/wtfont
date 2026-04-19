@@ -1,5 +1,5 @@
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://wtfont.dev";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://wtfont.wtf";
 
 export const SITE_NAME = "wtfont";
 
