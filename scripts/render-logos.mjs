@@ -3,6 +3,7 @@
 
 import { chromium } from "playwright-core";
 import { readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,33 +22,6 @@ async function renderSvg(page, svgPath, size) {
   await page.setContent(html, { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
   return page.screenshot({ omitBackground: true, type: "png" });
-}
-
-function buildIco(frames) {
-  // frames: [{size, png: Buffer}]
-  const count = frames.length;
-  let headerSize = 6 + count * 16;
-  const entries = Buffer.alloc(count * 16);
-  let offset = headerSize;
-  const body = [];
-  frames.forEach((f, i) => {
-    const w = f.size >= 256 ? 0 : f.size;
-    entries.writeUInt8(w, i * 16);
-    entries.writeUInt8(w, i * 16 + 1);
-    entries.writeUInt8(0, i * 16 + 2); // color count
-    entries.writeUInt8(0, i * 16 + 3); // reserved
-    entries.writeUInt16LE(1, i * 16 + 4); // planes
-    entries.writeUInt16LE(32, i * 16 + 6); // bpp
-    entries.writeUInt32LE(f.png.length, i * 16 + 8); // size
-    entries.writeUInt32LE(offset, i * 16 + 12); // offset
-    offset += f.png.length;
-    body.push(f.png);
-  });
-  const header = Buffer.alloc(6);
-  header.writeUInt16LE(0, 0); // reserved
-  header.writeUInt16LE(1, 2); // type = ICO
-  header.writeUInt16LE(count, 4);
-  return Buffer.concat([header, entries, ...body]);
 }
 
 (async () => {
@@ -69,18 +43,13 @@ function buildIco(frames) {
   writeFileSync(join(WEB_APP, "icon.png"), icon);
   console.log(`icon.png: ${icon.length} bytes`);
 
-  // 3) favicon.ico — multi-size from each native icon-*-dark.svg
+  // 3) favicon frames — render each native size to /tmp, Python packs as RGBA ICO
   const sizes = [16, 32, 48, 64, 128];
-  const frames = [];
   for (const s of sizes) {
     const png = await renderSvg(page, join(LOGO, `icon-${s}-dark.svg`), s);
-    frames.push({ size: s, png });
-    console.log(`  frame ${s}: ${png.length} bytes`);
+    writeFileSync(`/tmp/wtfont-fav-${s}.png`, png);
+    console.log(`  frame ${s}: ${png.length} bytes (temp)`);
   }
-  const ico = buildIco(frames);
-  writeFileSync(join(LOGO, "favicon.ico"), ico);
-  writeFileSync(join(WEB_APP, "favicon.ico"), ico);
-  console.log(`favicon.ico: ${ico.length} bytes (${sizes.length} frames)`);
 
   // 4) opengraph-image.png / twitter-image.png — og-1200x630-dark.svg @ 1200x630
   const ogSvg = readFileSync(join(LOGO, "og-1200x630-dark.svg"), "utf8");
@@ -100,4 +69,11 @@ function buildIco(frames) {
   console.log(`opengraph-image.png / twitter-image.png: ${og.length} bytes`);
 
   await browser.close();
+
+  // 5) Post-process: force RGBA on every PNG + pack favicon.ico from temp frames.
+  // Next.js turbopack rejects non-RGBA PNGs (incl. those embedded in ICO).
+  console.log("---\npost-processing via PIL…");
+  execFileSync("python3", [join(ROOT, "scripts/pack-rasters.py")], {
+    stdio: "inherit",
+  });
 })();
