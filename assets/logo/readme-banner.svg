@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+<rect width="1200" height="400" fill="#fafaf7"></rect>
+<text x="93.6" y="244.8" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="128" font-weight="400" fill="#0f0f10" opacity="0.5">{</text>
+<text x="260" y="244.8" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="128" font-weight="700" fill="#0f0f10">wtf</text>
+<text x="426.4" y="244.8" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="128" font-weight="400" fill="#0f0f10" opacity="0.5">}</text>
+<line x1="540" y1="130" x2="540" y2="270" stroke="#0f0f10" stroke-opacity="0.12"></line>
+<text x="600" y="174" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="64" font-weight="700" fill="#0f0f10" letter-spacing="-1.5">wtfont</text>
+<text x="600" y="212" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#8a8a86">— what the font?!</text>
+<text x="600" y="260" font-family="system-ui, sans-serif" font-size="22" fill="#0f0f10" opacity="0.85">Stop digging through DevTools.</text>
+<text x="600" y="290" font-family="system-ui, sans-serif" font-size="19" fill="#0f0f10" opacity="0.6">Identify web fonts, find free alternatives, copy-paste code.</text>
+<rect x="600" y="314" width="40" height="3" fill="#c97f4e"></rect>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+<rect width="16" height="16" fill="#fafaf7"></rect>
+<text x="3" y="11" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" font-weight="400" fill="#0f0f10" opacity="0.55">{</text>
+<text x="8" y="11" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" font-weight="700" fill="#0f0f10">w</text>
+<text x="13" y="11" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" font-weight="400" fill="#0f0f10" opacity="0.55">}</text>
+</svg>
