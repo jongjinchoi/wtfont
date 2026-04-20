@@ -1,17 +1,13 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/logo/icon.png" width="80" alt="wtfont">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/logo/readme-banner-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/logo/readme-banner.svg">
+    <img src="https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/logo/readme-banner-dark.svg" alt="wtfont — what the font?! Stop digging through DevTools. Identify web fonts, find free alternatives, copy-paste code." width="720">
+  </picture>
 </p>
-<h1 align="center">wtfont</h1>
 <p align="center">
   <a href="https://github.com/jongjinchoi/wtfont/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
   <a href="https://github.com/jongjinchoi/wtfont"><img src="https://img.shields.io/github/stars/jongjinchoi/wtfont?style=social" alt="GitHub Stars"></a>
-</p>
-<p align="center">
-  <strong>What the font is that website using?</strong>
-</p>
-<p align="center">
-  Detect fonts, find free Google Fonts alternatives, and get copy-paste code<br>
-  — from your terminal or through Claude.
 </p>
 <p align="center">
   <a href="#install">Quick start</a> ·
