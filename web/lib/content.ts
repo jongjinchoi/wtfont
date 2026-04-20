@@ -8,7 +8,6 @@ export const SITE = {
 };
 
 export const IMG = {
-  logo: `${SITE.assetsBase}/logo/icon.png`,
   demo: `${SITE.assetsBase}/screenshots/demo.gif`,
   analyze: `${SITE.assetsBase}/screenshots/analyze.png`,
   code: `${SITE.assetsBase}/screenshots/code.png`,
