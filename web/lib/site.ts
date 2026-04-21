@@ -5,7 +5,7 @@ export const SITE_NAME = "wtfont";
 
 export const AUTHOR = {
   name: "Jongjin Choi",
-  url: "https://github.com/jongjinchoi",
+  url: "https://jongjinchoi.com",
 };
 
 export const KEYWORDS = [
