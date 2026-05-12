@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
-// 1929 fonts
-// Last updated: 2026-04-17T06:03:26.009Z
+// 1930 fonts
+// Last updated: 2026-05-12T17:39:29.314Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
@@ -235,7 +235,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["biz udmincho", "BIZ UDMincho|serif"],
   ["biz udpgothic", "BIZ UDPGothic|sans-serif"],
   ["biz udpmincho", "BIZ UDPMincho|serif"],
-  ["bj cree", "BJ Cree|serif"],
+  ["bjcree", "BJCree|serif"],
   ["black and white picture", "Black And White Picture|display"],
   ["black han sans", "Black Han Sans|sans-serif"],
   ["black ops one", "Black Ops One|display"],
@@ -1740,6 +1740,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["stick no bills", "Stick No Bills|sans-serif"],
   ["stint ultra condensed", "Stint Ultra Condensed|serif"],
   ["stint ultra expanded", "Stint Ultra Expanded|serif"],
+  ["stix two math", "STIX Two Math|serif"],
   ["stix two text", "STIX Two Text|serif"],
   ["stoke", "Stoke|serif"],
   ["story script", "Story Script|sans-serif"],
@@ -1933,11 +1934,6 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["zilla slab", "Zilla Slab|serif"],
   ["zilla slab highlight", "Zilla Slab Highlight|serif"],
 ]);
-
-function parseEntry(val: string): { displayName: string; category: string } {
-  const idx = val.lastIndexOf("|");
-  return { displayName: val.slice(0, idx), category: val.slice(idx + 1) };
-}
 
 export function isGoogleFont(name: string): boolean {
   return GOOGLE_FONTS.has(name.toLowerCase().trim());
