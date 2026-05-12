@@ -11,9 +11,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
-      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -22,15 +21,14 @@ jobs:
       - name: Regenerate src/core/google-fonts-db.ts
         run: bun run scripts/generate-fonts-db.ts
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: "chore: refresh Google Fonts DB"
-          title: "chore: refresh Google Fonts DB"
-          body: |
-            Automated weekly refresh of `src/core/google-fonts-db.ts`.
-
-            Triggered by the `update-fonts-db` workflow.
-          branch: auto/fonts-db-update
-          delete-branch: true
-          add-paths: src/core/google-fonts-db.ts
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/core/google-fonts-db.ts
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: refresh Google Fonts DB"
+          git push
