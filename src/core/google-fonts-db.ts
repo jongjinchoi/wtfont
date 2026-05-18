@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
-// 1930 fonts
-// Last updated: 2026-05-12T17:39:29.314Z
+// 1934 fonts
+// Last updated: 2026-05-18T09:33:46.902Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
@@ -26,6 +26,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["akaya telivigala", "Akaya Telivigala|display"],
   ["akronim", "Akronim|display"],
   ["akshar", "Akshar|sans-serif"],
+  ["akt", "Akt|sans-serif"],
   ["aladin", "Aladin|display"],
   ["alan sans", "Alan Sans|sans-serif"],
   ["alata", "Alata|sans-serif"],
@@ -482,6 +483,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["epunda slab", "Epunda Slab|serif"],
   ["erica one", "Erica One|display"],
   ["esteban", "Esteban|serif"],
+  ["estedad", "Estedad|sans-serif"],
   ["estonia", "Estonia|handwriting"],
   ["euphoria script", "Euphoria Script|handwriting"],
   ["ewert", "Ewert|display"],
@@ -509,7 +511,8 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["festive", "Festive|handwriting"],
   ["figtree", "Figtree|sans-serif"],
   ["finger paint", "Finger Paint|display"],
-  ["finlandica", "Finlandica|sans-serif"],
+  ["finlandica headline", "Finlandica Headline|sans-serif"],
+  ["finlandica text", "Finlandica Text|sans-serif"],
   ["fira code", "Fira Code|monospace"],
   ["fira mono", "Fira Mono|monospace"],
   ["fira sans", "Fira Sans|sans-serif"],
@@ -895,6 +898,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["m plus 2", "M PLUS 2|sans-serif"],
   ["m plus code latin", "M PLUS Code Latin|sans-serif"],
   ["m plus rounded 1c", "M PLUS Rounded 1c|sans-serif"],
+  ["m plus u", "M PLUS U|sans-serif"],
   ["ma shan zheng", "Ma Shan Zheng|handwriting"],
   ["macondo", "Macondo|display"],
   ["macondo swash caps", "Macondo Swash Caps|display"],
@@ -1614,7 +1618,6 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["saira extra condensed", "Saira Extra Condensed|sans-serif"],
   ["saira semi condensed", "Saira Semi Condensed|sans-serif"],
   ["saira stencil", "Saira Stencil|display"],
-  ["saira stencil one", "Saira Stencil One|display"],
   ["salsa", "Salsa|display"],
   ["sanchez", "Sanchez|serif"],
   ["sancreek", "Sancreek|display"],
@@ -1745,6 +1748,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["stoke", "Stoke|serif"],
   ["story script", "Story Script|sans-serif"],
   ["strait", "Strait|sans-serif"],
+  ["strichpunkt sans", "Strichpunkt Sans|sans-serif"],
   ["style script", "Style Script|handwriting"],
   ["stylish", "Stylish|sans-serif"],
   ["sue ellen francisco", "Sue Ellen Francisco|handwriting"],
