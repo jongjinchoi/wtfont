@@ -40,6 +40,14 @@ describe("generateFreeImportCode", () => {
     expect(code).toContain("font-family");
   });
 
+  it("generates next/font/google code for Next.js", () => {
+    const code = generateFreeImportCode(mockFont, "nextjs");
+    expect(code).toContain("import { Plus_Jakarta_Sans } from 'next/font/google'");
+    expect(code).toContain("const plusJakartaSans = Plus_Jakarta_Sans({");
+    expect(code).toContain("weight: ['500', '700']");
+    expect(code).toContain("font-family: var(--font-plusJakartaSans), sans-serif;");
+  });
+
   it("returns empty string when no Google Fonts URL", () => {
     const font = { ...mockFont, googleFontsUrl: null };
     expect(generateFreeImportCode(font)).toBe("");

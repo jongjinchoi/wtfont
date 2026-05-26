@@ -57,7 +57,7 @@ export default function CodeView({
   };
 
   const code = googleFontsUrl
-    ? generateFreeImportCode(font)
+    ? generateFreeImportCode(font, framework)
     : generatePremiumCode(font, framework);
 
   useInput((input, key) => {

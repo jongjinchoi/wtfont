@@ -51,8 +51,8 @@ font files.
 
 By default \`extract_fonts\` uses static parsing (fast, covers most traditional sites).
 Set \`dynamic: true\` for SPAs / React / Vue / Next CSR pages where fonts are loaded
-via JavaScript. This requires the user to have installed \`playwright-core\` locally
-(optional peer dependency).`;
+via JavaScript. This requires the Chromium browser binary used by \`playwright-core\`.
+If Chromium is missing, run \`wtfont install-playwright\`.`;
 
 const server = new McpServer(
   { name: "wtfont", version: VERSION },
@@ -112,7 +112,20 @@ server.registerTool(
         lines.push(`  Results above are from static parsing only.`);
       }
 
-      return { content: [{ type: "text" as const, text: lines.join("\n") }] };
+      return {
+        content: [{ type: "text" as const, text: lines.join("\n") }],
+        structuredContent: {
+          url: result.url,
+          domain: result.domain,
+          detection: result.detection,
+          analyzedAt: result.analyzedAt,
+          dynamicStatus: result.dynamicStatus,
+          dynamicError: result.dynamicError,
+          freeCount,
+          total: result.fonts.length,
+          fonts: result.fonts,
+        },
+      };
     } catch (err) {
       const message =
         err instanceof AnalyzeError
@@ -148,6 +161,14 @@ server.registerTool(
             text: `"${name}" is NOT on Google Fonts (${getGoogleFontCount()} entries checked).\nThis is likely a commercial typeface.`,
           },
         ],
+        structuredContent: {
+          name,
+          isGoogleFont: false,
+          category: null,
+          cssUrl: null,
+          specimenUrl: null,
+          googleFontCount: getGoogleFontCount(),
+        },
       };
     }
     const category = getGoogleFontCategory(name);
@@ -165,6 +186,14 @@ server.registerTool(
           ].join("\n"),
         },
       ],
+      structuredContent: {
+        name,
+        isGoogleFont: true,
+        category,
+        cssUrl: url,
+        specimenUrl: specimen,
+        googleFontCount: getGoogleFontCount(),
+      },
     };
   },
 );
@@ -206,6 +235,14 @@ server.registerTool(
           text: [title, "", ...names.map((n) => `  ${n}`)].join("\n"),
         },
       ],
+      structuredContent: {
+        category: category ?? null,
+        limit: cap,
+        total: category
+          ? getGoogleFontsByCategory(category).length
+          : getGoogleFontCount(),
+        fonts: names,
+      },
     };
   },
 );
@@ -238,6 +275,13 @@ server.registerTool(
     }
     return {
       content: [{ type: "text" as const, text: lines.join("\n") }],
+      structuredContent: {
+        fonts: names.map((name) => ({
+          name,
+          category: getGoogleFontCategory(name),
+          isGoogleFont: isGoogleFont(name),
+        })),
+      },
     };
   },
 );
@@ -270,7 +314,10 @@ server.registerTool(
     }
     lines.push("");
     lines.push(result.note);
-    return { content: [{ type: "text" as const, text: lines.join("\n") }] };
+    return {
+      content: [{ type: "text" as const, text: lines.join("\n") }],
+      structuredContent: { ...result },
+    };
   },
 );
 
@@ -320,8 +367,9 @@ server.registerTool(
     };
 
     const code = googleFontsUrl
-      ? generateFreeImportCode(font)
+      ? generateFreeImportCode(font, framework as Framework)
       : generatePremiumCode(font, framework as Framework);
+    const cssUsage = googleFontsUrl ? null : generateCssUsageCode(font);
 
     const out: string[] = [];
     out.push(
@@ -334,9 +382,22 @@ server.registerTool(
     if (!googleFontsUrl) {
       out.push("");
       out.push("CSS usage:");
-      out.push(generateCssUsageCode(font));
+      out.push(cssUsage ?? "");
     }
-    return { content: [{ type: "text" as const, text: out.join("\n") }] };
+    return {
+      content: [{ type: "text" as const, text: out.join("\n") }],
+      structuredContent: {
+        fontName,
+        alternativeName: altName,
+        isFree: altIsFree,
+        framework,
+        role,
+        weights,
+        googleFontsUrl,
+        code,
+        cssUsage,
+      },
+    };
   },
 );
 
@@ -349,31 +410,54 @@ server.registerTool(
     inputSchema: {
       names: z.array(z.string()).min(1).max(6),
       sampleText: z.string().optional(),
+      open: z
+        .boolean()
+        .optional()
+        .describe("If false, only generate/return the URL or file path."),
     },
   },
-  async ({ names, sampleText }) => {
+  async ({ names, sampleText, open }) => {
     try {
+      const shouldOpen = open ?? true;
       if (names.length === 1) {
         const url = specimenUrl(names[0]);
-        openBrowser(url);
+        if (shouldOpen) openBrowser(url);
         return {
           content: [
             {
               type: "text" as const,
-              text: `Opened specimen for "${names[0]}": ${url}`,
+              text: shouldOpen
+                ? `Opened specimen for "${names[0]}": ${url}`
+                : `Specimen for "${names[0]}": ${url}`,
             },
           ],
+          structuredContent: {
+            mode: "specimen",
+            names,
+            url,
+            path: null,
+            opened: shouldOpen,
+          },
         };
       }
       const path = await generateComparePage(names, sampleText);
-      openBrowser(`file://${path}`);
+      if (shouldOpen) openBrowser(`file://${path}`);
       return {
         content: [
           {
             type: "text" as const,
-            text: `Compare page opened at ${path}\nFonts: ${names.join(", ")}`,
+            text: shouldOpen
+              ? `Compare page opened at ${path}\nFonts: ${names.join(", ")}`
+              : `Compare page generated at ${path}\nFonts: ${names.join(", ")}`,
           },
         ],
+        structuredContent: {
+          mode: "compare",
+          names,
+          url: `file://${path}`,
+          path,
+          opened: shouldOpen,
+        },
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -419,7 +503,10 @@ server.registerTool(
           }
         }
       }
-      return { content: [{ type: "text" as const, text: lines.join("\n") }] };
+      return {
+        content: [{ type: "text" as const, text: lines.join("\n") }],
+        structuredContent: { ...result },
+      };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       return {

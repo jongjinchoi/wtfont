@@ -78,4 +78,138 @@ describe("mcp stdio transport discipline", () => {
     expect(response).toBeDefined();
     expect(response.result.serverInfo?.name).toBe("wtfont");
   }, 10000);
+
+  it("tool calls include structuredContent", async () => {
+    if (!existsSync(DIST)) {
+      throw new Error(
+        `Expected built bundle at ${DIST}. Run \`bun run build:npm\` before this test.`,
+      );
+    }
+
+    const child = spawn("node", [DIST, "mcp"], {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let stdoutBuf = "";
+    child.stdout.on("data", (chunk: Buffer) => {
+      stdoutBuf += chunk.toString("utf-8");
+    });
+
+    const write = (message: unknown) => {
+      child.stdin.write(JSON.stringify(message) + "\n");
+    };
+
+    write({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "wtfont-structured-test", version: "0" },
+      },
+    });
+
+    await waitForMessage(() => stdoutBuf, (m) => m.id === 1 && m.result);
+    write({ jsonrpc: "2.0", method: "notifications/initialized" });
+    write({
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/call",
+      params: {
+        name: "lookup_google_font",
+        arguments: { name: "Inter" },
+      },
+    });
+
+    const response = await waitForMessage(
+      () => stdoutBuf,
+      (m) => m.id === 2 && m.result,
+    );
+
+    child.kill("SIGTERM");
+    await new Promise((r) => setTimeout(r, 100));
+
+    expect(response.result.structuredContent).toMatchObject({
+      name: "Inter",
+      isGoogleFont: true,
+      category: "sans-serif",
+    });
+  }, 10000);
+
+  it("preview_fonts can return a compare file path without opening a browser", async () => {
+    if (!existsSync(DIST)) {
+      throw new Error(
+        `Expected built bundle at ${DIST}. Run \`bun run build:npm\` before this test.`,
+      );
+    }
+
+    const child = spawn("node", [DIST, "mcp"], {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let stdoutBuf = "";
+    child.stdout.on("data", (chunk: Buffer) => {
+      stdoutBuf += chunk.toString("utf-8");
+    });
+
+    const write = (message: unknown) => {
+      child.stdin.write(JSON.stringify(message) + "\n");
+    };
+
+    write({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "wtfont-preview-test", version: "0" },
+      },
+    });
+
+    await waitForMessage(() => stdoutBuf, (m) => m.id === 1 && m.result);
+    write({ jsonrpc: "2.0", method: "notifications/initialized" });
+    write({
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/call",
+      params: {
+        name: "preview_fonts",
+        arguments: { names: ["Inter", "Fraunces"], open: false },
+      },
+    });
+
+    const response = await waitForMessage(
+      () => stdoutBuf,
+      (m) => m.id === 2 && m.result,
+    );
+
+    child.kill("SIGTERM");
+    await new Promise((r) => setTimeout(r, 100));
+
+    expect(response.result.structuredContent).toMatchObject({
+      mode: "compare",
+      names: ["Inter", "Fraunces"],
+      opened: false,
+    });
+    expect(response.result.structuredContent.path).toContain("wtfont-compare-");
+  }, 10000);
 });
+
+async function waitForMessage(
+  read: string | (() => string),
+  predicate: (message: any) => boolean,
+) {
+  const start = Date.now();
+  while (Date.now() - start < 5000) {
+    const text = typeof read === "function" ? read() : read;
+    const lines = text.split("\n").filter((l) => l.trim().length > 0);
+    for (const line of lines) {
+      const parsed = JSON.parse(line);
+      if (predicate(parsed)) return parsed;
+    }
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  throw new Error("Timed out waiting for MCP message");
+}

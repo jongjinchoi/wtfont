@@ -44,6 +44,10 @@ Two ways to use wtfont:
 
 ### Through Claude (MCP)
 
+Best for recommendation workflows: ask in natural language, let Claude call
+wtfont tools, judge free alternatives, and generate code with conversational
+context.
+
 Add this to your Claude Desktop config (Settings → Developer → Edit Config):
 
 ```json
@@ -62,6 +66,9 @@ Restart Claude, then ask: *"What fonts does vercel.com use?"*
 → [Setup for Claude Code, Cursor, Windsurf, VS Code](#mcp)
 
 ### In terminal (CLI)
+
+Best for keyboard-first exploration and automation: inspect a site, scan a
+project, output JSON, or generate snippets directly from your shell.
 
 ```bash
 npm install -g wtfont       # or: bun install -g wtfont · pnpm add -g wtfont
@@ -205,7 +212,7 @@ Command Palette → `MCP: Add server` → stdio → `npx -y wtfont mcp`
 wtfont analyze vercel.com                               # detect fonts
 wtfont analyze linear.app --dynamic                     # JS-rendered sites
 wtfont lookup Inter                                     # check Google Fonts DB
-wtfont code Inter --framework nextjs --weights 400,700  # generate code
+wtfont code Inter --framework nextjs --weights 400,700  # next/font/google code
 wtfont preview Inter "Plus Jakarta Sans" Manrope        # compare in browser
 wtfont pair Inter                                       # suggest heading partners
 wtfont scan                                             # audit current project
@@ -251,6 +258,16 @@ wtfont code Inter --framework nextjs --weights 400,500,700
 wtfont code "Proxima Nova" --framework html --role heading
 ```
 
+Use non-interactive output for scripts and agents:
+
+```bash
+wtfont lookup Inter --format json
+wtfont code Inter --framework nextjs --format json
+wtfont scan --format json
+wtfont pair Inter --format json
+wtfont browse serif --format json
+```
+
 <p align="center"><img src="https://raw.githubusercontent.com/jongjinchoi/wtfont/main/assets/screenshots/code.png" width="600" /></p>
 
 ### Pair & Preview
@@ -289,6 +306,10 @@ wtfont favorites list             # view bookmarks (p preview, d remove)
 ```bash
 wtfont analyze vercel.com --format json | jq '.fonts[] | select(.isFree == false) | .name'
 ```
+
+JSON output is also available for `lookup`, `code`, `scan`, `pair`, and
+`browse`. When stdout/stdin is not interactive, these commands fall back to
+plain text instead of opening the TUI.
 
 <h2 id="themes">Themes</h2>
 

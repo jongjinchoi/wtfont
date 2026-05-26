@@ -1939,6 +1939,11 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["zilla slab highlight", "Zilla Slab Highlight|serif"],
 ]);
 
+function parseEntry(val: string): { displayName: string; category: string } {
+  const idx = val.lastIndexOf("|");
+  return { displayName: val.slice(0, idx), category: val.slice(idx + 1) };
+}
+
 export function isGoogleFont(name: string): boolean {
   return GOOGLE_FONTS.has(name.toLowerCase().trim());
 }
@@ -1984,4 +1989,3 @@ export function getGoogleFontsByCategory(category: string): string[] {
 export function getGoogleFontCount(): number {
   return GOOGLE_FONTS.size;
 }
-

@@ -35,8 +35,8 @@ async function main() {
     ] as [string, string])
     .sort(([a], [b]) => a.localeCompare(b));
 
-  // Preserve the existing exported helper functions — read the old file
-  // and splice them in after the regenerated Map literal.
+  // Preserve the existing exported helper functions, and keep parseEntry in
+  // the generated file even though it is not exported.
   const existing = await readFile(OUT_PATH, "utf-8");
   const helperMatch = existing.match(/(export function isGoogleFont[\s\S]+)$/);
   if (!helperMatch) {
@@ -45,6 +45,10 @@ async function main() {
     );
   }
   const helpers = helperMatch[1];
+  const parseEntryHelper = `function parseEntry(val: string): { displayName: string; category: string } {
+  const idx = val.lastIndexOf("|");
+  return { displayName: val.slice(0, idx), category: val.slice(idx + 1) };
+}`;
 
   const body =
     `// Auto-generated from fonts.google.com/metadata/fonts\n` +
@@ -55,6 +59,8 @@ async function main() {
       .map(([n, c]) => `  [${JSON.stringify(n)}, ${JSON.stringify(c)}],`)
       .join("\n") +
     `\n]);\n\n` +
+    parseEntryHelper +
+    `\n\n` +
     helpers;
 
   await writeFile(OUT_PATH, body, "utf-8");

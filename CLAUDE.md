@@ -30,4 +30,4 @@ CLI/서버 코드에는 AI 호출이 없다. MCP를 통한 대안 추천은 Clau
 
 ## Playwright
 
-`playwright-core`는 optional peer dependency. `src/core/playwright-extract.ts`는 런타임에 dynamic import — 미설치 환경에서 import 실패 시 null 반환해야 한다.
+`playwright-core`는 현재 `package.json`의 일반 dependency다. `src/core/playwright-extract.ts`는 런타임에 dynamic import하며, 라이브러리나 브라우저 바이너리를 사용할 수 없을 때 null/status 결과로 graceful fail 해야 한다.

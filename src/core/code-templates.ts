@@ -19,6 +19,14 @@ export function toVarName(name: string): string {
   );
 }
 
+export function toGoogleFontImportName(name: string): string {
+  const cleaned = name
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  if (!cleaned) return "GoogleFont";
+  return /^\d/.test(cleaned) ? `Font_${cleaned}` : cleaned;
+}
+
 export function roleToSelector(role: string): string {
   const map: Record<string, string> = {
     heading: "h1, h2, h3",
@@ -51,8 +59,39 @@ export function generateCssUsageCode(font: MatchedFont): string {
 }`;
 }
 
-export function generateFreeImportCode(font: MatchedFont): string {
+export function generateFreeImportCode(
+  font: MatchedFont,
+  framework: Framework = "html",
+): string {
   if (!font.googleFontsUrl) return "";
+  if (framework === "nextjs") {
+    const importName = toGoogleFontImportName(font.alternativeName);
+    const fontVar = toVarName(font.alternativeName);
+    const selector = roleToSelector(font.role);
+    const weights = font.weights.map((w) => `'${w}'`).join(", ");
+    return `// app/layout.tsx
+import { ${importName} } from 'next/font/google'
+
+const ${fontVar} = ${importName}({
+  subsets: ['latin'],
+  weight: [${weights}],
+  variable: '--font-${fontVar}',
+  display: 'swap',
+})
+
+export default function RootLayout({ children }) {
+  return (
+    <html className={${fontVar}.variable}>
+      <body>{children}</body>
+    </html>
+  )
+}
+
+/* app/globals.css */
+${selector} {
+  font-family: var(--font-${fontVar}), ${font.fallback};
+}`;
+  }
   return `<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="${font.googleFontsUrl}" rel="stylesheet">
