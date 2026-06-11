@@ -99,11 +99,20 @@ function extractFontFamilies(text: string): string[] {
   const found = new Set<string>();
 
   // Regex pass — catches CSS declarations and JS/TS inline style strings.
-  const regex =
-    /font[-]?[fF]amily\s*[:=]\s*(?:"([^"\n]+)"|'([^'\n]+)'|`([^`\n]+)`|([^;}\n)]+))/g;
+  // JS unquoted values are deliberately ignored: they are usually variables
+  // and can otherwise bleed into sibling object properties.
+  const cssDeclarationRegex = /font-family\s*:\s*([^;}\n]+)/gi;
+  const jsStringRegex =
+    /fontFamily\s*[:=]\s*(?:"([^"\n]+)"|'([^'\n]+)'|`([^`\n]+)`)/g;
   let m: RegExpExecArray | null;
-  while ((m = regex.exec(text)) !== null) {
-    const value = m[1] ?? m[2] ?? m[3] ?? m[4] ?? "";
+  while ((m = cssDeclarationRegex.exec(text)) !== null) {
+    const value = m[1] ?? "";
+    for (const name of splitFontFamilyValue(value)) {
+      if (isValidCandidate(name)) found.add(name);
+    }
+  }
+  while ((m = jsStringRegex.exec(text)) !== null) {
+    const value = m[1] ?? m[2] ?? m[3] ?? "";
     for (const name of splitFontFamilyValue(value)) {
       if (isValidCandidate(name)) found.add(name);
     }
@@ -151,7 +160,7 @@ function isValidCandidate(name: string): boolean {
   if (isSystemFont(name)) return false;
   if (/^var\s*\(|^\w+\s*\(/.test(name)) return false;
   if (/^(inherit|initial|unset|revert|none|normal|auto)$/i.test(name)) return false;
-  if (/[\\${}\[\]()<>|]/.test(name)) return false;
+  if (/[\\${}\[\]()<>|:]/.test(name)) return false;
   if (TS_PRIMITIVES.test(name)) return false;
   if (/^[a-zA-Z_$][\w$]*\.[a-zA-Z_$][\w$]*/.test(name)) return false;
   return true;

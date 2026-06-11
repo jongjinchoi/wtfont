@@ -136,4 +136,18 @@ describe("scanProject", () => {
       expect(names).toContain("Fira Code");
     }),
   );
+
+  it(
+    "does not scan past unquoted JS fontFamily values into sibling properties",
+    withTmpDir(async (dir) => {
+      writeFileSync(
+        join(dir, "Button.tsx"),
+        `export const style = { fontFamily: vars.body, fontSize: 12 };`,
+      );
+
+      const r = await scanProject(dir);
+      expect(r.fonts.find((f) => f.name === "fontSize: 12")).toBeUndefined();
+      expect(r.fonts.find((f) => f.name.includes(":"))).toBeUndefined();
+    }),
+  );
 });
