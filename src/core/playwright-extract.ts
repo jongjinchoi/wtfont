@@ -5,6 +5,12 @@ import type {
 } from "../types/font.ts";
 import { isSystemFont } from "./system-fonts.ts";
 import { SsrfBlockedError, assertPublicUrl } from "./url-guard.ts";
+import {
+  cleanFontName,
+  deduplicateFontVariants,
+  normalizeFontKey,
+  sortWeights,
+} from "./font-normalize.ts";
 
 export type PlaywrightStatus =
   | "success"
@@ -219,7 +225,7 @@ function mergeAndClassify(
     const name = cleanFontName(rawName);
     if (!name) return;
     if (method !== "document.fonts" && isSystemFont(name)) return;
-    const key = name.toLowerCase().replace(/\s/g, "");
+    const key = normalizeFontKey(name);
     let entry = fontMap.get(key);
     if (!entry) {
       entry = {
@@ -294,12 +300,12 @@ function mergeAndClassify(
       source: inferSource(entry.name, resourceUrl),
       role: selectors.length > 0 ? inferRole(selectors) : "body",
       weights:
-        entry.weights.size > 0 ? Array.from(entry.weights).sort() : ["400"],
+        entry.weights.size > 0 ? sortWeights(entry.weights) : ["400"],
       selectors,
     };
   });
 
-  return deduplicateLocaleVariants(results);
+  return deduplicateFontVariants(results);
 }
 
 function inferSource(name: string, resourceUrl?: string): FontSource {
@@ -320,44 +326,4 @@ function inferRole(selectors: string[]): FontRole {
   if (/\bcode\b|\bpre\b|mono|\.code/.test(joined)) return "monospace";
   if (/\.display|\.banner|\.splash/.test(joined)) return "display";
   return "body";
-}
-
-function cleanFontName(name: string): string {
-  return name
-    .replace(/['"]/g, "")
-    .replace(/\.[0-9a-f]{8,}$/i, "")
-    .replace(/\s+(W\s+)?Wght$/i, "")
-    .trim();
-}
-
-const LOCALE_SUFFIX = /\s+(SC|TC|HK|JP|KR|AR|TH|HE|GB)$/i;
-const STYLE_SUFFIX = /\s+(Text|Display|Rounded)$/i;
-
-function deduplicateLocaleVariants(fonts: ExtractedFont[]): ExtractedFont[] {
-  const groups = new Map<string, ExtractedFont[]>();
-  for (const font of fonts) {
-    const base = font.name
-      .replace(LOCALE_SUFFIX, "")
-      .replace(STYLE_SUFFIX, "")
-      .trim()
-      .toLowerCase();
-    const group = groups.get(base) || [];
-    group.push(font);
-    groups.set(base, group);
-  }
-  return Array.from(groups.values()).map((group) => {
-    if (group.length === 1) return group[0];
-    const merged = { ...group[0] };
-    for (const variant of group.slice(1)) {
-      merged.weights = [...new Set([...merged.weights, ...variant.weights])];
-      merged.selectors = [
-        ...new Set([...merged.selectors, ...variant.selectors]),
-      ].slice(0, 20);
-    }
-    merged.name = merged.name
-      .replace(LOCALE_SUFFIX, "")
-      .replace(STYLE_SUFFIX, "")
-      .trim();
-    return merged;
-  });
 }

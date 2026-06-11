@@ -195,6 +195,62 @@ describe("mcp stdio transport discipline", () => {
     });
     expect(response.result.structuredContent.path).toContain("wtfont-compare-");
   }, 10000);
+
+  it("list_google_fonts returns display names, not internal lowercase keys", async () => {
+    if (!existsSync(DIST)) {
+      throw new Error(
+        `Expected built bundle at ${DIST}. Run \`bun run build:npm\` before this test.`,
+      );
+    }
+
+    const child = spawn("node", [DIST, "mcp"], {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let stdoutBuf = "";
+    child.stdout.on("data", (chunk: Buffer) => {
+      stdoutBuf += chunk.toString("utf-8");
+    });
+
+    const write = (message: unknown) => {
+      child.stdin.write(JSON.stringify(message) + "\n");
+    };
+
+    write({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "wtfont-list-test", version: "0" },
+      },
+    });
+
+    await waitForMessage(() => stdoutBuf, (m) => m.id === 1 && m.result);
+    write({ jsonrpc: "2.0", method: "notifications/initialized" });
+    write({
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/call",
+      params: {
+        name: "list_google_fonts",
+        arguments: { limit: 1 },
+      },
+    });
+
+    const response = await waitForMessage(
+      () => stdoutBuf,
+      (m) => m.id === 2 && m.result,
+    );
+
+    child.kill("SIGTERM");
+    await new Promise((r) => setTimeout(r, 100));
+
+    expect(response.result.structuredContent.fonts).toEqual(["ABeeZee"]);
+    expect(response.result.content[0].text).toContain("ABeeZee");
+    expect(response.result.content[0].text).not.toContain("abeezee");
+  }, 10000);
 });
 
 async function waitForMessage(

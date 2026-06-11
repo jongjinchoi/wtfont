@@ -85,6 +85,16 @@ describe("extractGoogleFontsFromLink", () => {
     const result = extractGoogleFontsFromLink(url);
     expect(result[0].weights).toEqual(["400"]);
   });
+
+  it("extracts families and weights from legacy Google Fonts CSS URLs", () => {
+    const url =
+      "https://fonts.googleapis.com/css?family=Open+Sans:400,700|Roboto&display=swap";
+    const result = extractGoogleFontsFromLink(url);
+    expect(result).toEqual([
+      { name: "Open Sans", weights: ["400", "700"], source: "google" },
+      { name: "Roboto", weights: ["400"], source: "google" },
+    ]);
+  });
 });
 
 describe("extractFontsFromHtml", () => {
@@ -125,6 +135,51 @@ describe("extractFontsFromHtml", () => {
     const mono = fonts.find((f) => f.name === "Roboto Mono");
     expect(mono).toBeDefined();
     expect(mono!.source).toBe("google");
+  });
+
+  it("keeps Google Fonts even when the family name is also a system font", async () => {
+    const html = `<html><head>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+      <style>body { font-family: 'Roboto', sans-serif; }</style>
+    </head><body></body></html>`;
+    const fonts = await extractFontsFromHtml(html, "https://example.com");
+    const roboto = fonts.find((f) => f.name === "Roboto");
+    expect(roboto).toBeDefined();
+    expect(roboto!.source).toBe("google");
+    expect(roboto!.weights).toEqual(["400", "700"]);
+  });
+
+  it("does not merge distinct Google Fonts that end with Text or Display", async () => {
+    const html = `<html><head>
+      <style>
+        @font-face { font-family: "DM Serif Display"; font-weight: 400; }
+        @font-face { font-family: "DM Serif Text"; font-weight: 400; }
+        h1 { font-family: "DM Serif Display", serif; }
+        p { font-family: "DM Serif Text", serif; }
+      </style>
+    </head><body></body></html>`;
+    const fonts = await extractFontsFromHtml(html, "https://example.com");
+    const names = fonts.map((f) => f.name);
+    expect(names).toContain("DM Serif Display");
+    expect(names).toContain("DM Serif Text");
+    expect(names).not.toContain("DM Serif");
+  });
+
+  it("sorts numeric font weights numerically", async () => {
+    const html = `<html><head>
+      <style>
+        @font-face { font-family: "Custom"; font-weight: 900; }
+        @font-face { font-family: "Custom"; font-weight: 1000; }
+        @font-face { font-family: "Custom"; font-weight: 400; }
+        body { font-family: "Custom", sans-serif; }
+      </style>
+    </head><body></body></html>`;
+    const fonts = await extractFontsFromHtml(html, "https://example.com");
+    expect(fonts.find((f) => f.name === "Custom")?.weights).toEqual([
+      "400",
+      "900",
+      "1000",
+    ]);
   });
 });
 

@@ -11,6 +11,13 @@ declare const PKG_VERSION: string;
 const VERSION = typeof PKG_VERSION !== "undefined" ? PKG_VERSION : "0.1.0";
 
 const program = new Command();
+const GOOGLE_FONT_CATEGORIES = [
+  "sans-serif",
+  "serif",
+  "display",
+  "handwriting",
+  "monospace",
+] as const;
 
 program
   .name("wtfont")
@@ -317,6 +324,12 @@ program
   .action(async (category: string, opts) => {
     const config = await loadConfig();
     setTheme(config.theme);
+    if (!isGoogleFontCategory(category)) {
+      process.stderr.write(
+        `Unknown category: ${category}. Available: ${GOOGLE_FONT_CATEGORIES.join(", ")}\n`,
+      );
+      process.exit(1);
+    }
     const format = resolveOutputFormat(opts.format, ["tui", "text", "json"]);
     if (format !== "tui") {
       const {
@@ -357,6 +370,7 @@ const historyCmd = program
   .description("Show analysis history");
 historyCmd
   .option("--limit <n>", "Max entries", "20")
+  .option("-f, --format <format>", "Output format (tui, text, json)", "tui")
   .option("--clear", "Clear all history")
   .action(async (opts) => {
     if (opts.clear) {
@@ -367,6 +381,18 @@ historyCmd
     }
     const config = await loadConfig();
     setTheme(config.theme);
+    const format = resolveOutputFormat(opts.format, ["tui", "text", "json"]);
+    if (format !== "tui") {
+      const { loadHistory } = await import("./config/history.ts");
+      const limit = parseInt(opts.limit, 10) || 20;
+      const entries = (await loadHistory()).slice(0, limit);
+      process.stdout.write(
+        format === "json"
+          ? JSON.stringify(entries, null, 2) + "\n"
+          : formatHistoryText(entries),
+      );
+      return;
+    }
     const { render } = await import("ink");
     const React = (await import("react")).default;
     const { default: HistoryView } = await import("./tui/HistoryView.tsx");
@@ -393,9 +419,21 @@ favCmd
   });
 favCmd
   .command("list")
-  .action(async () => {
+  .option("-f, --format <format>", "Output format (tui, text, json)", "tui")
+  .action(async (opts) => {
     const config = await loadConfig();
     setTheme(config.theme);
+    const format = resolveOutputFormat(opts.format, ["tui", "text", "json"]);
+    if (format !== "tui") {
+      const { loadFavorites } = await import("./config/favorites.ts");
+      const favorites = await loadFavorites();
+      process.stdout.write(
+        format === "json"
+          ? JSON.stringify(favorites, null, 2) + "\n"
+          : formatFavoritesText(favorites),
+      );
+      return;
+    }
     const { render } = await import("ink");
     const React = (await import("react")).default;
     const { default: FavoritesView } = await import("./tui/FavoritesView.tsx");
@@ -485,6 +523,12 @@ type OutputFormat = "tui" | "text" | "json";
 
 function canUseTui(): boolean {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY);
+}
+
+function isGoogleFontCategory(
+  category: string,
+): category is (typeof GOOGLE_FONT_CATEGORIES)[number] {
+  return (GOOGLE_FONT_CATEGORIES as readonly string[]).includes(category);
 }
 
 function resolveOutputFormat(
@@ -596,6 +640,37 @@ function formatBrowseText(payload: {
     ...payload.fonts,
     "",
   ].join("\n");
+}
+
+function formatHistoryText(
+  entries: Array<{
+    url: string;
+    domain: string;
+    fontNames: string[];
+    detection: "static" | "dynamic" | "merged";
+    at: string;
+  }>,
+): string {
+  if (entries.length === 0) return "No history.\n";
+  return (
+    entries
+      .map(
+        (e) =>
+          `${e.domain} (${e.detection}) — ${e.fontNames.join(", ")}\n  ${e.url}\n  ${e.at}`,
+      )
+      .join("\n") + "\n"
+  );
+}
+
+function formatFavoritesText(
+  favorites: Array<{ name: string; addedAt: string; note?: string }>,
+): string {
+  if (favorites.length === 0) return "No favorites.\n";
+  return (
+    favorites
+      .map((f) => `${f.name}${f.note ? ` — ${f.note}` : ""}\n  ${f.addedAt}`)
+      .join("\n") + "\n"
+  );
 }
 
 function truncate(s: string, n: number): string {

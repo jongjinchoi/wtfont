@@ -74,4 +74,22 @@ describe("CLI non-TTY fallback", () => {
     expect(parsed.filesScanned).toBeGreaterThan(0);
     expect(parsed.fonts.some((font: { name: string }) => font.name === "Inter")).toBe(true);
   });
+
+  it("history prints text instead of crashing when stdin is not a TTY", async () => {
+    const result = await runCli(["history"]);
+    expect(result.code).toBe(0);
+    expect(result.stderr).not.toContain("Raw mode is not supported");
+  });
+
+  it("favorites list prints text instead of crashing when stdin is not a TTY", async () => {
+    const result = await runCli(["favorites", "list"]);
+    expect(result.code).toBe(0);
+    expect(result.stderr).not.toContain("Raw mode is not supported");
+  });
+
+  it("browse rejects unknown categories", async () => {
+    const result = await runCli(["browse", "nonsense", "--format", "json"]);
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain("Unknown category: nonsense");
+  });
 });

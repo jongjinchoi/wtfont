@@ -24,7 +24,7 @@ export default function InstallPlaywrightView() {
         return;
       }
       setPhase("installing");
-      const result = installChromium();
+      const result = await installChromium();
       if (result.success) {
         setPhase("done");
       } else {

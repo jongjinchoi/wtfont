@@ -1,5 +1,3 @@
-// Sync with: services/playwright/src/extract-fonts.ts (SYSTEM_FONTS)
-
 /** Normalize font name for matching: lowercase, strip quotes/spaces/hyphens */
 function normalizeForMatch(name: string): string {
   return name.toLowerCase().trim().replace(/['"]/g, "").replace(/[-\s]/g, "");
@@ -137,7 +135,6 @@ const SYSTEM_FONTS = new Set([
   "noto serif cjk",
   "malgun gothic",
   // CJK native names (Korean)
-  "apple gothic",
   "hy gulim",
   "hy dotum",
   "lexi gulim",

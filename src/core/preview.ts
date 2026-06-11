@@ -2,7 +2,10 @@ import { createHash } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { isGoogleFont, getGoogleFontDisplayName } from "./google-fonts-db.ts";
+import {
+  getGoogleFontDisplayName,
+  isGoogleFont,
+} from "./google-fonts-db.ts";
 
 const DEFAULT_SAMPLE =
   "The quick brown fox jumps over the lazy dog. 1234567890";
@@ -30,12 +33,7 @@ export async function generateComparePage(
   const googleFonts = names.filter(isGoogleFont);
   const linkTag =
     googleFonts.length > 0
-      ? `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?${googleFonts
-          .map(
-            (n) =>
-              `family=${encodeURIComponent(n.replace(/\s+/g, "+"))}:wght@400;500;700`,
-          )
-          .join("&")}&display=swap">`
+      ? `<link rel="stylesheet" href="${escapeHtml(buildGoogleFontsCss2Url(googleFonts))}">`
       : "";
 
   const columns = names
@@ -44,8 +42,9 @@ export async function generateComparePage(
       const badge = isGoogle
         ? `<span class="badge free">FREE · Google Fonts</span>`
         : `<span class="badge commercial">Commercial / not on Google Fonts</span>`;
+      const style = `font-family: '${escapeCssString(name)}', sans-serif;`;
       return `
-        <section class="col" style="font-family: '${name}', sans-serif;">
+        <section class="col" style="${escapeHtml(style)}">
           <header>
             <h2>${escapeHtml(name)}</h2>
             ${badge}
@@ -109,6 +108,22 @@ export async function generateComparePage(
   const path = join(tmpdir(), `wtfont-compare-${hash}.html`);
   await writeFile(path, html, "utf-8");
   return path;
+}
+
+function buildGoogleFontsCss2Url(names: string[]): string {
+  const params = new URLSearchParams();
+  for (const name of names) {
+    params.append("family", getGoogleFontDisplayName(name) ?? name);
+  }
+  params.set("display", "swap");
+  return `https://fonts.googleapis.com/css2?${params.toString()}`;
+}
+
+function escapeCssString(s: string): string {
+  return s
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/\r?\n/g, " ");
 }
 
 function escapeHtml(s: string): string {

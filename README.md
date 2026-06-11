@@ -31,7 +31,7 @@ You find a beautifully typeset website. You want the same fonts. So you open Dev
 Find the font any website uses, check if it's free, and get ready-to-paste code — or let Claude do all of it for you through MCP.
 
 - **Instant** — static parsing in ~1 second. Playwright for SPAs.
-- **Offline DB** — 1,929 Google Fonts with correct display names. No API calls.
+- **Offline DB** — 1,900+ Google Fonts with correct display names. No API calls.
 - **MCP native** — Claude Code, Claude Desktop, and Cursor can analyze fonts directly.
 - **Keyboard-first** — vim-style j/k navigation. Analyze → code → copy without leaving.
 - **Pipe-friendly** — `--format json` for scripting and CI.
@@ -390,7 +390,7 @@ Static parsing uses [cheerio](https://cheerio.js.org/) + [css-tree](https://gith
 
 Dynamic detection launches Chromium via Playwright, then collects fonts via `document.fonts`, `getComputedStyle`, and the Resource Timing API — cross-validating against what's actually loaded.
 
-The Google Fonts DB (1,929 entries with original display names) is auto-refreshed weekly by [GitHub Actions](.github/workflows/update-fonts-db.yml).
+The Google Fonts DB (1,900+ entries with original display names) is auto-refreshed weekly by [GitHub Actions](.github/workflows/update-fonts-db.yml).
 
 ## Configuration
 

@@ -75,19 +75,25 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
     runAnalysis();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const installAndRetry = () => {
+    setPhase("installing");
+    void (async () => {
+      const { success, error: installError } = await installChromium();
+      if (success) {
+        runAnalysis(true);
+      } else {
+        setError(`Chromium install failed: ${installError}`);
+        setPhase("selecting");
+      }
+    })();
+  };
+
   // Parent input — active only when not in code/lookup sub-views
   useInput(
     (input, key) => {
       if (phase === "prompt_install") {
         if (input === "y" || input === "Y") {
-          setPhase("installing");
-          const { success, error: installError } = installChromium();
-          if (success) {
-            runAnalysis(true);
-          } else {
-            setError(`Chromium install failed: ${installError}`);
-            setPhase("selecting");
-          }
+          installAndRetry();
         } else if (input === "n" || input === "N") {
           setPhase("selecting");
           if (result) {

@@ -56,14 +56,16 @@ export default function InitView({ currentConfig }: Props) {
     } else if (step === "playwright_prompt") {
       if (input === "y" || input === "Y") {
         setStep("playwright_installing");
-        const result = installChromium();
-        if (result.success) {
-          setChromiumReady(true);
-          void saveConfig({ playwrightAcknowledged: true });
-        } else {
-          setInstallError(result.error ?? "Unknown error");
-        }
-        setStep("done");
+        void (async () => {
+          const result = await installChromium();
+          if (result.success) {
+            setChromiumReady(true);
+            void saveConfig({ playwrightAcknowledged: true });
+          } else {
+            setInstallError(result.error ?? "Unknown error");
+          }
+          setStep("done");
+        })();
       } else if (input === "n" || input === "N" || key.return) {
         void saveConfig({ playwrightAcknowledged: false });
         setStep("done");

@@ -223,7 +223,7 @@ server.registerTool(
     const names = category
       ? getGoogleFontsByCategory(category).slice(0, cap)
       : getAllGoogleFonts()
-          .map(([name]) => name)
+          .map(([, displayName]) => displayName)
           .slice(0, cap);
     const title = category
       ? `Google Fonts in "${category}" (${names.length} of ${getGoogleFontsByCategory(category).length}):`
@@ -524,11 +524,4 @@ export async function startMcpServer() {
 
 function truncate(s: string, n: number): string {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
-}
-
-function titleCase(s: string): string {
-  return s
-    .split(" ")
-    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w))
-    .join(" ");
 }

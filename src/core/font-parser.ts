@@ -2,6 +2,12 @@ import * as cheerio from "cheerio";
 import * as cssTree from "css-tree";
 import { isSystemFont } from "./system-fonts.ts";
 import { safeFetch } from "./url-guard.ts";
+import {
+  cleanFontName,
+  deduplicateFontVariants,
+  normalizeFontKey,
+  sortWeights,
+} from "./font-normalize.ts";
 import type { ExtractedFont, FontRole, FontSource } from "../types/font.ts";
 
 interface RawFontEntry {
@@ -42,18 +48,16 @@ export async function extractFontsFromHtml(
     weight?: string,
     selector?: string
   ) => {
-    const cleanName = decodeCssUnicodeEscapes(
-      name
-        .replace(/['"]/g, "")
-        .replace(/\.[0-9a-f]{8,}$/i, "")   // strip content hash
-        .replace(/\s+(W\s+)?Wght$/i, "")    // strip VF axis info
-        .trim()
-    );
-    if (!cleanName || isSystemFont(cleanName) || !isValidFontName(cleanName))
+    const cleanName = decodeCssUnicodeEscapes(cleanFontName(name));
+    if (
+      !cleanName ||
+      (source !== "google" && isSystemFont(cleanName)) ||
+      !isValidFontName(cleanName)
+    )
       return;
 
     // Normalize key: remove spaces to merge "AirbnbCerealVF" with "Airbnb Cereal VF"
-    const key = cleanName.toLowerCase().replace(/\s/g, "");
+    const key = normalizeFontKey(cleanName);
     const existing = fontMap.get(key);
     if (existing) {
       if (weight) existing.weights.add(weight);
@@ -175,7 +179,7 @@ export async function extractFontsFromHtml(
                 }
               },
             });
-            if (familyName && isValidFontName(familyName) && !isSystemFont(familyName)) {
+            if (familyName && isValidFontName(familyName)) {
               fontFaceNames.add(familyName.toLowerCase());
               addFont(familyName, "custom", weight || "400");
             }
@@ -242,13 +246,13 @@ export async function extractFontsFromHtml(
       name: entry.name,
       role,
       source: entry.source,
-      weights: entry.weights.size > 0 ? Array.from(entry.weights).sort() : ["400"],
+      weights: entry.weights.size > 0 ? sortWeights(entry.weights) : ["400"],
       selectors,
     };
   });
 
   // 7. Deduplicate locale variants (SF Pro JP + SF Pro KR → SF Pro)
-  const deduped = deduplicateLocaleVariants(results);
+  const deduped = deduplicateFontVariants(results);
 
   // 8. Sort: fonts with selectors first (higher confidence), then by role importance
   const roleOrder: Record<FontRole, number> = {
@@ -365,18 +369,19 @@ export function extractGoogleFontsFromLink(
     const url = new URL(href);
     const families = url.searchParams.getAll("family");
     for (const family of families) {
-      const [namePart, ...rest] = family.split(":");
-      const name = namePart.replace(/\+/g, " ");
-      const weights: string[] = [];
-      const weightMatch = rest.join(":").match(/wght@([\d;]+)/);
-      if (weightMatch) {
-        weights.push(...weightMatch[1].split(";"));
+      const legacyFamilies = family.includes("|")
+        ? family.split("|")
+        : [family];
+      for (const legacyFamily of legacyFamilies) {
+        const [namePart, ...rest] = legacyFamily.split(":");
+        const name = namePart.replace(/\+/g, " ");
+        const weights = extractGoogleFontWeights(rest.join(":"));
+        results.push({
+          name,
+          weights: weights.length > 0 ? weights : ["400"],
+          source: "google",
+        });
       }
-      results.push({
-        name,
-        weights: weights.length > 0 ? weights : ["400"],
-        source: "google",
-      });
     }
   } catch {
     /* skip */
@@ -384,38 +389,22 @@ export function extractGoogleFontsFromLink(
   return results;
 }
 
-/** Merge locale variants (e.g. SF Pro JP + SF Pro KR → SF Pro) */
-const LOCALE_SUFFIX = /\s+(SC|TC|HK|JP|KR|AR|TH|HE|GB)$/i;
-const STYLE_SUFFIX = /\s+(Text|Display|Rounded)$/i;
-
-function deduplicateLocaleVariants(fonts: ExtractedFont[]): ExtractedFont[] {
-  const groups = new Map<string, ExtractedFont[]>();
-
-  for (const font of fonts) {
-    const base = font.name
-      .replace(LOCALE_SUFFIX, "")
-      .replace(STYLE_SUFFIX, "")
-      .trim()
-      .toLowerCase();
-    const group = groups.get(base) || [];
-    group.push(font);
-    groups.set(base, group);
+function extractGoogleFontWeights(spec: string): string[] {
+  if (!spec) return [];
+  const css2Match = spec.match(/wght@([\d.;]+)/);
+  if (css2Match) {
+    return sortWeights(
+      css2Match[1]
+        .split(";")
+        .filter((w) => /^\d+$/.test(w)),
+    );
   }
-
-  return Array.from(groups.values()).map((group) => {
-    if (group.length === 1) return group[0];
-    // Multiple locale/style variants → merge into one with base name
-    const merged = { ...group[0] };
-    for (const variant of group.slice(1)) {
-      merged.weights = [...new Set([...merged.weights, ...variant.weights])];
-      merged.selectors = [...new Set([...merged.selectors, ...variant.selectors])];
-    }
-    merged.name = merged.name
-      .replace(LOCALE_SUFFIX, "")
-      .replace(STYLE_SUFFIX, "")
-      .trim();
-    return merged;
-  });
+  return sortWeights(
+    spec
+      .split(",")
+      .map((part) => part.match(/\d+/)?.[0])
+      .filter((w): w is string => Boolean(w)),
+  );
 }
 
 export function inferRole(selectors: string[]): FontRole {

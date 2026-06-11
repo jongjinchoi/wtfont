@@ -48,8 +48,7 @@ export async function scanProject(rootPath: string): Promise<ScanResult> {
     }
     for (const entry of entries) {
       if (entry.name.startsWith(".") && entry.name !== ".") {
-        // skip dotfiles/directories except the root itself
-        if (SKIP_DIRS.has(entry.name)) continue;
+        continue;
       }
       if (SKIP_DIRS.has(entry.name)) continue;
       const full = join(dir, entry.name);
@@ -99,11 +98,12 @@ export async function scanProject(rootPath: string): Promise<ScanResult> {
 function extractFontFamilies(text: string): string[] {
   const found = new Set<string>();
 
-  // Regex pass — catches: font-family: "X", fontFamily: 'X'
-  const regex = /font[-]?[fF]amily\s*[:=]\s*([^;,}\n)]+)/g;
+  // Regex pass — catches CSS declarations and JS/TS inline style strings.
+  const regex =
+    /font[-]?[fF]amily\s*[:=]\s*(?:"([^"\n]+)"|'([^'\n]+)'|`([^`\n]+)`|([^;}\n)]+))/g;
   let m: RegExpExecArray | null;
   while ((m = regex.exec(text)) !== null) {
-    const value = m[1];
+    const value = m[1] ?? m[2] ?? m[3] ?? m[4] ?? "";
     for (const name of splitFontFamilyValue(value)) {
       if (isValidCandidate(name)) found.add(name);
     }

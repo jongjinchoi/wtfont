@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { scanProject } from "./scan-project.ts";
@@ -98,6 +98,42 @@ describe("scanProject", () => {
       expect(names).toContain("Poppins");
       expect(names.find((n) => n.includes("'"))).toBeUndefined();
       expect(r.fonts.find((f) => f.name === "Poppins")?.isFree).toBe(true);
+    }),
+  );
+
+  it(
+    "skips hidden dot directories",
+    withTmpDir(async (dir) => {
+      mkdirSync(join(dir, ".hidden"));
+      mkdirSync(join(dir, "src"));
+      writeFileSync(
+        join(dir, ".hidden", "hidden.css"),
+        `.x { font-family: "Hidden Font", sans-serif; }`,
+      );
+      writeFileSync(
+        join(dir, "src", "visible.css"),
+        `.x { font-family: "Visible Font", sans-serif; }`,
+      );
+
+      const r = await scanProject(dir);
+      const names = r.fonts.map((f) => f.name);
+      expect(names).toContain("Visible Font");
+      expect(names).not.toContain("Hidden Font");
+    }),
+  );
+
+  it(
+    "detects all font families in JS inline style fallback lists",
+    withTmpDir(async (dir) => {
+      writeFileSync(
+        join(dir, "Button.tsx"),
+        `export const style = { fontFamily: "Inter, Fira Code, sans-serif" };`,
+      );
+
+      const r = await scanProject(dir);
+      const names = r.fonts.map((f) => f.name);
+      expect(names).toContain("Inter");
+      expect(names).toContain("Fira Code");
     }),
   );
 });
