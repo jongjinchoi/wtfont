@@ -15,13 +15,14 @@ describe("generateComparePage", () => {
     expect(html).toContain("&quot; autofocus onfocus=alert(1) x=&quot;");
   });
 
-  it("does not hard-code preview font weights in Google Fonts CSS2 URLs", async () => {
+  it("requests preview weights for Google Fonts CSS2 URLs", async () => {
     const path = await generateComparePage(["Inter", "Homemade Apple"]);
     const html = await readFile(path, "utf-8");
 
     expect(html).toContain("https://fonts.googleapis.com/css2?");
-    expect(html).toContain("family=Inter");
-    expect(html).toContain("family=Homemade+Apple");
-    expect(html).not.toContain(":wght@400;500;700");
+    expect(html).toContain("family=Inter%3Awght%40400%3B500%3B700");
+    expect(html).toContain(
+      "family=Homemade+Apple%3Awght%40400%3B500%3B700",
+    );
   });
 });

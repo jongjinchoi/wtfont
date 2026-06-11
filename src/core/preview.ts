@@ -113,7 +113,10 @@ export async function generateComparePage(
 function buildGoogleFontsCss2Url(names: string[]): string {
   const params = new URLSearchParams();
   for (const name of names) {
-    params.append("family", getGoogleFontDisplayName(name) ?? name);
+    params.append(
+      "family",
+      `${getGoogleFontDisplayName(name) ?? name}:wght@400;500;700`,
+    );
   }
   params.set("display", "swap");
   return `https://fonts.googleapis.com/css2?${params.toString()}`;
