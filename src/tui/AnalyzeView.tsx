@@ -16,6 +16,7 @@ interface Props {
   url: string;
   dynamic?: boolean;
   timeoutMs?: number;
+  skipUrlValidation?: boolean;
 }
 
 type Phase =
@@ -27,7 +28,12 @@ type Phase =
   | "lookup"
   | "error";
 
-export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
+export default function AnalyzeView({
+  url,
+  dynamic,
+  timeoutMs,
+  skipUrlValidation,
+}: Props) {
   const { exit } = useApp();
   const [phase, setPhase] = useState<Phase>("running");
   const [cursor, setCursor] = useState(0);
@@ -42,6 +48,7 @@ export default function AnalyzeView({ url, dynamic, timeoutMs }: Props) {
         const r = await analyze(url, {
           dynamic: retryDynamic ?? dynamic,
           timeoutMs,
+          skipUrlValidation,
         });
 
         if (

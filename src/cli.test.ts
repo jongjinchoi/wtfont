@@ -62,6 +62,50 @@ describe("CLI non-TTY fallback", () => {
     expect(result.stderr).not.toContain("Raw mode is not supported");
   });
 
+  it("code uses -f for json output", async () => {
+    const result = await runCli(["code", "Inter", "-f", "json"]);
+
+    expect(result.code).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.fontName).toBe("Inter");
+    expect(parsed.format).toBeUndefined();
+    expect(parsed.framework).toBe("nextjs");
+  });
+
+  it("code keeps -o as a format alias", async () => {
+    const result = await runCli(["code", "Inter", "-o", "json"]);
+
+    expect(result.code).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.fontName).toBe("Inter");
+    expect(parsed.framework).toBe("nextjs");
+  });
+
+  it("code uses --framework for framework selection", async () => {
+    const result = await runCli([
+      "code",
+      "Inter",
+      "--framework",
+      "html",
+      "--format",
+      "json",
+    ]);
+
+    expect(result.code).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.framework).toBe("html");
+    expect(parsed.code).toContain("fonts.googleapis.com");
+  });
+
+  it("code help keeps framework long-only to avoid case-sensitive -F versus -f", async () => {
+    const result = await runCli(["code", "--help"]);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("--framework <fw>");
+    expect(result.stdout).not.toContain("-F, --framework");
+    expect(result.stdout).toContain("-f, --format");
+  });
+
   it("scan supports json output", async () => {
     const result = await runCli([
       "scan",
@@ -91,5 +135,27 @@ describe("CLI non-TTY fallback", () => {
     const result = await runCli(["browse", "nonsense", "--format", "json"]);
     expect(result.code).toBe(1);
     expect(result.stderr).toContain("Unknown category: nonsense");
+  });
+
+  it("pair rejects unknown roles", async () => {
+    const result = await runCli(["pair", "Inter", "--role", "nonsense", "--format", "json"]);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain("Unknown role: nonsense");
+  });
+
+  it("root help points first-time users to init", async () => {
+    const result = await runCli(["--help"]);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("First time?");
+    expect(result.stdout).toContain("wtfont init");
+  });
+
+  it("analyze exposes a skip URL validation option", async () => {
+    const result = await runCli(["analyze", "--help"]);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("--skip-url-validation");
   });
 });

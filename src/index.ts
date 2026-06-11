@@ -2,7 +2,6 @@
 import { Command } from "commander";
 import { loadConfig, saveConfig } from "./config/config.ts";
 import { setTheme, THEME_NAMES } from "./tui/theme.ts";
-import type { Framework } from "./core/code-templates.ts";
 import type { AnalysisResult, MatchedFont } from "./types/font.ts";
 import type { PairResult } from "./core/pair.ts";
 import type { ScanResult } from "./core/scan-project.ts";
@@ -18,11 +17,18 @@ const GOOGLE_FONT_CATEGORIES = [
   "handwriting",
   "monospace",
 ] as const;
+const FRAMEWORKS = ["html", "nextjs", "nuxt", "react"] as const;
+const CODE_ROLES = ["heading", "body", "display", "monospace"] as const;
+const PAIR_ROLES = ["heading", "display"] as const;
 
 program
   .name("wtfont")
   .description("Identify web fonts and find free Google Fonts alternatives.")
-  .version(VERSION);
+  .version(VERSION)
+  .addHelpText(
+    "after",
+    "\nFirst time? Run `wtfont init` to set up theme and dynamic analysis support.\n",
+  );
 
 // --- analyze ---
 program
@@ -31,6 +37,10 @@ program
   .option("--dynamic", "Use Playwright for JS-rendered sites (opt-in)")
   .option("-f, --format <format>", "Output format (tui, text, json)", "tui")
   .option("-t, --timeout <seconds>", "Timeout in seconds", "15")
+  .option(
+    "--skip-url-validation",
+    "Skip Google Fonts URL HEAD checks for faster or offline analysis",
+  )
   .description("Detect fonts used on a website")
   .action(async (url: string, opts) => {
     const config = await loadConfig();
@@ -42,7 +52,11 @@ program
       const { analyze } = await import("./core/analyze.ts");
       const { addHistory } = await import("./config/history.ts");
       try {
-        const r = await analyze(url, { dynamic: opts.dynamic, timeoutMs });
+        const r = await analyze(url, {
+          dynamic: opts.dynamic,
+          timeoutMs,
+          skipUrlValidation: opts.skipUrlValidation,
+        });
         await addHistory({
           url: r.url,
           domain: r.domain,
@@ -72,6 +86,7 @@ program
         url,
         dynamic: opts.dynamic,
         timeoutMs,
+        skipUrlValidation: opts.skipUrlValidation,
       }),
     );
     instance.waitUntilExit().then(() => process.exit(0));
@@ -123,7 +138,7 @@ program
   .command("code")
   .argument("<name>", "Font name")
   .option(
-    "-f, --framework <fw>",
+    "--framework <fw>",
     "html | nextjs | nuxt | react",
     "nextjs",
   )
@@ -134,29 +149,24 @@ program
     "body",
   )
   .option("--alt <name>", "Use this Google Fonts name as the alternative")
-  .option("-o, --format <format>", "Output format (tui, text, json)", "tui")
+  .option("-f, --format <format>", "Output format (tui, text, json)")
+  .option("-o, --output <format>", "Alias for --format")
   .description("Generate copy-paste code for using a font")
   .action(async (name: string, opts) => {
     const config = await loadConfig();
     setTheme(config.theme);
 
-    const framework = opts.framework as "html" | "nextjs" | "nuxt" | "react";
-    if (!["html", "nextjs", "nuxt", "react"].includes(framework)) {
-      process.stderr.write(
-        `Unknown framework: ${framework}. Use html, nextjs, nuxt, or react.\n`,
-      );
-      process.exit(1);
-    }
-    const role = opts.role as "heading" | "body" | "display" | "monospace";
-    if (!["heading", "body", "display", "monospace"].includes(role)) {
-      process.stderr.write(`Unknown role: ${role}.\n`);
-      process.exit(1);
-    }
+    const framework = resolveChoice(opts.framework, "framework", FRAMEWORKS);
+    const role = resolveChoice(opts.role, "role", CODE_ROLES);
     const weights = String(opts.weights)
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    const format = resolveOutputFormat(opts.format, ["tui", "text", "json"]);
+    const format = resolveOutputFormat(opts.format ?? opts.output, [
+      "tui",
+      "text",
+      "json",
+    ]);
 
     if (format !== "tui") {
       const {
@@ -265,7 +275,7 @@ program
   .action(async (name: string, opts) => {
     const config = await loadConfig();
     setTheme(config.theme);
-    const role = opts.role === "display" ? "display" : "heading";
+    const role = resolveChoice(opts.role, "role", PAIR_ROLES);
     const format = resolveOutputFormat(opts.format, ["tui", "text", "json"]);
     if (format !== "tui") {
       const { pairFonts } = await import("./core/pair.ts");
@@ -529,6 +539,18 @@ function isGoogleFontCategory(
   category: string,
 ): category is (typeof GOOGLE_FONT_CATEGORIES)[number] {
   return (GOOGLE_FONT_CATEGORIES as readonly string[]).includes(category);
+}
+
+function resolveChoice<T extends string>(
+  raw: string,
+  label: string,
+  allowed: readonly T[],
+): T {
+  if ((allowed as readonly string[]).includes(raw)) return raw as T;
+  process.stderr.write(
+    `Unknown ${label}: ${raw}. Available: ${allowed.join(", ")}\n`,
+  );
+  process.exit(1);
 }
 
 function resolveOutputFormat(
