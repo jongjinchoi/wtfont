@@ -1,6 +1,6 @@
 {
   "name": "wtfont",
-  "version": "0.2.0",
+  "version": "0.1.1",
   "description": "Identify web fonts and find free Google Fonts alternatives from your terminal.",
   "type": "module",
   "main": "dist/npm/index.js",
