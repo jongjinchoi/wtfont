@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
-// 1934 fonts
-// Last updated: 2026-06-08T10:11:14.205Z
+// 1936 fonts
+// Last updated: 2026-06-15T11:38:58.417Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
@@ -43,6 +43,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["alexandria", "Alexandria|sans-serif"],
   ["alfa slab one", "Alfa Slab One|display"],
   ["alice", "Alice|serif"],
+  ["alien block", "Alien Block|display"],
   ["alike", "Alike|serif"],
   ["alike angular", "Alike Angular|serif"],
   ["alkalami", "Alkalami|serif"],
@@ -1456,6 +1457,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["playwrite vn guides", "Playwrite VN Guides|handwriting"],
   ["playwrite za", "Playwrite ZA|handwriting"],
   ["playwrite za guides", "Playwrite ZA Guides|handwriting"],
+  ["pliant", "Pliant|sans-serif"],
   ["plus jakarta sans", "Plus Jakarta Sans|sans-serif"],
   ["pochaevsk", "Pochaevsk|display"],
   ["podkova", "Podkova|serif"],
