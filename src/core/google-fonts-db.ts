@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
-// 1936 fonts
-// Last updated: 2026-06-29T10:15:32.870Z
+// 1940 fonts
+// Last updated: 2026-07-06T09:48:51.438Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
@@ -564,6 +564,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["gayathri", "Gayathri|sans-serif"],
   ["geist", "Geist|sans-serif"],
   ["geist mono", "Geist Mono|monospace"],
+  ["geist pixel", "Geist Pixel|display"],
   ["gelasio", "Gelasio|serif"],
   ["gemunu libre", "Gemunu Libre|sans-serif"],
   ["genos", "Genos|sans-serif"],
@@ -990,6 +991,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["montaga", "Montaga|serif"],
   ["montagu slab", "Montagu Slab|serif"],
   ["montecarlo", "MonteCarlo|handwriting"],
+  ["montenegrin gothic one", "Montenegrin Gothic One|serif"],
   ["montez", "Montez|handwriting"],
   ["montserrat", "Montserrat|sans-serif"],
   ["montserrat alternates", "Montserrat Alternates|sans-serif"],
@@ -1918,6 +1920,8 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["yuji mai", "Yuji Mai|serif"],
   ["yuji syuku", "Yuji Syuku|serif"],
   ["yusei magic", "Yusei Magic|sans-serif"],
+  ["yuyu", "Yuyu|handwriting"],
+  ["yuyu short", "Yuyu Short|handwriting"],
   ["zain", "Zain|sans-serif"],
   ["zalando sans", "Zalando Sans|sans-serif"],
   ["zalando sans expanded", "Zalando Sans Expanded|sans-serif"],
