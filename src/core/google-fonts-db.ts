@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
-// 1940 fonts
-// Last updated: 2026-07-06T09:48:51.438Z
+// 1942 fonts
+// Last updated: 2026-07-13T08:40:16.131Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
@@ -573,6 +573,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["geo", "Geo|sans-serif"],
   ["geologica", "Geologica|sans-serif"],
   ["geom", "Geom|sans-serif"],
+  ["geomini", "Geomini|sans-serif"],
   ["georama", "Georama|sans-serif"],
   ["geostar", "Geostar|display"],
   ["geostar fill", "Geostar Fill|display"],
@@ -645,6 +646,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["hepta slab", "Hepta Slab|serif"],
   ["herr von muellerhoff", "Herr Von Muellerhoff|handwriting"],
   ["hi melody", "Hi Melody|handwriting"],
+  ["hibur mono", "Hibur Mono|monospace"],
   ["hina mincho", "Hina Mincho|serif"],
   ["hind", "Hind|sans-serif"],
   ["hind guntur", "Hind Guntur|sans-serif"],
