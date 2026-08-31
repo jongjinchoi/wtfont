@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
-// 1942 fonts
-// Last updated: 2026-08-24T06:30:39.582Z
+// 1946 fonts
+// Last updated: 2026-08-31T11:56:53.526Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
@@ -124,6 +124,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["arya", "Arya|sans-serif"],
   ["asap", "Asap|sans-serif"],
   ["asap condensed", "Asap Condensed|sans-serif"],
+  ["asap sharp", "Asap Sharp|sans-serif"],
   ["asar", "Asar|serif"],
   ["asimovian", "Asimovian|sans-serif"],
   ["asset", "Asset|display"],
@@ -281,6 +282,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["butcherman", "Butcherman|display"],
   ["butterfly kids", "Butterfly Kids|handwriting"],
   ["bytesized", "Bytesized|sans-serif"],
+  ["caacupe one", "Caacupe One|display"],
   ["cabin", "Cabin|sans-serif"],
   ["cabin condensed", "Cabin Condensed|sans-serif"],
   ["cabin sketch", "Cabin Sketch|display"],
@@ -1646,6 +1648,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["schoolbell", "Schoolbell|handwriting"],
   ["science gothic", "Science Gothic|sans-serif"],
   ["scope one", "Scope One|serif"],
+  ["scoutie sans", "Scoutie Sans|sans-serif"],
   ["seaweed script", "Seaweed Script|display"],
   ["secular one", "Secular One|sans-serif"],
   ["sedan", "Sedan|serif"],
@@ -1852,6 +1855,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["uoqmunthenkhung", "UoqMunThenKhung|serif"],
   ["updock", "Updock|handwriting"],
   ["urbanist", "Urbanist|sans-serif"],
+  ["valley sans", "Valley Sans|sans-serif"],
   ["vampiro one", "Vampiro One|display"],
   ["varela", "Varela|sans-serif"],
   ["varela round", "Varela Round|sans-serif"],
