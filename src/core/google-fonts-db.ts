@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
 // 1946 fonts
-// Last updated: 2026-09-14T11:03:26.308Z
+// Last updated: 2026-09-21T11:13:24.204Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
