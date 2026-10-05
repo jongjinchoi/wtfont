@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
-// 1946 fonts
-// Last updated: 2026-09-28T12:07:58.227Z
+// 1950 fonts
+// Last updated: 2026-10-05T12:48:20.166Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
@@ -351,6 +351,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["chonburi", "Chonburi|display"],
   ["cinzel", "Cinzel|serif"],
   ["cinzel decorative", "Cinzel Decorative|display"],
+  ["clarity city", "Clarity City|sans-serif"],
   ["clicker script", "Clicker Script|handwriting"],
   ["climate crisis", "Climate Crisis|display"],
   ["coda", "Coda|display"],
@@ -713,6 +714,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["iosevka charon mono", "Iosevka Charon Mono|monospace"],
   ["irish grover", "Irish Grover|display"],
   ["island moments", "Island Moments|handwriting"],
+  ["isometra", "Isometra|serif"],
   ["istok web", "Istok Web|sans-serif"],
   ["italiana", "Italiana|sans-serif"],
   ["italianno", "Italianno|handwriting"],
@@ -807,6 +809,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["koulen", "Koulen|display"],
   ["kranky", "Kranky|display"],
   ["kreon", "Kreon|serif"],
+  ["kripa", "Kripa|sans-serif"],
   ["kristi", "Kristi|handwriting"],
   ["krona one", "Krona One|sans-serif"],
   ["krub", "Krub|sans-serif"],
@@ -858,6 +861,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["libre barcode ean13 text", "Libre Barcode EAN13 Text|display"],
   ["libre baskerville", "Libre Baskerville|serif"],
   ["libre bodoni", "Libre Bodoni|serif"],
+  ["libre caslon condensed", "Libre Caslon Condensed|serif"],
   ["libre caslon display", "Libre Caslon Display|serif"],
   ["libre caslon text", "Libre Caslon Text|serif"],
   ["libre franklin", "Libre Franklin|sans-serif"],
