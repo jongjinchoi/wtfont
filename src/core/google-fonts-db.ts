@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
-// 1950 fonts
-// Last updated: 2026-10-26T11:39:23.601Z
+// 1959 fonts
+// Last updated: 2026-11-02T13:57:19.583Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
@@ -1548,6 +1548,13 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["red rose", "Red Rose|display"],
   ["redacted", "Redacted|display"],
   ["redacted script", "Redacted Script|display"],
+  ["redaction", "Redaction|serif"],
+  ["redaction 10", "Redaction 10|serif"],
+  ["redaction 100", "Redaction 100|display"],
+  ["redaction 20", "Redaction 20|serif"],
+  ["redaction 35", "Redaction 35|display"],
+  ["redaction 50", "Redaction 50|display"],
+  ["redaction 70", "Redaction 70|display"],
   ["reddit mono", "Reddit Mono|monospace"],
   ["reddit sans", "Reddit Sans|sans-serif"],
   ["reddit sans condensed", "Reddit Sans Condensed|sans-serif"],
@@ -1812,7 +1819,8 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["tilt warp", "Tilt Warp|display"],
   ["timmana", "Timmana|sans-serif"],
   ["tinos", "Tinos|serif"],
-  ["tiny5", "Tiny5|sans-serif"],
+  ["tiny5", "Tiny5|display"],
+  ["tiny5 duo", "Tiny5 Duo|display"],
   ["tiro bangla", "Tiro Bangla|serif"],
   ["tiro devanagari hindi", "Tiro Devanagari Hindi|serif"],
   ["tiro devanagari marathi", "Tiro Devanagari Marathi|serif"],
@@ -1905,6 +1913,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["work sans", "Work Sans|sans-serif"],
   ["workbench", "Workbench|monospace"],
   ["xanh mono", "Xanh Mono|monospace"],
+  ["xmind", "Xmind|sans-serif"],
   ["yaldevi", "Yaldevi|sans-serif"],
   ["yanone kaffeesatz", "Yanone Kaffeesatz|sans-serif"],
   ["yantramanav", "Yantramanav|sans-serif"],
