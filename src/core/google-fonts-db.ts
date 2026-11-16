@@ -1,6 +1,6 @@
 // Auto-generated from fonts.google.com/metadata/fonts
-// 1959 fonts
-// Last updated: 2026-11-09T14:29:29.081Z
+// 1961 fonts
+// Last updated: 2026-11-16T14:05:46.074Z
 
 const GOOGLE_FONTS: Map<string, string> = new Map([
   ["abeezee", "ABeeZee|sans-serif"],
@@ -19,6 +19,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["afacad flux", "Afacad Flux|sans-serif"],
   ["agbalumo", "Agbalumo|display"],
   ["agdasima", "Agdasima|sans-serif"],
+  ["agrave pro", "Agrave Pro|handwriting"],
   ["agu display", "Agu Display|display"],
   ["aguafina script", "Aguafina Script|handwriting"],
   ["akatab", "Akatab|sans-serif"],
@@ -522,6 +523,7 @@ const GOOGLE_FONTS: Map<string, string> = new Map([
   ["fira sans", "Fira Sans|sans-serif"],
   ["fira sans condensed", "Fira Sans Condensed|sans-serif"],
   ["fira sans extra condensed", "Fira Sans Extra Condensed|sans-serif"],
+  ["firjar", "Firjar|sans-serif"],
   ["fjalla one", "Fjalla One|sans-serif"],
   ["fjord one", "Fjord One|serif"],
   ["flamenco", "Flamenco|display"],
